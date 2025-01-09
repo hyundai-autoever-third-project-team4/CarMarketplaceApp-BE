@@ -26,25 +26,23 @@ public class User {
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @Column(name = "email", nullable = false)
     private String email;
 
-    @Column(name = "password", nullable = false)
-    private String password;
-
-    @Column(name = "name", nullable = false)
-    private String name;
-
-    @Column(name = "phone", nullable = false)
-    private String phone;
-
-    @Column(name = "address", nullable = false)
-    private String address;
-
     @Column(name = "role", nullable = false)
     private String role;
+
+    @Column(name = "name")
+    private String name;
+
+    @Column(name = "phone")
+    private String phone;
+
+    @Column(name = "address")
+    private String address;
+
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Like> likes = new ArrayList<>();
@@ -60,4 +58,15 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Reservation> reservations = new ArrayList<>();
+
+    /**
+     * 업데이트를 수행하면서 새로운 User 객체를 반환
+     */
+    public User updateRole(String newRole) {
+        return User.builder()
+                .id(this.id)         // 기존 ID 유지
+                .email(this.email)   // 기존 이메일 유지
+                .role(newRole)       // 새로운 역할로 업데이트
+                .build();
+    }
 }
