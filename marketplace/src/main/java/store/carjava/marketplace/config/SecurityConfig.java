@@ -10,6 +10,7 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import store.carjava.marketplace.common.security.CustomOAuth2SuccessHandler;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -17,7 +18,11 @@ import java.util.List;
 
 @Configuration
 public class SecurityConfig {
+    private final CustomOAuth2SuccessHandler customOAuth2SuccessHandler;
 
+    public SecurityConfig(CustomOAuth2SuccessHandler customOAuth2SuccessHandler) {
+        this.customOAuth2SuccessHandler = customOAuth2SuccessHandler;
+    }
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
@@ -49,7 +54,8 @@ public class SecurityConfig {
                 )
                 .oauth2Login(oauth2 -> oauth2
                         .loginPage("/oauth2/authorization/keycloak")
-                        .defaultSuccessUrl("/", true)
+                        .successHandler(customOAuth2SuccessHandler)
+//                        .defaultSuccessUrl("/", true)
                 )
                 .logout(logout -> logout
                         .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
