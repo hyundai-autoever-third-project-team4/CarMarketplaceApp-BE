@@ -27,7 +27,7 @@ public class Review {
 
 
     @Id @GeneratedValue
-    private String id;
+    private Long id;
 
     @OneToOne()
     @JoinColumn(name ="marketplace_car_id", nullable = false)
@@ -42,16 +42,16 @@ public class Review {
 
 
     @Column(nullable = false)
-    private String model; //car에서 가져와??
+    private String model; //리뷰작성시 넣어줘.
 
     @Column(nullable = false)
     private String content;
 
-    @Column(nullable = false)
-    private LocalDateTime created_at;
+    @Column(name = "created_at", nullable = false)
+    private LocalDateTime createdAt;
 
-    @Column(nullable = false)
-    private Double star_rate;
+    @Column(name="star_rate",nullable = false)
+    private Double starRate;
 
 
 }
