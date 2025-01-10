@@ -10,6 +10,7 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import store.carjava.marketplace.common.security.CustomOAuth2SuccessHandler;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -17,7 +18,11 @@ import java.util.List;
 
 @Configuration
 public class SecurityConfig {
+    private final CustomOAuth2SuccessHandler customOAuth2SuccessHandler;
 
+    public SecurityConfig(CustomOAuth2SuccessHandler customOAuth2SuccessHandler) {
+        this.customOAuth2SuccessHandler = customOAuth2SuccessHandler;
+    }
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
@@ -44,12 +49,13 @@ public class SecurityConfig {
 
         http
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers(publicPaths.toArray(String[]::new)).permitAll()
-                        .anyRequest().authenticated()
+                        .requestMatchers(publicPaths.toArray(String[]::new)).permitAll() // 공개 경로
+                        .requestMatchers("/admin/**").hasRole("ADMIN") // /admin 경로는 ROLE_ADMIN만 접근 가능
+                        .anyRequest().authenticated() // 나머지 경로는 인증된 사용자만 접근 가능
                 )
                 .oauth2Login(oauth2 -> oauth2
                         .loginPage("/oauth2/authorization/keycloak")
-                        .defaultSuccessUrl("/", true)
+                        .successHandler(customOAuth2SuccessHandler) // Custom Success Handler
                 )
                 .logout(logout -> logout
                         .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
