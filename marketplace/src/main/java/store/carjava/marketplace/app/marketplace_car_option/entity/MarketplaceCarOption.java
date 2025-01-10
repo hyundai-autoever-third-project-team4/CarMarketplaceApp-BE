@@ -28,4 +28,6 @@ public class MarketplaceCarOption {
     @JoinColumn(name = "option_id")
     Option option;
 
+    @Column(name = "is_present")
+    private boolean isPresent;
 }
