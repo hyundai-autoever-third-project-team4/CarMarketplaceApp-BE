@@ -26,8 +26,11 @@ repositories {
 }
 
 dependencies {
-    // Thymeleaf : 어드민 페이지를 위한 의존성 설정
+    // Thymeleaf : 관리자 페이지를 위한 의존성 설정
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+
+    // Thymeleaf-Dialect : 관리자 페이지 템플릿 레이아웃 구조 설정
+    implementation group: 'nz.net.ultraq.thymeleaf', name: 'thymeleaf-layout-dialect', version: '3.3.0'
 
     /* [ Swagger ] Spring Doc 2.6.0  */
     // Swagger를 사용하여 API 문서화 (Spring Boot 통합)
