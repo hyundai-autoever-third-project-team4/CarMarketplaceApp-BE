@@ -54,8 +54,7 @@ public class SecurityConfig {
                 )
                 .oauth2Login(oauth2 -> oauth2
                         .loginPage("/oauth2/authorization/keycloak")
-                        .successHandler(customOAuth2SuccessHandler)
-//                        .defaultSuccessUrl("/", true)
+                        .successHandler(customOAuth2SuccessHandler) // Custom Success Handler
                 )
                 .logout(logout -> logout
                         .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
