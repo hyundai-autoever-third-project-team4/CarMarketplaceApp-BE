@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+
 @Embeddable
 @Getter
 @NoArgsConstructor
@@ -58,4 +60,8 @@ public class CarDetails {
 
     @Column(name = "vehicle_type", nullable = false)
     private String vehicleType;
+
+    @Column(name = "registration_date", nullable = false)
+    private LocalDate registrationDate; // 차량 등록일자
+
 }
