@@ -43,10 +43,15 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
 
         // DB에 사용자 저장 또는 업데이트
         User user = userRepository.findByEmail(email)
-                .orElseGet(() -> User.builder()
-                        .email(email)
-                        .role(role)
-                        .build());
+                .orElseGet(() -> {
+                    // 새로운 사용자 생성
+                    User newUser = User.builder()
+                            .email(email)
+                            .role(role)
+                            .build();
+                    // 새로운 사용자 저장
+                    return userRepository.save(newUser);
+                });
 
         if (!user.getRole().equals(role)) {
             userRepository.save(user.updateRole(role));
@@ -67,6 +72,7 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
         // 인증 성공 후 리다이렉션
         response.sendRedirect("/");
     }
+
 }
 
 
