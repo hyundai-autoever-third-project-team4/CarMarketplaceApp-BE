@@ -26,6 +26,9 @@ repositories {
 }
 
 dependencies {
+    // Thymeleaf : 어드민 페이지를 위한 의존성 설정
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+
     /* [ Swagger ] Spring Doc 2.6.0  */
     // Swagger를 사용하여 API 문서화 (Spring Boot 통합)
     implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.6.0'
