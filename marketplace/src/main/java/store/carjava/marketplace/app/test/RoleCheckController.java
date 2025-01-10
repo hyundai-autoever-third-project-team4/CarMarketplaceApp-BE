@@ -1,4 +1,4 @@
-package store.carjava.marketplace.app;
+package store.carjava.marketplace.app.test;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
