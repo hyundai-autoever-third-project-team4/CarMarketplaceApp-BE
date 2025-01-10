@@ -48,4 +48,11 @@ public class AdminController {
     public String carsPage(Model model) {
         return "admin/cars";
     }
+
+    @GetMapping("/tasks")
+    public String tasksPage(Model model) {
+        return "admin/tasks";
+    }
+
+
 }
