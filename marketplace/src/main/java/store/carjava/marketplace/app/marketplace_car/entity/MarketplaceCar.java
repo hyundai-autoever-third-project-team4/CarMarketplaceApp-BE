@@ -16,6 +16,7 @@ import store.carjava.marketplace.app.reservation.entity.Reservation;
 import store.carjava.marketplace.app.test_drive_center.entity.TestDriveCenter;
 import store.carjava.marketplace.app.vo.CarDetails;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -70,14 +71,8 @@ public class MarketplaceCar {
     @Column(name = "name", nullable = false)
     private String name; // 차량 전체 이름
 
-    @Column(name = "price", nullable = false)
-    private Long price; // 판매 가격
-
     @Column(name = "registration_date", nullable = false)
     private LocalDate registrationDate; // 차량 등록일자
-
-    @Column(name = "marketplace_registration_date", nullable = false)
-    private LocalDate marketplaceRegistrationDate; // 중고차 사이트 등록일
 
     @Column(name = "seating_capacity", nullable = false)
     private Integer seatingCapacity; // 탑승 인원
@@ -91,6 +86,12 @@ public class MarketplaceCar {
     @ManyToOne
     @JoinColumn(name = "test_driver_center_id")
     TestDriveCenter testDriveCenter;
+
+    @Column(name = "price", nullable = false)
+    private Long price; // 판매 가격
+
+    @Column(name = "marketplace_registration_date", nullable = false)
+    private LocalDate marketplaceRegistrationDate; // 중고차 사이트 등록일
 
     @Column(name = "status", nullable = false)
     private String status; // 차량 상태
