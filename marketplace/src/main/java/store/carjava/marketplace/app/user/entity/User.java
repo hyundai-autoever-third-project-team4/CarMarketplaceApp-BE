@@ -1,11 +1,11 @@
 package store.carjava.marketplace.app.user.entity;
 
-
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
 import store.carjava.marketplace.app.car_purchase_history.entity.CarPurchaseHistory;
 import store.carjava.marketplace.app.car_sales_history.entity.CarSalesHistory;
 import store.carjava.marketplace.app.like.entity.Like;
@@ -43,7 +43,6 @@ public class User {
     @Column(name = "address")
     private String address;
 
-
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Like> likes = new ArrayList<>();
 
@@ -69,4 +68,5 @@ public class User {
                 .role(newRole)       // 새로운 역할로 업데이트
                 .build();
     }
+
 }

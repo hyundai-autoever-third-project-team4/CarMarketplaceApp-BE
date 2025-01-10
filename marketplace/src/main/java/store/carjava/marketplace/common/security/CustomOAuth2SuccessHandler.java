@@ -53,6 +53,7 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
                     return userRepository.save(newUser);
                 });
 
+
         if (!user.getRole().equals(role)) {
             userRepository.save(user.updateRole(role));
         }
