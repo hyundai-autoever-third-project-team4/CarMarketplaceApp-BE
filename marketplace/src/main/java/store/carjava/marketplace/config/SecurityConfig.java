@@ -49,8 +49,9 @@ public class SecurityConfig {
 
         http
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers(publicPaths.toArray(String[]::new)).permitAll()
-                        .anyRequest().authenticated()
+                        .requestMatchers(publicPaths.toArray(String[]::new)).permitAll() // 공개 경로
+                        .requestMatchers("/admin/**").hasRole("ADMIN") // /admin 경로는 ROLE_ADMIN만 접근 가능
+                        .anyRequest().authenticated() // 나머지 경로는 인증된 사용자만 접근 가능
                 )
                 .oauth2Login(oauth2 -> oauth2
                         .loginPage("/oauth2/authorization/keycloak")
