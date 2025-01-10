@@ -8,6 +8,7 @@ import store.carjava.marketplace.app.marketplace_car.entity.MarketplaceCar;
 import store.carjava.marketplace.app.marketplace_car.repository.MarketplaceCarRepository;
 import store.carjava.marketplace.app.review.dto.ReviewCreateRequest;
 import store.carjava.marketplace.app.review.dto.ReviewCreateResponse;
+import store.carjava.marketplace.app.review.dto.ReviewInfoDto;
 import store.carjava.marketplace.app.review.dto.ReviewInfoListDto;
 import store.carjava.marketplace.app.review.entity.Review;
 import store.carjava.marketplace.app.review.repository.ReviewRepository;
@@ -15,6 +16,8 @@ import store.carjava.marketplace.app.user.entity.User;
 import store.carjava.marketplace.app.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -34,6 +37,7 @@ public class ReviewService {
                 .orElseThrow(() -> new EntityNotFoundException("Car not found with id:"+request.getCarId() ));
 
 
+        //임시 유저
         User user = userRepository.findById(1L)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with id: 1"));
 
@@ -47,14 +51,21 @@ public class ReviewService {
                 .createdAt(LocalDateTime.now())
                 .build();
 
-        // 리뷰를 저장하고 응답을 반환합니다
+        // 리뷰를 저장하고 응답을 반환
         Review savedReview = reviewRepository.save(review);
         return ReviewCreateResponse.of(savedReview);
 
     }
 
-    /*public ReviewInfoListDto getMyReviews(Long userId) {
+    public ReviewInfoListDto getMyReviews(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with id: 1"));
-    }*/
+
+        List<ReviewInfoDto> reviewInfoList = reviewRepository.findAllByUserId(userId)
+                .stream()
+                .map(ReviewInfoDto::of)
+                .collect(Collectors.toList());
+
+        return ReviewInfoListDto.of(reviewInfoList);
+    }
 }
