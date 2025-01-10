@@ -7,18 +7,20 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import store.carjava.marketplace.app.user.entity.User;
 import store.carjava.marketplace.web.admin.service.AdminService;
 
 import java.util.List;
 
 @Controller
+@RequestMapping("/admin")
 @RequiredArgsConstructor
 public class AdminController {
 
     private final AdminService adminService;
 
-    @GetMapping("/admin")
+    @GetMapping
     public String adminPage(Model model) {
         // 현재 인증된 사용자의 Authentication 객체 가져오기
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -40,5 +42,10 @@ public class AdminController {
         model.addAttribute("users", users);
 
         return "admin/index";
+    }
+
+    @GetMapping("/cars")
+    public String carsPage(Model model) {
+        return "admin/cars";
     }
 }

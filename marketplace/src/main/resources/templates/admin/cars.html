@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{admin/layout}">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>차량 관리</title>
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+  <style>
+    .car-image {
+      width: 150px;
+      height: auto;
+    }
+  </style>
+</head>
+
+<body>
+<div layout:fragment="content">
+  <h1>차량 관리</h1>
+  <!-- 차량 리스트 -->
+  <div class="table-responsive mt-4">
+    <h2 class="mb-3">차량 관리</h2>
+    <table class="table table-striped align-middle">
+      <thead class="table-dark">
+      <tr>
+        <th>이미지</th>
+        <th>브랜드</th>
+        <th>모델</th>
+        <th>연식</th>
+        <th>주행거리</th>
+        <th>가격</th>
+        <th>번호판</th>
+        <th>등록일자</th>
+        <th>상태</th>
+        <th>상세 정보</th>
+      </tr>
+      </thead>
+      <tbody>
+      <!-- Mock Data 1 -->
+      <tr>
+        <td>
+          <img src="https://certified-static.hyundai.com/contents/goods/shootConts/tobepic/02/exterior/GJK240903008701/PRD602_233.JPG/dims/crop/2304x1536+600+770/resize/380x253/optimize"
+               alt="Car Image" class="car-image">
+        </td>
+        <td>현대</td>
+        <td>투싼</td>
+        <td>2022</td>
+        <td>48,537 km</td>
+        <td>2390만원</td>
+        <td>303누7499</td>
+        <td>2022-09-01</td>
+        <td>판매 중</td>
+        <td>
+          <a href="/admin/car/details/1" class="btn btn-primary btn-sm">보기</a>
+        </td>
+      </tr>
+      <!-- Mock Data 2 -->
+      <tr>
+        <td>
+          <img src="https://certified-static.hyundai.com/contents/goods/shootConts/tobepic/02/exterior/GJK240903008702/PRD602_234.JPG/dims/crop/2304x1536+600+770/resize/380x253/optimize"
+               alt="Car Image" class="car-image">
+        </td>
+        <td>기아</td>
+        <td>스포티지</td>
+        <td>2023</td>
+        <td>32,500 km</td>
+        <td>2750만원</td>
+        <td>504다6321</td>
+        <td>2023-05-15</td>
+        <td>판매 대기</td>
+        <td>
+          <a href="/admin/car/details/2" class="btn btn-primary btn-sm">보기</a>
+        </td>
+      </tr>
+      </tbody>
+<!--      <tbody>-->
+<!--      <tr th:each="car : ${cars}">-->
+<!--        <td>-->
+<!--          <img src="https://certified-static.hyundai.com/contents/goods/shootConts/tobepic/02/exterior/GJK240903008701/PRD602_233.JPG/dims/crop/2304x1536+600+770/resize/380x253/optimize"-->
+<!--               alt="Car Image" class="car-image">-->
+<!--        </td>-->
+<!--        <td th:text="${car.brand}">현대</td>-->
+<!--        <td th:text="${car.model}">투싼</td>-->
+<!--        <td th:text="${car.modelYear}">2022</td>-->
+<!--        <td th:text="${car.mileage + ' km'}">48,537 km</td>-->
+<!--        <td th:text="${car.price + '만원'}">2390만원</td>-->
+<!--        <td th:text="${car.licensePlate}">303누7499</td>-->
+<!--        <td th:text="${#dates.format(car.marketplaceRegistrationDate, 'yyyy-MM-dd')}">2022-09-01</td>-->
+<!--        <td th:text="${car.status}">판매 중</td>-->
+<!--        <td>-->
+<!--          <a th:href="@{/admin/car/details/{id}(id=${car.id})}" class="btn btn-primary btn-sm">보기</a>-->
+<!--        </td>-->
+<!--      </tr>-->
+<!--      </tbody>-->
+    </table>
+  </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
