@@ -42,7 +42,7 @@ public class Review {
 
 
     @Column(nullable = false)
-    private String model; //리뷰작성시 넣어줘.
+    private String model; //car에서 가져와??
 
     @Column(nullable = false)
     private String content;
@@ -50,7 +50,7 @@ public class Review {
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    @Column(name="star_rate",nullable = false)
+    @Column(name = "star_rate", nullable = false)
     private Double starRate;
 
 

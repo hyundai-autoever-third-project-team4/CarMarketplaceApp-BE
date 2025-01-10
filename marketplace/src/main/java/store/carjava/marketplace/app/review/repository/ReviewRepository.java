@@ -12,6 +12,6 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     //특정 사용자의 모든 리뷰 조회
     List<Review> findByUserId(Long userId);
 
-    //특정 모델의
+    //특정 모델의 리뷰 조회 ex) g70, 그랜저...
     List<Review> findByMarketplaceCarId(String carId);
 }

@@ -10,7 +10,7 @@ import store.carjava.marketplace.app.review.service.ReviewService;
 
 @RestController
 @RequiredArgsConstructor
-@Tag(name = "Review", description = "내가 산 차 리뷰 관련 API")
+@Tag(name = "Review", description = "산 차 리뷰 관련 API")
 public class ReviewController {
     private final ReviewService reviewService;
     public ResponseEntity<ReviewCreateResponse>
