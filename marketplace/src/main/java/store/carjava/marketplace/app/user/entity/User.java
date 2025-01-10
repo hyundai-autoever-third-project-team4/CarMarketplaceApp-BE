@@ -6,22 +6,32 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import store.carjava.marketplace.app.car_purchase_history.entity.CarPurchaseHistory;
+import store.carjava.marketplace.app.car_sales_history.entity.CarSalesHistory;
+import store.carjava.marketplace.app.like.entity.Like;
+import store.carjava.marketplace.app.reservation.entity.Reservation;
+import store.carjava.marketplace.app.review.entity.Review;
+
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
-@Getter
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
 @Table(name = "user")
 public class User {
 
     @Id
+    @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(name = "email", nullable = false)
     private String email;
 
-    @Column(nullable = false)
+    @Column(name = "role", nullable = false)
     private String role;
 
     // 추가 정보 (nullable 허용)
@@ -34,7 +44,23 @@ public class User {
     @Column
     private String address;
 
-    /**
+    
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Like> likes = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CarSalesHistory> carSalesHistories = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CarPurchaseHistory> carPurchaseHistories = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Review> reviews = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Reservation> reservations = new ArrayList<>();
+  
+     /**
      * 업데이트를 수행하면서 새로운 User 객체를 반환
      */
     public User updateRole(String newRole) {
@@ -44,4 +70,5 @@ public class User {
                 .role(newRole)       // 새로운 역할로 업데이트
                 .build();
     }
+
 }
