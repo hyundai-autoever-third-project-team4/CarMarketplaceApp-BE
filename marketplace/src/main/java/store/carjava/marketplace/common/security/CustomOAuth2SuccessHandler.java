@@ -4,6 +4,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -13,6 +14,8 @@ import org.springframework.security.oauth2.client.authentication.OAuth2Authentic
 
 import java.io.IOException;
 import java.util.List;
+
+import org.springframework.security.core.context.SecurityContextHolder;
 
 @Component
 public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler {
@@ -27,38 +30,43 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
     public void onAuthenticationSuccess(HttpServletRequest request,
                                         HttpServletResponse response,
                                         Authentication authentication) throws IOException, ServletException {
-        // 인증된 사용자 정보 가져오기
         OAuth2AuthenticationToken authToken = (OAuth2AuthenticationToken) authentication;
         OidcUser oidcUser = (OidcUser) authToken.getPrincipal();
 
-        // 사용자 정보 추출
-        String email = oidcUser.getAttribute("email"); // 이메일
-        List<String> groups = oidcUser.getAttribute("groups"); // 역할 정보
+        String email = oidcUser.getAttribute("email");
+        List<String> groups = oidcUser.getAttribute("groups");
 
-        // 역할 필터링: ROLE_로 시작하는 값만 추출
         String role = groups.stream()
                 .filter(group -> group.startsWith("ROLE_"))
                 .findFirst()
-                .orElse("ROLE_USER"); // 기본 역할 설정
+                .orElse("ROLE_USER");
 
-        // 기존 사용자 조회
-        User existingUser = userRepository.findByEmail(email).orElse(null);
+        // DB에 사용자 저장 또는 업데이트
+        User user = userRepository.findByEmail(email)
+                .orElseGet(() -> User.builder()
+                        .email(email)
+                        .role(role)
+                        .build());
 
-        if (existingUser == null) {
-            // 신규 사용자 생성 및 저장
-            User newUser = User.builder()
-                    .email(email)
-                    .role(role)
-                    .build();
-            userRepository.save(newUser);
-        } else if (!existingUser.getRole().equals(role)) {
-            // 역할이 변경되었을 경우 새로운 객체 생성 및 저장
-            User updatedUser = existingUser.updateRole(role);
-            userRepository.save(updatedUser);
+        if (!user.getRole().equals(role)) {
+            userRepository.save(user.updateRole(role));
         }
+
+        // Spring Security 권한 설정
+        List<SimpleGrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(role));
+
+        Authentication updatedAuth = new OAuth2AuthenticationToken(
+                oidcUser,
+                authorities,
+                authToken.getAuthorizedClientRegistrationId()
+        );
+
+        // SecurityContext에 새로운 Authentication 설정
+        SecurityContextHolder.getContext().setAuthentication(updatedAuth);
 
         // 인증 성공 후 리다이렉션
         response.sendRedirect("/");
     }
 }
+
 
