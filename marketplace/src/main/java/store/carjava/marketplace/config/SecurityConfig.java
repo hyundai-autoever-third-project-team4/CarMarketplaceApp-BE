@@ -1,67 +1,57 @@
 package store.carjava.marketplace.config;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import store.carjava.marketplace.common.security.CustomOAuth2SuccessHandler;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
+import store.carjava.marketplace.common.security.JwtAuthenticationFilter;
 
 @Configuration
+@RequiredArgsConstructor
 public class SecurityConfig {
-    private final CustomOAuth2SuccessHandler customOAuth2SuccessHandler;
 
-    public SecurityConfig(CustomOAuth2SuccessHandler customOAuth2SuccessHandler) {
-        this.customOAuth2SuccessHandler = customOAuth2SuccessHandler;
-    }
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-        // CSRF 설정 비활성화 (특정 경로만 비활성화)
-        http.csrf(csrf -> csrf.ignoringRequestMatchers(
-                "/api-docs/**",
-                "/swagger-ui/**"
-        ));
+        // CSRF 비활성화
+        http.csrf(AbstractHttpConfigurer::disable);
 
         // 세션 관리 설정
-        http.sessionManagement(sessionConfig -> sessionConfig.sessionCreationPolicy(
-                SessionCreationPolicy.IF_REQUIRED));
+        http.sessionManagement(
+                session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         // CORS 설정 추가
-        http.cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer.configurationSource(corsConfigurationSource()));
+        http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
 
-        // 인증 없이 허용할 경로 리스트
+        // 인증 및 권한 설정
         List<String> publicPaths = List.of(
-                "/",
                 "/swagger-ui/**",
                 "/api-docs/**",
-                "/resources/**"
+                "/resources/**",
+                "/login-page",
+                "/login/**"
         );
 
         http
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(publicPaths.toArray(String[]::new)).permitAll() // 공개 경로
-                        .requestMatchers("/admin/**").hasRole("ADMIN") // /admin 경로는 ROLE_ADMIN만 접근 가능
-                        .anyRequest().authenticated() // 나머지 경로는 인증된 사용자만 접근 가능
+                        .requestMatchers("/admin/**").hasRole("ADMIN") // ROLE_ADMIN만 허용
+                        .anyRequest().authenticated() // 나머지 요청은 인증 필요
                 )
-                .oauth2Login(oauth2 -> oauth2
-                        .loginPage("/oauth2/authorization/keycloak")
-                        .successHandler(customOAuth2SuccessHandler) // Custom Success Handler
-                )
-                .logout(logout -> logout
-                        .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
-                        .logoutSuccessUrl("/")
-                        .invalidateHttpSession(true)
-                );
+                // 커스텀 JWT 필터 추가
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
@@ -73,17 +63,17 @@ public class SecurityConfig {
         // 허용할 출처 설정
         configuration.setAllowedOrigins(List.of(
                 "http://localhost:3000",
-                "http://localhost:8080"
+                "http://localhost:8081",
+                "https://chajava.store"
         ));
 
         // 허용할 HTTP 메서드 설정
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-
-        // 쿠키와 자격 증명 사용을 허용
-        configuration.setAllowCredentials(true);
+        configuration.setAllowedMethods(
+                Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
 
         // 허용할 헤더 설정
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept", "Origin"));
+        configuration.setAllowedHeaders(
+                Arrays.asList("Authorization", "Content-Type", "Accept", "Origin"));
 
         // 클라이언트에서 접근 가능한 헤더 설정
         configuration.setExposedHeaders(List.of("Authorization", "Content-Type"));
