@@ -1,5 +1,6 @@
 package store.carjava.marketplace.app.auth.controller;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -38,6 +39,7 @@ public class AuthController {
 
     private final AuthService authService; // AuthService 주입
 
+    @Hidden
     @GetMapping("/login")
     public RedirectView redirectToKeycloak() {
         log.info("Redirecting to Keycloak for authentication");
@@ -50,6 +52,7 @@ public class AuthController {
         return new RedirectView(url); // Keycloak 인증 페이지로 리다이렉트
     }
 
+    @Hidden
     @GetMapping("/login/redirect")
     @ResponseBody
     public ResponseEntity<TokenResponse> callback(HttpServletRequest request) {
