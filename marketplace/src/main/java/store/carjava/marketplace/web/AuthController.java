@@ -2,16 +2,12 @@ package store.carjava.marketplace.web;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.stereotype.Controller;
@@ -34,20 +30,28 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final String clientId = "key-cloak-malak";
-    private final String clientSecret = "Z35EFO8DwEJrzhgfWS18aoDKg2FwFbjw";
-    private final String redirectUri = "http://localhost:8081/login/callback";
-    private final String authorizationUri = "https://keycloakmalak.site/realms/key-cloak-malak-realm/protocol/openid-connect/auth";
-    private final String tokenUri = "https://keycloakmalak.site/realms/key-cloak-malak-realm/protocol/openid-connect/token";
+    @Value("${spring.security.oauth2.client.registration.keycloak.client-id}")
+    private String clientId;
 
-    private final RestTemplate restTemplate = new RestTemplate();
-    private final JwtDecoder jwtDecoder;
+    @Value("${spring.security.oauth2.client.registration.keycloak.client-secret}")
+    private String clientSecret;
 
-    private final UserRepository userRepository;
+    @Value("${spring.security.oauth2.client.registration.keycloak.redirect-uri}")
+    private String redirectUri;
+
+    @Value("${spring.security.oauth2.client.provider.keycloak.authorization-uri}")
+    private String authorizationUri;
+
+    @Value("${spring.security.oauth2.client.provider.keycloak.token-uri}")
+    private String tokenUri;
+
+    private final RestTemplate restTemplate = new RestTemplate(); // RestTemplate 객체
+    private final JwtDecoder jwtDecoder; // JWT 디코더
+    private final UserRepository userRepository; // 사용자 저장소
 
     @GetMapping("/login")
     public String loginPage() {
-        return "login/index";
+        return "login/index"; // 로그인 페이지 반환
     }
 
     @GetMapping("/login/redirect")
@@ -58,14 +62,14 @@ public class AuthController {
                 "&redirect_uri=" + redirectUri +
                 "&scope=openid profile email";
 
-        return new RedirectView(url);
+        return new RedirectView(url); // 리다이렉트 URL 반환
     }
 
     @GetMapping("/login/callback")
     public String callback(HttpServletRequest request, Model model) {
         String code = request.getParameter("code");
         model.addAttribute("authorizationCode", code);
-        return "login/callback";
+        return "login/callback"; // Callback 페이지 반환
     }
 
     @PostMapping("/login/auth/token")
@@ -92,23 +96,23 @@ public class AuthController {
 
         TokenResponse tokenResponse = response.getBody();
 
-        // Decode JWT and extract user information
+        // AccessToken 디코드 및 사용자 정보 추출
         String accessToken = tokenResponse.getAccessToken();
         Jwt jwt = jwtDecoder.decode(accessToken);
 
         String email = jwt.getClaimAsString("email");
 
-        // Extract "roles" from "realm_access"
+        // "realm_access"에서 역할 추출
         Map<String, Object> realmAccess = jwt.getClaim("realm_access");
         List<String> roles = (List<String>) realmAccess.get("roles");
 
-        // Extract ROLE_ values or assign default ROLE_USER
+        // ROLE_로 시작하는 값을 추출하거나 기본 ROLE_USER 설정
         String role = roles.stream()
                 .filter(r -> r.startsWith("ROLE_"))
                 .findFirst()
                 .orElse("ROLE_USER");
 
-        // 저장 또는 업데이트 로직
+        // 사용자 저장 또는 업데이트 로직
         User user = userRepository.findByEmail(email)
                 .orElseGet(() -> {
                     User newUser = User.builder()
@@ -119,26 +123,9 @@ public class AuthController {
                 });
 
         if (!user.getRole().equals(role)) {
-            userRepository.save(user.updateRole(role));
+            userRepository.save(user.updateRole(role)); // 사용자 역할 업데이트
         }
 
-        // Create UserDetails and Authentication object
-        UserDetails userDetails = new org.springframework.security.core.userdetails.User(
-                user.getEmail(),
-                "",
-                List.of(new SimpleGrantedAuthority(user.getRole()))
-        );
-
-        Authentication authentication = new UsernamePasswordAuthenticationToken(
-                userDetails,
-                null,
-                userDetails.getAuthorities()
-        );
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        return ResponseEntity.ok(tokenResponse);
+        return ResponseEntity.ok(tokenResponse); // 토큰 응답 반환
     }
-
-
-
 }
