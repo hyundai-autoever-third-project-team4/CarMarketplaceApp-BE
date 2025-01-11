@@ -108,4 +108,12 @@ public class ReviewService {
         return ReviewInfoListDto.of(reviewInfoList);
 
     }
+
+    //리뷰 상세 조회
+    public ReviewInfoDto getReviewDetail(Long reviewId) {
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new EntityNotFoundException("Review not found with id: " + reviewId));
+
+        return ReviewInfoDto.of(review);
+    }
 }

@@ -8,10 +8,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import store.carjava.marketplace.app.review.dto.ReviewCreateRequest;
-import store.carjava.marketplace.app.review.dto.ReviewCreateResponse;
-import store.carjava.marketplace.app.review.dto.ReviewDeleteResponse;
-import store.carjava.marketplace.app.review.dto.ReviewInfoListDto;
+import store.carjava.marketplace.app.review.dto.*;
 import store.carjava.marketplace.app.review.service.ReviewService;
 
 @RestController
@@ -56,6 +53,16 @@ public class ReviewController {
         ReviewInfoListDto carReviews = reviewService.getCarReviews(carId);
         return ResponseEntity.ok(carReviews);
     }
+
+    @Operation(description = "리뷰 상세 조회")
+    @GetMapping("/review/{reviewId}")
+    public ResponseEntity<ReviewInfoDto> getReviewDetail(
+            @Parameter(description = "리뷰 고유 Id") @PathVariable Long reviewId
+    ){
+        ReviewInfoDto reviewDetail = reviewService.getReviewDetail(reviewId);
+        return ResponseEntity.ok(reviewDetail);
+    }
+
 
 
 }
