@@ -44,7 +44,8 @@ public class SecurityConfig {
                 "/",
                 "/swagger-ui/**",
                 "/api-docs/**",
-                "/resources/**"
+                "/resources/**",
+                "/login/**"
         );
 
         http
@@ -53,10 +54,10 @@ public class SecurityConfig {
                         .requestMatchers("/admin/**").hasRole("ADMIN") // /admin 경로는 ROLE_ADMIN만 접근 가능
                         .anyRequest().authenticated() // 나머지 경로는 인증된 사용자만 접근 가능
                 )
-                .oauth2Login(oauth2 -> oauth2
-                        .loginPage("/oauth2/authorization/keycloak")
-                        .successHandler(customOAuth2SuccessHandler) // Custom Success Handler
-                )
+//                .oauth2Login(oauth2 -> oauth2
+//                        .loginPage("/oauth2/authorization/keycloak")
+//                        .successHandler(customOAuth2SuccessHandler) // Custom Success Handler
+//                )
                 .logout(logout -> logout
                         .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
                         .logoutSuccessUrl("/")
