@@ -2,6 +2,7 @@ package store.carjava.marketplace.web;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -28,6 +29,7 @@ import java.util.Map;
 
 @Controller
 @RequiredArgsConstructor
+@Slf4j
 public class AuthController {
 
     @Value("${spring.security.oauth2.client.registration.keycloak.client-id}")
@@ -45,17 +47,22 @@ public class AuthController {
     @Value("${spring.security.oauth2.client.provider.keycloak.token-uri}")
     private String tokenUri;
 
+    @Value("${spring.security.oauth2.client.provider.keycloak.user-info-uri}")
+    private String userInfoUri;
+
     private final RestTemplate restTemplate = new RestTemplate(); // RestTemplate 객체
     private final JwtDecoder jwtDecoder; // JWT 디코더
     private final UserRepository userRepository; // 사용자 저장소
 
     @GetMapping("/login")
     public String loginPage() {
+        log.info("Navigating to login page");
         return "login/index"; // 로그인 페이지 반환
     }
 
     @GetMapping("/login/redirect")
     public RedirectView redirectToKeycloak() {
+        log.info("Redirecting to Keycloak for authentication");
         String url = authorizationUri +
                 "?response_type=code" +
                 "&client_id=" + clientId +
@@ -67,6 +74,7 @@ public class AuthController {
 
     @GetMapping("/login/callback")
     public String callback(HttpServletRequest request, Model model) {
+        log.info("Handling callback from Keycloak");
         String code = request.getParameter("code");
         model.addAttribute("authorizationCode", code);
         return "login/callback"; // Callback 페이지 반환
@@ -75,6 +83,21 @@ public class AuthController {
     @PostMapping("/login/auth/token")
     @ResponseBody
     public ResponseEntity<TokenResponse> getToken(@RequestBody TokenRequest tokenRequest) {
+        log.info("Requesting access token from Keycloak");
+        TokenResponse tokenResponse = requestAccessToken(tokenRequest);
+        String accessToken = tokenResponse.getAccessToken();
+
+        log.info("Requesting user info from Keycloak");
+        Map<String, Object> userInfo = requestUserInfo(accessToken);
+
+        log.info("Saving or updating user in the database");
+        saveOrUpdateUser(userInfo);
+
+        return ResponseEntity.ok(tokenResponse); // 토큰 응답 반환
+    }
+
+    private TokenResponse requestAccessToken(TokenRequest tokenRequest) {
+        log.info("Calling Keycloak token endpoint");
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
@@ -94,38 +117,52 @@ public class AuthController {
                 TokenResponse.class
         );
 
-        TokenResponse tokenResponse = response.getBody();
+        log.info("Access token received successfully");
+        return response.getBody();
+    }
 
-        // AccessToken 디코드 및 사용자 정보 추출
-        String accessToken = tokenResponse.getAccessToken();
-        Jwt jwt = jwtDecoder.decode(accessToken);
+    private Map<String, Object> requestUserInfo(String accessToken) {
+        log.info("Calling Keycloak user info endpoint");
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(accessToken);
 
-        String email = jwt.getClaimAsString("email");
+        HttpEntity<?> requestEntity = new HttpEntity<>(headers);
 
-        // "realm_access"에서 역할 추출
-        Map<String, Object> realmAccess = jwt.getClaim("realm_access");
-        List<String> roles = (List<String>) realmAccess.get("roles");
+        ResponseEntity<Map> response = restTemplate.exchange(
+                userInfoUri,
+                HttpMethod.GET,
+                requestEntity,
+                Map.class
+        );
 
-        // ROLE_로 시작하는 값을 추출하거나 기본 ROLE_USER 설정
-        String role = roles.stream()
-                .filter(r -> r.startsWith("ROLE_"))
-                .findFirst()
-                .orElse("ROLE_USER");
+        log.info("User info received successfully");
+        Map<String, Object> userInfo = response.getBody();
 
-        // 사용자 저장 또는 업데이트 로직
-        User user = userRepository.findByEmail(email)
+        // Log all user info fields
+        if (userInfo != null) {
+            userInfo.forEach((key, value) -> log.info("User info field - {}: {}", key, value));
+        } else {
+            log.warn("No user info received");
+        }
+
+        return userInfo;
+    }
+
+
+    private void saveOrUpdateUser(Map<String, Object> userInfo) {
+        log.info("Saving or updating user in the database");
+        String email = (String) userInfo.get("email");
+        String preferredUsername = (String) userInfo.get("preferred_username");
+
+        userRepository.findByEmail(email)
                 .orElseGet(() -> {
+                    log.info("Creating a new user with email: {}", email);
                     User newUser = User.builder()
                             .email(email)
-                            .role(role)
+                            .name(preferredUsername)
+                            .role("ROLE_USER") // 기본 역할 설정
                             .build();
                     return userRepository.save(newUser);
                 });
-
-        if (!user.getRole().equals(role)) {
-            userRepository.save(user.updateRole(role)); // 사용자 역할 업데이트
-        }
-
-        return ResponseEntity.ok(tokenResponse); // 토큰 응답 반환
     }
 }
