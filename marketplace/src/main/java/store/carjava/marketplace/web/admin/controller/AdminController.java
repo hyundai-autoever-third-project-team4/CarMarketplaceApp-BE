@@ -54,5 +54,21 @@ public class AdminController {
         return "admin/tasks";
     }
 
+    @GetMapping("/users")
+    public String usersPage(Model model) {
+        return "admin/users";
+    }
+    @GetMapping("/car-purchases")
+    public String carPurchasesPage(Model model) {
+        return "admin/car-purchases";
+    }
+    @GetMapping("/car-sales")
+    public String carSalesPage(Model model) {
+        return "admin/car-sales";
+    }
+    @GetMapping("/test-drives")
+    public String testDrivesPage(Model model) {
+        return "admin/test-drives";
+    }
 
 }
