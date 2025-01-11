@@ -2,6 +2,7 @@ package store.carjava.marketplace.app.auth.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -26,8 +27,33 @@ public class AuthService {
     private final RestTemplate restTemplate = new RestTemplate();
     private final UserRepository userRepository;
 
-    public TokenResponse requestAccessToken(String tokenUri, TokenRequest tokenRequest,
-            String clientId, String clientSecret, String redirectUri) {
+    @Value("${spring.security.oauth2.client.registration.keycloak.client-id}")
+    private String clientId;
+
+    @Value("${spring.security.oauth2.client.registration.keycloak.client-secret}")
+    private String clientSecret;
+
+    @Value("${spring.security.oauth2.client.registration.keycloak.redirect-uri}")
+    private String redirectUri;
+
+    @Value("${spring.security.oauth2.client.provider.keycloak.authorization-uri}")
+    private String authorizationUri;
+
+    @Value("${spring.security.oauth2.client.provider.keycloak.token-uri}")
+    private String tokenUri;
+
+    @Value("${spring.security.oauth2.client.provider.keycloak.user-info-uri}")
+    private String userInfoUri;
+
+    public String getAuthorizationUrl() {
+        return authorizationUri +
+                "?response_type=code" +
+                "&client_id=" + clientId +
+                "&redirect_uri=" + redirectUri +
+                "&scope=openid profile email";
+    }
+
+    public TokenResponse requestAccessToken(TokenRequest tokenRequest) {
         log.info("Calling Keycloak token endpoint");
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
@@ -52,7 +78,7 @@ public class AuthService {
         return response.getBody();
     }
 
-    public Map<String, Object> requestUserInfo(String userInfoUri, String accessToken) {
+    public Map<String, Object> requestUserInfo(String accessToken) {
         log.info("Calling Keycloak user info endpoint");
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(accessToken);

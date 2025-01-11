@@ -5,7 +5,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -19,36 +18,14 @@ import store.carjava.marketplace.app.auth.service.AuthService;
 @RequiredArgsConstructor
 @Slf4j
 public class AuthController {
-    @Value("${spring.security.oauth2.client.registration.keycloak.client-id}")
-    private String clientId;
 
-    @Value("${spring.security.oauth2.client.registration.keycloak.client-secret}")
-    private String clientSecret;
-
-    @Value("${spring.security.oauth2.client.registration.keycloak.redirect-uri}")
-    private String redirectUri;
-
-    @Value("${spring.security.oauth2.client.provider.keycloak.authorization-uri}")
-    private String authorizationUri;
-
-    @Value("${spring.security.oauth2.client.provider.keycloak.token-uri}")
-    private String tokenUri;
-
-    @Value("${spring.security.oauth2.client.provider.keycloak.user-info-uri}")
-    private String userInfoUri;
-
-    private final AuthService authService; // AuthService 주입
+    private final AuthService authService;
 
     @Hidden
     @GetMapping("/login")
     public RedirectView redirectToKeycloak() {
         log.info("Redirecting to Keycloak for authentication");
-        String url = authorizationUri +
-                "?response_type=code" +
-                "&client_id=" + clientId +
-                "&redirect_uri=" + redirectUri +
-                "&scope=openid profile email";
-
+        String url = authService.getAuthorizationUrl();
         return new RedirectView(url); // Keycloak 인증 페이지로 리다이렉트
     }
 
@@ -69,15 +46,14 @@ public class AuthController {
         // Access Token 요청
         TokenRequest tokenRequest = new TokenRequest(authorizationCode);
 
-        TokenResponse tokenResponse = authService.requestAccessToken(
-                tokenUri, tokenRequest, clientId, clientSecret, redirectUri
-        );
+        TokenResponse tokenResponse = authService.requestAccessToken(tokenRequest);
 
         // 사용자 정보 요청 및 저장
-        Map<String, Object> userInfo = authService.requestUserInfo(userInfoUri, tokenResponse.accessToken());
+        Map<String, Object> userInfo = authService.requestUserInfo(tokenResponse.accessToken());
         authService.saveOrUpdateUser(userInfo);
 
         log.info("Returning tokens to the frontend");
         return ResponseEntity.ok(tokenResponse);
     }
 }
+
