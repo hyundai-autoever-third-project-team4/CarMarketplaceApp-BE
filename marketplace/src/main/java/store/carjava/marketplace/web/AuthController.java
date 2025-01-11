@@ -69,31 +69,41 @@ public class AuthController {
                 "&redirect_uri=" + redirectUri +
                 "&scope=openid profile email";
 
-        return new RedirectView(url); // 리다이렉트 URL 반환
+        return new RedirectView(url); // Keycloak 인증 페이지로 리다이렉트
     }
 
     @GetMapping("/login/callback")
-    public String callback(HttpServletRequest request, Model model) {
-        log.info("Handling callback from Keycloak");
-        String code = request.getParameter("code");
-        model.addAttribute("authorizationCode", code);
-        return "login/callback"; // Callback 페이지 반환
-    }
-
-    @PostMapping("/login/auth/token")
     @ResponseBody
-    public ResponseEntity<TokenResponse> getToken(@RequestBody TokenRequest tokenRequest) {
-        log.info("Requesting access token from Keycloak");
+    public ResponseEntity<TokenResponse> callback(HttpServletRequest request) {
+        log.info("Handling callback from Keycloak");
+
+        // Keycloak으로부터 authorization code를 가져옴
+        String authorizationCode = request.getParameter("code");
+
+        if (authorizationCode == null) {
+            log.error("Authorization code not received");
+            return ResponseEntity.badRequest().build();
+        }
+
+        // TokenRequest 객체 생성
+        TokenRequest tokenRequest = new TokenRequest();
+        tokenRequest.setAuthorizationCode(authorizationCode);
+
+        log.info("Requesting access token using the received authorization code");
+        // Access Token 요청 및 처리
         TokenResponse tokenResponse = requestAccessToken(tokenRequest);
-        String accessToken = tokenResponse.getAccessToken();
 
-        log.info("Requesting user info from Keycloak");
-        Map<String, Object> userInfo = requestUserInfo(accessToken);
+        // 사용자 정보 요청
+        log.info("Requesting user info directly after obtaining access token");
+        Map<String, Object> userInfo = requestUserInfo(tokenResponse.getAccessToken());
 
+        // 사용자 정보 저장 또는 업데이트
         log.info("Saving or updating user in the database");
         saveOrUpdateUser(userInfo);
 
-        return ResponseEntity.ok(tokenResponse); // 토큰 응답 반환
+        // AccessToken과 RefreshToken 반환
+        log.info("Returning tokens to the frontend");
+        return ResponseEntity.ok(tokenResponse);
     }
 
     private TokenResponse requestAccessToken(TokenRequest tokenRequest) {
