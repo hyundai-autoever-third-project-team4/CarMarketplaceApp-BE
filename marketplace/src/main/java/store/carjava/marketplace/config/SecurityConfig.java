@@ -23,18 +23,16 @@ public class SecurityConfig {
     public SecurityConfig(CustomOAuth2SuccessHandler customOAuth2SuccessHandler) {
         this.customOAuth2SuccessHandler = customOAuth2SuccessHandler;
     }
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-        // CSRF 설정 비활성화 (특정 경로만 비활성화)
-        http.csrf(csrf -> csrf.ignoringRequestMatchers(
-                "/api-docs/**",
-                "/swagger-ui/**"
-        ));
+        // CSRF 비활성화 (모든 경로)
+        http.csrf(AbstractHttpConfigurer::disable);
 
         // 세션 관리 설정
         http.sessionManagement(sessionConfig -> sessionConfig.sessionCreationPolicy(
-                SessionCreationPolicy.IF_REQUIRED));
+                SessionCreationPolicy.STATELESS));
 
         // CORS 설정 추가
         http.cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer.configurationSource(corsConfigurationSource()));
@@ -54,10 +52,6 @@ public class SecurityConfig {
                         .requestMatchers("/admin/**").hasRole("ADMIN") // /admin 경로는 ROLE_ADMIN만 접근 가능
                         .anyRequest().authenticated() // 나머지 경로는 인증된 사용자만 접근 가능
                 )
-//                .oauth2Login(oauth2 -> oauth2
-//                        .loginPage("/oauth2/authorization/keycloak")
-//                        .successHandler(customOAuth2SuccessHandler) // Custom Success Handler
-//                )
                 .logout(logout -> logout
                         .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
                         .logoutSuccessUrl("/")
@@ -74,7 +68,8 @@ public class SecurityConfig {
         // 허용할 출처 설정
         configuration.setAllowedOrigins(List.of(
                 "http://localhost:3000",
-                "http://localhost:8080"
+                "http://localhost:8081",
+                "https://chajava.store"
         ));
 
         // 허용할 HTTP 메서드 설정
