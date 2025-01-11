@@ -40,6 +40,7 @@ public class SecurityConfig {
                 "/swagger-ui/**",
                 "/api-docs/**",
                 "/resources/**",
+                "/login-page",
                 "/login/**"
         );
 
