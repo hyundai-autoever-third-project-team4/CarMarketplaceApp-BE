@@ -6,40 +6,30 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import store.carjava.marketplace.common.security.CustomOAuth2SuccessHandler;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 @Configuration
 public class SecurityConfig {
-    private final CustomOAuth2SuccessHandler customOAuth2SuccessHandler;
-
-    public SecurityConfig(CustomOAuth2SuccessHandler customOAuth2SuccessHandler) {
-        this.customOAuth2SuccessHandler = customOAuth2SuccessHandler;
-    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-        // CSRF 비활성화 (모든 경로)
+        // CSRF 비활성화
         http.csrf(AbstractHttpConfigurer::disable);
 
         // 세션 관리 설정
-        http.sessionManagement(sessionConfig -> sessionConfig.sessionCreationPolicy(
-                SessionCreationPolicy.STATELESS));
+        http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         // CORS 설정 추가
-        http.cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer.configurationSource(corsConfigurationSource()));
+        http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
 
-        // 인증 없이 허용할 경로 리스트
+        // 인증 및 권한 설정
         List<String> publicPaths = List.of(
-                "/",
                 "/swagger-ui/**",
                 "/api-docs/**",
                 "/resources/**",
@@ -49,14 +39,10 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(publicPaths.toArray(String[]::new)).permitAll() // 공개 경로
-                        .requestMatchers("/admin/**").hasRole("ADMIN") // /admin 경로는 ROLE_ADMIN만 접근 가능
-                        .anyRequest().authenticated() // 나머지 경로는 인증된 사용자만 접근 가능
+                        .requestMatchers("/admin/**").hasRole("ADMIN") // ROLE_ADMIN만 허용
+                        .anyRequest().authenticated() // 나머지 요청은 인증 필요
                 )
-                .logout(logout -> logout
-                        .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
-                        .logoutSuccessUrl("/")
-                        .invalidateHttpSession(true)
-                );
+                .oauth2ResourceServer(oauth2 -> oauth2.jwt()); // JwtDecoder 호출 삭제
 
         return http.build();
     }
@@ -74,9 +60,6 @@ public class SecurityConfig {
 
         // 허용할 HTTP 메서드 설정
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-
-        // 쿠키와 자격 증명 사용을 허용
-        configuration.setAllowCredentials(true);
 
         // 허용할 헤더 설정
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept", "Origin"));

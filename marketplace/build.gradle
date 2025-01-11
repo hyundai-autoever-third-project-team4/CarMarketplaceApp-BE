@@ -42,8 +42,8 @@ dependencies {
     // Spring Security: 보안 기능 (인증 및 권한 관리)
     implementation 'org.springframework.boot:spring-boot-starter-security'
 
-    // OAuth2 클라이언트: 소셜 로그인 및 인증을 위한 OAuth2 지원
-    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+    // OAuth2 리소스 서버: JWT 검증 및 권한 처리
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
 
     // Spring Web: RESTful 웹 애플리케이션을 개발하기 위한 기본 구성
     implementation 'org.springframework.boot:spring-boot-starter-web'
