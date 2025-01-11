@@ -10,8 +10,8 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
 
     //특정 사용자의 모든 리뷰 조회
-    List<Review> findAllByUserId(Long userId);
+    List<Review> findAllByUserIdOrderByCreatedAtDesc(Long userId);
 
-    //특정 모델의 리뷰 조회 ex) g70, 그랜저...
-    List<Review> findByModel(String model);
+    //차량 상세에서 carId로 동종 모델 모델의 리뷰 조회. 최신순 5개 ex) g70, 그랜저...
+    List<Review> findTop5ByMarketplaceCar_CarDetails_ModelOrderByCreatedAtDesc(String model);
 }

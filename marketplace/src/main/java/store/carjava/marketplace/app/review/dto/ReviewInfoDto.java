@@ -15,7 +15,7 @@ public record ReviewInfoDto(
         @Schema(description = "리뷰 내용", example = "차량 상태가 매우 좋았습니다.")
         String content,
 
-        @Schema(description = "리뷰 작성 시간")
+        @Schema(description = "리뷰 작성 일시")
         LocalDateTime createdAt,
 
         @Schema(description = "차이름", example = "2023 GV70 가솔린 2.5 터보 AWD 스탠다드 디자인")

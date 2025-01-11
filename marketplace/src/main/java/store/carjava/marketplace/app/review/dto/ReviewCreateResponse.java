@@ -9,7 +9,7 @@ public record ReviewCreateResponse(
         @Schema(description = "생성된 리뷰 ID", example = "1")
         Long reviewId,
 
-        @Schema(description = "별점", example = "4.5")
+        @Schema(title = "별점", example = "4.5")
         Double starRate,
 
         @Schema(description = "리뷰 내용", example = "차량 상태가 매우 좋았습니다.")
