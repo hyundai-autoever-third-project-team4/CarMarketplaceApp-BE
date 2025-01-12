@@ -37,6 +37,7 @@ public class SecurityConfig {
 
         // 인증 및 권한 설정
         List<String> publicPaths = List.of(
+                "/swagger-ui**",
                 "/swagger-ui/**",
                 "/api-docs/**",
                 "/resources/**",
