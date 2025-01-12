@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{admin/layout}">
+<head>
+    <title>차자바 관리자 대시보드</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <h1>어서오세요, 관리자님</h1>
+    <p><strong>관리자 Email:</strong> <span th:text="${email}">admin@example.com</span></p>
+    <p><strong>관리자 Roles:</strong> <span th:text="${roles}">[ROLE_ADMIN]</span></p>
+
+    <!-- 통계 카드 -->
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="card text-white bg-primary mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">가입한 전체 유저</h5>
+                    <p class="card-text" th:text="${users.size()} + ' 명'">0 명</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-white bg-success mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">차량 총 판매액</h5>
+                    <p class="card-text" th:text="${totalSales} + '원'">123,400,000원</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-white bg-warning mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">처리해야 할 작업</h5>
+                    <p class="card-text" th:text="${pendingTasks}">8</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 유저 목록 표 -->
+    <div class="table-responsive mt-4">
+        <table class="table table-striped">
+            <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Address</th>
+                <th>Role</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="user : ${users}">
+                <td th:text="${user.id}">1</td>
+                <td th:text="${user.name}">John Doe</td>
+                <td th:text="${user.email}">john@example.com</td>
+                <td th:text="${user.phone}">010-1234-5678</td>
+                <td th:text="${user.address}">경기도 성남시</td>
+                <td th:text="${user.role}">USER</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>
