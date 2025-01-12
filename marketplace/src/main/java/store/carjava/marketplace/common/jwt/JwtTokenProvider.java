@@ -38,6 +38,7 @@ public class JwtTokenProvider {
                 .setIssuedAt(new Date())                 // iat 설정
                 .setExpiration(
                         new Date(System.currentTimeMillis() + accessTokenExpiration)) // exp 설정
+                .claim("email", user.getEmail())
                 .claim("role", user.getRole())           // role 추가 (커스텀 클레임)
                 .claim("typ", "Bearer")                  // typ 추가
                 .signWith(signingKey, SignatureAlgorithm.HS256) // 서명

@@ -1,5 +1,6 @@
 package store.carjava.marketplace.app.auth.service;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -114,6 +115,7 @@ public class AuthService {
                 Map.class
         );
 
+
         log.info("User info received successfully");
         return response.getBody();
     }
@@ -124,19 +126,34 @@ public class AuthService {
         String email = (String) userInfo.get("email");
         String preferredUsername = (String) userInfo.get("preferred_username");
 
+        // groups에서 ROLE_로 시작하는 역할 추출
+        List<String> groups = (List<String>) userInfo.get("groups");
+        String role = groups.stream()
+                .filter(group -> group.startsWith("ROLE_")) // ROLE_로 시작하는 역할 필터링
+                .findFirst()
+                .orElse("ROLE_USER"); // 없으면 기본 ROLE_USER 설정
+
         // 기존 사용자 조회 또는 새 사용자 생성
         User user = userRepository.findByEmail(email)
                 .orElseGet(() -> {
                     log.info("Creating a new user with email: {}", email);
                     User newUser = User.builder()
                             .email(email)
-                            .role("ROLE_USER") // 기본 역할 설정
+                            .name(preferredUsername)
+                            .role(role) // 추출한 역할 설정
                             .build();
                     return userRepository.save(newUser);
                 });
 
+        // 역할이 변경된 경우 업데이트
+        if (!user.getRole().equals(role)) {
+            log.info("Updating role for user: {} from {} to {}", email, user.getRole(), role);
+            user = user.updateRole(role);
+            userRepository.save(user);
+        }
+
         log.info("User saved or updated: {}", user);
-        return user; // 저장 또는 조회된 User 반환
+        return user;
     }
 
 }
