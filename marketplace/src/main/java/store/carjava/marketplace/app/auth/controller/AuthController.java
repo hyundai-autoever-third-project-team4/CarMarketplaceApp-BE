@@ -13,6 +13,7 @@ import org.springframework.web.servlet.view.RedirectView;
 import store.carjava.marketplace.app.auth.dto.TokenRequest;
 import store.carjava.marketplace.app.auth.dto.TokenResponse;
 import store.carjava.marketplace.app.auth.service.AuthService;
+import store.carjava.marketplace.app.user.entity.User;
 
 @RestController
 @RequiredArgsConstructor
@@ -43,17 +44,8 @@ public class AuthController {
             return ResponseEntity.badRequest().build();
         }
 
-        // Access Token 요청
-        TokenRequest tokenRequest = new TokenRequest(authorizationCode);
-
-        TokenResponse tokenResponse = authService.requestAccessToken(tokenRequest);
-
-        // 사용자 정보 요청 및 저장
-        Map<String, Object> userInfo = authService.requestUserInfo(tokenResponse.accessToken());
-        authService.saveOrUpdateUser(userInfo);
-
-        log.info("Returning tokens to the frontend");
-        return ResponseEntity.ok(tokenResponse);
+        // service로 부터 로직 수행 후, 자체 accessToken, refreshToken 받기
+        return ResponseEntity.ok(authService.generateJwtToken(authorizationCode));
     }
 }
 

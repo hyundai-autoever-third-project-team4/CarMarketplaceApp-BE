@@ -18,6 +18,7 @@ import store.carjava.marketplace.app.user.entity.User;
 import store.carjava.marketplace.app.user.repository.UserRepository;
 
 import java.util.Map;
+import store.carjava.marketplace.common.jwt.JwtTokenProvider;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +27,7 @@ public class AuthService {
 
     private final RestTemplate restTemplate = new RestTemplate();
     private final UserRepository userRepository;
+    private final JwtTokenProvider jwtTokenProvider; // 주입된 JwtTokenProvider 사용
 
     @Value("${spring.security.oauth2.client.registration.keycloak.client-id}")
     private String clientId;
@@ -53,7 +55,27 @@ public class AuthService {
                 "&scope=openid profile email";
     }
 
-    public TokenResponse requestAccessToken(TokenRequest tokenRequest) {
+    public TokenResponse generateJwtToken(String authorizationCode) {
+        // 1) Authorization Code를 통해 key cloak에 accessToken, refreshToken 요청 생성
+        TokenRequest keycloakTokenRequest = TokenRequest.of(authorizationCode);
+
+        // 2) 해당 요청을 keycloak에 보내, accessToken, refreshToken response 생성
+        TokenResponse keycloakTokenResponse = requestAccessToken(keycloakTokenRequest);
+
+        // 3) response에 들어있는 accessToken을 통해, keycloak에 로그인 한 유저의 user_info 조회
+        Map<String, Object> userInfo = requestUserInfo(keycloakTokenResponse.accessToken());
+
+        // 4) 해당 user info를 바탕으로 db에 유저 생성 및 update
+        User user = saveOrUpdateUser(userInfo);
+
+        // 5) user 정보를 바탕으로 chajava만의 jwt 생성
+        String accessToken = jwtTokenProvider.generateAccessToken(user);
+        String refreshToken = jwtTokenProvider.generateRefreshToken(user.getId());
+
+        return new TokenResponse(accessToken, refreshToken);
+    }
+
+    private TokenResponse requestAccessToken(TokenRequest tokenRequest) {
         log.info("Calling Keycloak token endpoint");
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
@@ -78,7 +100,7 @@ public class AuthService {
         return response.getBody();
     }
 
-    public Map<String, Object> requestUserInfo(String accessToken) {
+    private Map<String, Object> requestUserInfo(String accessToken) {
         log.info("Calling Keycloak user info endpoint");
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(accessToken);
@@ -96,20 +118,25 @@ public class AuthService {
         return response.getBody();
     }
 
-    public void saveOrUpdateUser(Map<String, Object> userInfo) {
+    private User saveOrUpdateUser(Map<String, Object> userInfo) {
         log.info("Saving or updating user in the database");
+
         String email = (String) userInfo.get("email");
         String preferredUsername = (String) userInfo.get("preferred_username");
 
-        userRepository.findByEmail(email)
+        // 기존 사용자 조회 또는 새 사용자 생성
+        User user = userRepository.findByEmail(email)
                 .orElseGet(() -> {
                     log.info("Creating a new user with email: {}", email);
                     User newUser = User.builder()
                             .email(email)
-                            .name(preferredUsername)
                             .role("ROLE_USER") // 기본 역할 설정
                             .build();
                     return userRepository.save(newUser);
                 });
+
+        log.info("User saved or updated: {}", user);
+        return user; // 저장 또는 조회된 User 반환
     }
+
 }
