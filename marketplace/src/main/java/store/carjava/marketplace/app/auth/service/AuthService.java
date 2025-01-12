@@ -18,6 +18,7 @@ import store.carjava.marketplace.app.auth.dto.RefreshTokenRequest;
 import store.carjava.marketplace.app.auth.dto.TokenRequest;
 import store.carjava.marketplace.app.auth.dto.TokenResponse;
 import store.carjava.marketplace.app.user.entity.User;
+import store.carjava.marketplace.app.user.exception.UserIdNotFoundException;
 import store.carjava.marketplace.app.user.repository.UserRepository;
 
 import java.util.Map;
@@ -92,7 +93,7 @@ public class AuthService {
 
         // 3) userId로 user 조회
         User user = userRepository.findById(userId)
-                .orElseThrow();
+                .orElseThrow(UserIdNotFoundException::new);
 
         String accessToken = jwtTokenProvider.generateAccessToken(user);
 
