@@ -6,9 +6,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.view.RedirectView;
+import store.carjava.marketplace.app.auth.dto.RefreshTokenRequest;
 import store.carjava.marketplace.app.auth.dto.TokenResponse;
 import store.carjava.marketplace.app.auth.service.AuthService;
 
@@ -43,6 +46,15 @@ public class AuthController {
 
         // service로 부터 로직 수행 후, 자체 accessToken, refreshToken 받기
         return ResponseEntity.ok(authService.generateJwtToken(authorizationCode));
+    }
+
+    @PostMapping("/login/refresh")
+    public ResponseEntity<TokenResponse> refreshAccessToken(
+            @RequestBody RefreshTokenRequest refreshTokenRequest) {
+        log.info("Refreshing access token");
+
+        // service로 부터 로직 수행 후, 자체 accessToken return
+        return ResponseEntity.ok(authService.reIssueAccessToken(refreshTokenRequest));
     }
 }
 

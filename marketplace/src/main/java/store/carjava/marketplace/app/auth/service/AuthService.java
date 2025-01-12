@@ -1,5 +1,6 @@
 package store.carjava.marketplace.app.auth.service;
 
+import io.jsonwebtoken.Claims;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+import store.carjava.marketplace.app.auth.dto.RefreshTokenRequest;
 import store.carjava.marketplace.app.auth.dto.TokenRequest;
 import store.carjava.marketplace.app.auth.dto.TokenResponse;
 import store.carjava.marketplace.app.user.entity.User;
@@ -20,6 +22,7 @@ import store.carjava.marketplace.app.user.repository.UserRepository;
 
 import java.util.Map;
 import store.carjava.marketplace.common.jwt.JwtTokenProvider;
+import store.carjava.marketplace.common.jwt.JwtTokenVerifier;
 
 @Service
 @RequiredArgsConstructor
@@ -28,7 +31,8 @@ public class AuthService {
 
     private final RestTemplate restTemplate = new RestTemplate();
     private final UserRepository userRepository;
-    private final JwtTokenProvider jwtTokenProvider; // 주입된 JwtTokenProvider 사용
+    private final JwtTokenProvider jwtTokenProvider;
+    private final JwtTokenVerifier jwtTokenVerifier;
 
     @Value("${spring.security.oauth2.client.registration.keycloak.client-id}")
     private String clientId;
@@ -76,6 +80,25 @@ public class AuthService {
         return new TokenResponse(accessToken, refreshToken);
     }
 
+    public TokenResponse reIssueAccessToken(RefreshTokenRequest refreshTokenRequest) {
+
+        String refreshToken = refreshTokenRequest.refreshToken();
+
+        // 1) refreshToken verify
+        Claims claims = jwtTokenVerifier.verifyToken(refreshToken);
+
+        // 2) claim에서 sub (user id) 추출
+        Long userId = Long.valueOf(claims.getSubject());
+
+        // 3) userId로 user 조회
+        User user = userRepository.findById(userId)
+                .orElseThrow();
+
+        String accessToken = jwtTokenProvider.generateAccessToken(user);
+
+        return new TokenResponse(accessToken, refreshToken);
+    }
+
     private TokenResponse requestAccessToken(TokenRequest tokenRequest) {
         log.info("Calling Keycloak token endpoint");
         HttpHeaders headers = new HttpHeaders();
@@ -114,7 +137,6 @@ public class AuthService {
                 requestEntity,
                 Map.class
         );
-
 
         log.info("User info received successfully");
         return response.getBody();
