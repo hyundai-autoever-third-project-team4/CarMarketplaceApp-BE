@@ -29,7 +29,7 @@ public class Review {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private long id;
+    private Long id;
 
     @OneToOne()
     @JoinColumn(name ="marketplace_car_id", nullable = false)
@@ -49,11 +49,11 @@ public class Review {
     @Column(nullable = false)
     private String content;
 
-    @Column(nullable = false)
-    private LocalDateTime created_at;
+    @Column(name = "created_at", nullable = false)
+    private LocalDateTime createdAt;
 
-    @Column(nullable = false)
-    private Double star_rate;
+    @Column(name = "star_rate", nullable = false)
+    private Double starRate;
 
 
 }

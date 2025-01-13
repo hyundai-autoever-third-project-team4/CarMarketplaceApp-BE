@@ -20,7 +20,7 @@ public class TestDriveCenter {
 
     @Id
     @Column(name = "id", nullable = false)
-    private long id;
+    private Long id;
 
     @OneToMany(mappedBy = "testDriveCenter", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MarketplaceCar> marketplaceCars = new ArrayList<>();
