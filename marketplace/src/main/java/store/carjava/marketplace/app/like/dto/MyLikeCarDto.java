@@ -9,7 +9,7 @@ public record MyLikeCarDto(
         @Schema(description = "차량 ID", example = "GGI241223011164")
         String carId,
 
-        @Schema(description = "차량이름", example = "2021 G80 가솔린 2.5 터보 AWD 시그니처 디자인 셀렉션Ⅰ")
+        @Schema(description = "차량이름", example = "2021G80 가솔린 2.5 터보 AWD 시그니처 디자인 셀렉션Ⅰ")
         String name,
 
         @Schema(description = "번호판", example = "303누7499")
