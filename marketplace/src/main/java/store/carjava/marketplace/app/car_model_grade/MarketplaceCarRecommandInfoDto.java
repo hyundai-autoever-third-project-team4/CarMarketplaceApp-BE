@@ -21,10 +21,6 @@ public record MarketplaceCarRecommandInfoDto(
         @Schema(description = "차 이미지 주소", example = "https://certified...")
         String mainImage
 ) {
-        public static MarketplaceCarRecommandInfoDto of(String name){
-                return new MarketplaceCarRecommandInfoDto(name, null, null, null, null);
-        }
-
         public static MarketplaceCarRecommandInfoDto of(MarketplaceCar marketplaceCar){
                 DecimalFormat formatter = new DecimalFormat("#,###");
                 String price = formatter.format(marketplaceCar.getPrice() / 10000) + "만원";

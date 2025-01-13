@@ -3,6 +3,9 @@ package store.carjava.marketplace.app.car_model_grade;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 public record MarketplaceCarRecommandRequest(
+        @Schema(description = "차 id", example = "GJU241125010629")
+        String carId,
+
         @Schema(description = "차 종류", example = "승용")
         String vehicleType,
 
