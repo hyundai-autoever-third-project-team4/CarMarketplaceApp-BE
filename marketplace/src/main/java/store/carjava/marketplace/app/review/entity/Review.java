@@ -29,7 +29,7 @@ public class Review {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private long id;
+    private Long id;
 
     @OneToOne()
     @JoinColumn(name ="marketplace_car_id", nullable = false)
