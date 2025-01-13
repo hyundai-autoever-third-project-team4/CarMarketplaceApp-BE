@@ -21,7 +21,7 @@ public record ReviewCreateResponse(
         @Schema(description = "생성 완료 메시지", example = "리뷰가 성공적으로 생성되었습니다.")
         String message
 ) {
-    public static ReviewCreateResponse from(Review review) {
+    public static ReviewCreateResponse of(Review review) {
         return new ReviewCreateResponse(
                 review.getId(),
                 review.getStarRate(),

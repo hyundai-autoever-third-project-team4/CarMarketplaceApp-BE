@@ -35,12 +35,11 @@ public class ReviewController {
     }
 
     @Operation(description = "마이페이지 리뷰 삭제")
-    @DeleteMapping("/{userId}/review/{reviewId}")
+    @DeleteMapping("/review/{reviewId}")
     public ResponseEntity<ReviewDeleteResponse> deleteReview(
-            @Parameter(description = "회원 ID") @PathVariable Long userId,
             @Parameter(description = "삭제할 리뷰 ID") @PathVariable Long reviewId
     ) {
-        ReviewDeleteResponse responseDto = reviewService.deleteReview(userId, reviewId);
+        ReviewDeleteResponse responseDto = reviewService.deleteReview(reviewId);
         return ResponseEntity.ok(responseDto);
     }
 

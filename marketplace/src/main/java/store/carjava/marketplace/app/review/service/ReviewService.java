@@ -10,6 +10,7 @@ import store.carjava.marketplace.app.marketplace_car.repository.MarketplaceCarRe
 import store.carjava.marketplace.app.review.dto.*;
 import store.carjava.marketplace.app.review.entity.Review;
 import store.carjava.marketplace.app.review.exception.ReviewIdNotFoundException;
+import store.carjava.marketplace.app.review.exception.ReviewWriterNotMatchException;
 import store.carjava.marketplace.app.review.repository.ReviewRepository;
 import store.carjava.marketplace.app.user.entity.User;
 import store.carjava.marketplace.app.user.exception.UserIdNotFoundException;
@@ -56,7 +57,7 @@ public class ReviewService {
         // 리뷰를 저장하고 응답을 반환
         Review savedReview = reviewRepository.save(review);
 
-        return ReviewCreateResponse.from(savedReview);
+        return ReviewCreateResponse.of(savedReview);
 
     }
 
@@ -73,20 +74,22 @@ public class ReviewService {
         return ReviewInfoListDto.of(reviewInfoList);
     }
 
-    public ReviewDeleteResponse deleteReview(Long userId, Long reviewId) {
-        // 1. 리뷰 존재 여부 확인
+    public ReviewDeleteResponse deleteReview(Long reviewId) {
+
+        // 1. 현재 요청하는 사용자 추출
+        User currentUser = userResolver.getCurrentUser();
+
+        // 2. 리뷰 존재 여부 확인
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(ReviewIdNotFoundException::new);
 
-        // 2. 리뷰 작성자와 요청자가 같은지 확인
-        if (!review.getUser().getId().equals(userId)) {
-            throw new IllegalArgumentException("Writer and requester Not same");
-        }
+        // 3. 리뷰 작성자와 요청자가 같은지 확인
+        verifyReviewWriter(review.getUser().getId(), currentUser.getId());
 
-        //3. 리뷰 삭제
+        // 4. 리뷰 삭제
         reviewRepository.delete(review);
 
-        //4. 삭제 결과 반환
+        // 5. 삭제 결과 반환
         return ReviewDeleteResponse.of(reviewId);
 
     }
@@ -116,4 +119,11 @@ public class ReviewService {
 
         return ReviewInfoDto.of(review);
     }
+
+    private void verifyReviewWriter(long writerId, long currentUserId) {
+        if (writerId != currentUserId) {
+            throw new ReviewWriterNotMatchException();
+        }
+    }
+
 }
