@@ -14,6 +14,7 @@ import store.carjava.marketplace.app.review.repository.ReviewRepository;
 import store.carjava.marketplace.app.user.entity.User;
 import store.carjava.marketplace.app.user.exception.UserIdNotFoundException;
 import store.carjava.marketplace.app.user.repository.UserRepository;
+import store.carjava.marketplace.common.util.UserResolver;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -27,38 +28,35 @@ public class ReviewService {
     private final MarketplaceCarRepository carRepository;
     private final UserRepository userRepository;
 
+    private final UserResolver userResolver;
+
     public ReviewCreateResponse createReview(ReviewCreateRequest request) {
 
-
-        //        Member currentMember = memberResolver.getCurrentMember();
-
+        // 현재 요청하는 사용자 추출
+        User currentUser = userResolver.getCurrentUser();
 
         //차량 존재여부 확인
-        MarketplaceCar car = carRepository.findById(request.getCarId())
-                .orElseThrow(() -> new EntityNotFoundException("Car not found with id:"+request.getCarId() ));
-
-
-        //임시 유저
-        User user = userRepository.findById(1L)
-                .orElseThrow(UserIdNotFoundException::new);
+        MarketplaceCar car = carRepository.findById(request.carId())
+                .orElseThrow(() -> new EntityNotFoundException("Car not found with id:" + request.carId()));
 
         //리뷰 내용 공백 확인
-        if (StringUtils.isBlank(request.getContent())) {
+        if (StringUtils.isBlank(request.content())) {
             throw new IllegalArgumentException("리뷰 내용은 필수입니다");
         }
 
         Review review = Review.builder()
                 .marketplaceCar(car)
-                .user(user)
+                .user(currentUser)
                 .model(car.getCarDetails().getModel())
-                .content(request.getContent())
-                .starRate(request.getStarRate())
+                .content(request.content())
+                .starRate(request.starRate())
                 .createdAt(LocalDateTime.now())
                 .build();
 
         // 리뷰를 저장하고 응답을 반환
         Review savedReview = reviewRepository.save(review);
-        return ReviewCreateResponse.of(savedReview);
+
+        return ReviewCreateResponse.from(savedReview);
 
     }
 
@@ -96,7 +94,7 @@ public class ReviewService {
     public ReviewInfoListDto getCarReviews(String carId) {
         // 1. 차량 정보 조회
         MarketplaceCar car = carRepository.findById(carId)
-                .orElseThrow(() -> new EntityNotFoundException("Car not found with id: "+carId));
+                .orElseThrow(() -> new EntityNotFoundException("Car not found with id: " + carId));
 
 
         // 2. 차량 모델로 리뷰 조회
