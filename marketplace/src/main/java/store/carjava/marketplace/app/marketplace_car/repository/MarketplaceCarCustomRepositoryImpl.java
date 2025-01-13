@@ -4,7 +4,10 @@ import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import store.carjava.marketplace.app.marketplace_car.entity.MarketplaceCar;
@@ -18,6 +21,9 @@ import java.util.List;
 public class MarketplaceCarCustomRepositoryImpl implements MarketplaceCarCustomRepository {
 
     private final JPAQueryFactory queryFactory;
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @Override
     public List<MarketplaceCar> filterCars(String model, String fuelType, String brand, String colorType, String driveType,
@@ -126,24 +132,27 @@ public class MarketplaceCarCustomRepositoryImpl implements MarketplaceCarCustomR
 
     private BooleanExpression allOptionsTrue(QMarketplaceCarOption marketplaceCarOption, List<Long> optionIds) {
         if (optionIds == null || optionIds.isEmpty()) {
+            System.out.println("optionIds is null or empty.");
             return null;
         }
 
-        for(int i=0;i<optionIds.size();i++) {
-            System.out.println("############# : " + optionIds.get(i));
-        }
+        // 차량 테이블과 옵션 테이블을 조인하여 차량 ID를 조회
+        QMarketplaceCar marketplaceCar = QMarketplaceCar.marketplaceCar;
 
-        return JPAExpressions
-                .selectOne()
+        // 조건에 맞는 차량 ID들을 조회
+        List<String> validVehicleIds = new JPAQuery<>(entityManager)
+                .select(marketplaceCarOption.marketplaceCar.id)
                 .from(marketplaceCarOption)
-                .where(
-                        marketplaceCarOption.marketplaceCar.id.eq(marketplaceCarOption.marketplaceCar.id),
-                        marketplaceCarOption.option.id.in(optionIds),
-                        marketplaceCarOption.isPresent.isTrue()
-                )
-                .exists(); // exists()로 변경
-    }
+                .innerJoin(marketplaceCarOption.marketplaceCar, marketplaceCar) // 차량과 옵션을 조인
+                .where(marketplaceCarOption.option.id.in(optionIds)) // optionIds에 포함된 옵션들만 필터링
+                .where(marketplaceCarOption.isPresent.isTrue()) // isPresent = true인 옵션만 필터링
+                .groupBy(marketplaceCarOption.marketplaceCar.id) // 차량 ID 기준으로 그룹화
+                .having(marketplaceCarOption.option.id.count().eq((long) optionIds.size())) // optionIds에 포함된 옵션들만 존재하는 차량 필터링
+                .fetch();
 
+        // 조건에 맞는 차량들만 반환
+        return marketplaceCar.id.in(validVehicleIds);
+    }
 
     private BooleanExpression testDriveCenterNameEq(QMarketplaceCar marketplaceCar, String testDriveCenterName) {
         return testDriveCenterName == null ? null : marketplaceCar.testDriveCenter.name.eq(testDriveCenterName);
