@@ -76,7 +76,7 @@ public class MarketplaceCarCustomRepositoryImpl implements MarketplaceCarCustomR
         long total = query.fetchCount();
 
         // 페이징 처리
-        List<MarketplaceCar> results = query
+        List<MarketplaceCar> results =  query
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
@@ -126,11 +126,11 @@ public class MarketplaceCarCustomRepositoryImpl implements MarketplaceCarCustomR
     }
 
     private BooleanExpression priceGreaterOrEqual(QMarketplaceCar marketplaceCar, Long minPrice) {
-        return minPrice == null ? null : marketplaceCar.price.goe(minPrice);
+        return minPrice == null ? null : marketplaceCar.price.loe(minPrice);
     }
 
     private BooleanExpression priceLessOrEqual(QMarketplaceCar marketplaceCar, Long maxPrice) {
-        return maxPrice == null ? null : marketplaceCar.price.loe(maxPrice);
+        return maxPrice == null ? null : marketplaceCar.price.goe(maxPrice);
     }
 
     private BooleanExpression mileageGreaterOrEqual(QMarketplaceCar marketplaceCar, Integer minMileage) {
