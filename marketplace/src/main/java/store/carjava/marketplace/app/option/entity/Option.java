@@ -22,7 +22,7 @@ public class Option {
 
     @Id
     @Column(name = "id", nullable = false, unique = true)
-    private long id;
+    private Long id;
 
     @Column(name = "name", nullable = false)
     private String name;

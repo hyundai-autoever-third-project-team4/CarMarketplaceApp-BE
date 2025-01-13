@@ -42,7 +42,8 @@ public class SecurityConfig {
                 "/api-docs/**",
                 "/resources/**",
                 "/login-page",
-                "/login/**"
+                "/login/**",
+                "/filter/**"
         );
 
         http

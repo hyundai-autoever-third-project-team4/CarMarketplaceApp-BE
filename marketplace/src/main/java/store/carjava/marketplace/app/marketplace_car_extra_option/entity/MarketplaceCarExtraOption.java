@@ -19,7 +19,7 @@ public class MarketplaceCarExtraOption {
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @ManyToOne
     @JoinColumn(name = "marketplace_car_id")
