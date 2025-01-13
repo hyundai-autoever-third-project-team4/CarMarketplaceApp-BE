@@ -9,6 +9,9 @@ import store.carjava.marketplace.app.like.dto.LikeInfoDto;
 import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarDetailsDto;
 import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarResponse;
 import store.carjava.marketplace.app.marketplace_car.entity.MarketplaceCar;
+import store.carjava.marketplace.app.marketplace_car.exception.CarNotFoundException;
+import store.carjava.marketplace.app.marketplace_car.exception.MaxPriceLessThanMinPriceException;
+import store.carjava.marketplace.app.marketplace_car.exception.MinPriceExceedsMaxPriceException;
 import store.carjava.marketplace.app.marketplace_car.repository.MarketplaceCarRepository;
 import store.carjava.marketplace.app.marketplace_car_extra_option.dto.MarketplaceCarExtraOptionInfoDto;
 import store.carjava.marketplace.app.marketplace_car_image.dto.MarketplaceCarImageInfoDto;
@@ -35,14 +38,28 @@ public class MarketplaceCarService {
                                                         String sortOrder, Pageable pageable
     ) {
 
-        return marketplaceCarRepository.filterCars(model, fuelType, brand, colorType,
-                        driveType, licensePlate, transmission, vehicleType,
-                        modelYear, seatingCapacity, maxPrice, minPrice,minMileage,
-                        maxMileage, minModelYear, maxModelYear ,optionIds, testDriveCenterName,
-                        status, minEngineCapacity, maxEngineCapacity, name, sortOrder, pageable
-                )
+        // 비즈니스 로직 검증
+        if (minPrice != null && maxPrice != null &&
+                minPrice > maxPrice) {
+            throw new MinPriceExceedsMaxPriceException();
+        }
 
-                .stream()
+        if (minModelYear != null && maxModelYear != null &&
+                minModelYear > maxModelYear) {
+            throw new MaxPriceLessThanMinPriceException();
+        }
+
+        var filteredCars = marketplaceCarRepository.filterCars(model, fuelType, brand, colorType,
+                driveType, licensePlate, transmission, vehicleType,
+                modelYear, seatingCapacity, maxPrice, minPrice, minMileage,
+                maxMileage, minModelYear, maxModelYear, optionIds, testDriveCenterName,
+                status, minEngineCapacity, maxEngineCapacity, name, sortOrder, pageable);
+
+        if (filteredCars.isEmpty()) {
+            throw new CarNotFoundException(); // 예외 발생
+        }
+
+        return filteredCars.stream()
                 .map(this::buildMarketplaceCarResponse)
                 .toList();
     }
