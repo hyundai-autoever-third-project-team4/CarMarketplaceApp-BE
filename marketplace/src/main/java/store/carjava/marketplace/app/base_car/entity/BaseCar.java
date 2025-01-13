@@ -23,6 +23,9 @@ public class BaseCar {
     @Column(name = "id", nullable = false, unique = true)
     private String id; // 차량 ID (Primary Key, UUID)
 
+    @Column(name = "owner_name", nullable = false)
+    private String ownerName; // 차량 소유자 이름.
+
     @Embedded
     private CarDetails carDetails; //공통필드 클래스
 
