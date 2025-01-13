@@ -28,4 +28,7 @@ public class BaseCarOption {
     @ManyToOne
     @JoinColumn(name = "option_id")
     Option option;
+
+    @Column(name = "is_present")
+    private Boolean isPresent;
 }

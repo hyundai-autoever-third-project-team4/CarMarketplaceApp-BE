@@ -26,6 +26,8 @@ public class QBaseCarOption extends EntityPathBase<BaseCarOption> {
 
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
+    public final BooleanPath isPresent = createBoolean("isPresent");
+
     public final store.carjava.marketplace.app.option.entity.QOption option;
 
     public QBaseCarOption(String variable) {
