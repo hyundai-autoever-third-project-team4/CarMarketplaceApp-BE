@@ -5,6 +5,8 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import store.carjava.marketplace.app.like.dto.LikeResponse;
+import store.carjava.marketplace.app.like.dto.MyLikeCarDto;
+import store.carjava.marketplace.app.like.dto.MyLikeCarListResponse;
 import store.carjava.marketplace.app.like.entity.Like;
 import store.carjava.marketplace.app.like.repository.LikeRepository;
 import store.carjava.marketplace.app.marketplace_car.entity.MarketplaceCar;
@@ -12,6 +14,8 @@ import store.carjava.marketplace.app.marketplace_car.repository.MarketplaceCarRe
 import store.carjava.marketplace.app.user.entity.User;
 import store.carjava.marketplace.common.util.UserNotAuthenticatedException;
 import store.carjava.marketplace.common.util.UserResolver;
+
+import java.util.List;
 
 @Service
 @Transactional
@@ -52,5 +56,28 @@ public class LikeService {
         return new LikeResponse(
                 carId, currentUser.getId(), isLiked, totalLikeCount
         );
+    }
+
+    //마이페이지에서 찜한 차량 리스트 조회
+    public MyLikeCarListResponse getMyLikeCars() {
+        // 1. 로그인한 유저 정보 가져오기.
+        User currentUser = userResolver.getCurrentUser();
+        if (currentUser == null) {
+            throw new UserNotAuthenticatedException();
+        }
+
+        // 2. 유저가 좋아요한 모든 차량 조회
+        List<Like> likes = likeRepository.findByUser(currentUser);
+        Long totalCount = likeRepository.countByUser(currentUser);
+
+
+        List<MyLikeCarDto> likedCars = likes.stream()
+                .map(like -> MyLikeCarDto.of(
+                        like.getMarketplaceCar()
+                ))
+                .toList();
+
+        return new MyLikeCarListResponse(likedCars, totalCount);
+
     }
 }
