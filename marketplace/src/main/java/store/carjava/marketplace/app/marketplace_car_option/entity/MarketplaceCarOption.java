@@ -18,7 +18,7 @@ public class MarketplaceCarOption {
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @ManyToOne
     @JoinColumn(name = "car_id")
@@ -29,5 +29,5 @@ public class MarketplaceCarOption {
     Option option;
 
     @Column(name = "is_present")
-    private boolean isPresent;
+    private Boolean isPresent;
 }
