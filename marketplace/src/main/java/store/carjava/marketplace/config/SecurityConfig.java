@@ -42,15 +42,13 @@ public class SecurityConfig {
                 "/api-docs/**",
                 "/resources/**",
                 "/login-page",
-                "/login/**",
-                "/admin/**" // TODO : PR 전 처리 필요
+                "/login/**"
         );
 
         http
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(publicPaths.toArray(String[]::new)).permitAll() // 공개 경로
-                                // TODO : PR 전 처리 필요
-//                        .requestMatchers("/admin/**").hasRole("ADMIN") // ROLE_ADMIN만 허용
+                        .requestMatchers("/admin/**").hasRole("ADMIN") // ROLE_ADMIN만 허용
                         .anyRequest().authenticated() // 나머지 요청은 인증 필요
                 )
                 // 커스텀 JWT 필터 추가

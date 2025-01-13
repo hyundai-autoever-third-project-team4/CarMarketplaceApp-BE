@@ -22,44 +22,28 @@ public class AdminController {
 
     @GetMapping
     public String adminPage(Model model) {
+        // 현재 인증된 사용자의 Authentication 객체 가져오기
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        // ----------------------- 절취선 ------------------------
-        // 전체 사용자 정보 조회
-        List<User> users = adminService.getAllUsers();
+        if (authentication.getPrincipal() instanceof UserDetails userDetails) {
+            // 이메일 및 권한 정보 가져오기
+            String email = userDetails.getUsername();
 
-        // 모델에 사용자 정보 추가
-        model.addAttribute("email", "admin@chajava.store");
-        model.addAttribute("roles", "ROLE_ADMIN");
+            // 전체 사용자 정보 조회
+            List<User> users = adminService.getAllUsers();
 
-        // 모델에 가입한 유저 정보 추가
-        model.addAttribute("users", users);
+            // 모델에 사용자 정보 추가
+            model.addAttribute("email", email);
+            model.addAttribute("roles", authentication.getAuthorities());
 
-        return "admin/index";
-        // ----------------------- 절취선 ------------------------
+            // 모델에 가입한 유저 정보 추가
+            model.addAttribute("users", users);
 
-        // TODO : PR 전 처리 필요
-//        // 현재 인증된 사용자의 Authentication 객체 가져오기
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//
-//        if (authentication.getPrincipal() instanceof UserDetails userDetails) {
-//            // 이메일 및 권한 정보 가져오기
-//            String email = userDetails.getUsername();
-//
-//            // 전체 사용자 정보 조회
-//            List<User> users = adminService.getAllUsers();
-//
-//            // 모델에 사용자 정보 추가
-//            model.addAttribute("email", email);
-//            model.addAttribute("roles", authentication.getAuthorities());
-//
-//            // 모델에 가입한 유저 정보 추가
-//            model.addAttribute("users", users);
-//
-//            return "admin/index";
-//        } else {
-//            // 인증 객체가 UserDetails가 아닌 경우 예외 처리
-//            throw new IllegalStateException("현재 인증된 사용자가 UserDetails 타입이 아닙니다.");
-//        }
+            return "admin/index";
+        } else {
+            // 인증 객체가 UserDetails가 아닌 경우 예외 처리
+            throw new IllegalStateException("현재 인증된 사용자가 UserDetails 타입이 아닙니다.");
+        }
     }
 
     @GetMapping("/cars")
