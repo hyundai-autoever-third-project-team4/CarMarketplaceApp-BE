@@ -49,11 +49,11 @@ public class Review {
     @Column(nullable = false)
     private String content;
 
-    @Column(nullable = false)
-    private LocalDateTime created_at;
+    @Column(name = "created_at", nullable = false)
+    private LocalDateTime createdAt;
 
-    @Column(nullable = false)
-    private Double star_rate;
+    @Column(name = "star_rate", nullable = false)
+    private Double starRate;
 
 
 }
