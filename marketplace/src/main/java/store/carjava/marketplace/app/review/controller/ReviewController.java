@@ -28,7 +28,7 @@ public class ReviewController {
     @Operation(description = "마이페이지에서 나의 리뷰 조회 api")
     @GetMapping("/{userId}/review")
     public ResponseEntity<ReviewInfoListDto> getUserReviews(
-            @Parameter(description = "회원 ID") @PathVariable Long userId
+            @Parameter(description = "회원 ID") @PathVariable("userId") Long userId
     ) {
         ReviewInfoListDto userReviews = reviewService.getMyReviews(userId);
         return ResponseEntity.ok(userReviews);
@@ -37,7 +37,7 @@ public class ReviewController {
     @Operation(description = "마이페이지 리뷰 삭제")
     @DeleteMapping("/review/{reviewId}")
     public ResponseEntity<ReviewDeleteResponse> deleteReview(
-            @Parameter(description = "삭제할 리뷰 ID") @PathVariable Long reviewId
+            @Parameter(description = "삭제할 리뷰 ID") @PathVariable("reviewId") Long reviewId
     ) {
         ReviewDeleteResponse responseDto = reviewService.deleteReview(reviewId);
         return ResponseEntity.ok(responseDto);
@@ -47,7 +47,7 @@ public class ReviewController {
     @Operation(description = "차량 상세에서 동일모델의 리뷰 조회")
     @GetMapping("/cars/{carId}/review")
     public ResponseEntity<ReviewInfoListDto> getCarReviews(
-            @Parameter(description = "carId") @PathVariable String carId
+            @Parameter(description = "carId") @PathVariable("carId") String carId
     ){
         ReviewInfoListDto carReviews = reviewService.getCarReviews(carId);
         return ResponseEntity.ok(carReviews);
@@ -56,7 +56,7 @@ public class ReviewController {
     @Operation(description = "리뷰 상세 조회")
     @GetMapping("/review/{reviewId}")
     public ResponseEntity<ReviewInfoDto> getReviewDetail(
-            @Parameter(description = "리뷰 고유 Id") @PathVariable Long reviewId
+            @Parameter(description = "리뷰 고유 Id") @PathVariable("reviewId") Long reviewId
     ){
         ReviewInfoDto reviewDetail = reviewService.getReviewDetail(reviewId);
         return ResponseEntity.ok(reviewDetail);
