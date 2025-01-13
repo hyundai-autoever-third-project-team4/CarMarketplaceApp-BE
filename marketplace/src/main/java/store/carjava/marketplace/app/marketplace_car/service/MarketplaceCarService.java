@@ -1,6 +1,7 @@
 package store.carjava.marketplace.app.marketplace_car.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import store.carjava.marketplace.app.car_purchase_history.dto.CarPurchaseHistoryInfoDto;
 import store.carjava.marketplace.app.car_sales_history.dto.CarSalesHistoryInfoDto;
@@ -31,14 +32,14 @@ public class MarketplaceCarService {
                                                         Integer maxMileage, Integer minModelYear, Integer maxModelYear,
                                                         List<Long> optionIds, String testDriveCenterName, String status,
                                                         Integer minEngineCapacity, Integer maxEngineCapacity, String name,
-                                                        String sortOrder
+                                                        String sortOrder, Pageable pageable
     ) {
 
         return marketplaceCarRepository.filterCars(model, fuelType, brand, colorType,
                         driveType, licensePlate, transmission, vehicleType,
                         modelYear, seatingCapacity, maxPrice, minPrice,minMileage,
                         maxMileage, minModelYear, maxModelYear ,optionIds, testDriveCenterName,
-                        status, minEngineCapacity, maxEngineCapacity, name, sortOrder
+                        status, minEngineCapacity, maxEngineCapacity, name, sortOrder, pageable
                 )
 
                 .stream()

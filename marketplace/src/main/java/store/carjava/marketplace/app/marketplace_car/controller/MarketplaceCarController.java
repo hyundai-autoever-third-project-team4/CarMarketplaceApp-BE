@@ -6,6 +6,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -63,7 +65,8 @@ public class MarketplaceCarController {
             @RequestParam(required = false) Integer minEngineCapacity,
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String name,
-            @RequestParam(defaultValue = "인기순") String sortOrder // 정렬 옵션 추가 (기본값: 인기순)
+            @RequestParam(defaultValue = "인기순") String sortOrder, // 정렬 옵션 추가 (기본값: 인기순)
+            @PageableDefault(size = 10, page = 0) Pageable pageable
     ) {
         List<MarketplaceCarResponse> filteredCars = marketplaceCarService.getFilteredCars(
                 model, fuelType, brand, colorType,
@@ -71,7 +74,7 @@ public class MarketplaceCarController {
                 modelYear,seatingCapacity, maxPrice, minPrice, minMileage,
                  maxMileage,  minModelYear,  maxModelYear, optionIds,
                 testDriveCenterName, status, maxEngineCapacity, minEngineCapacity,
-                name, sortOrder
+                name, sortOrder, pageable
         );
         return ResponseEntity.ok(filteredCars);
     }
