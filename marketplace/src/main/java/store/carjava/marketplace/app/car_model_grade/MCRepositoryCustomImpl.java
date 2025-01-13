@@ -18,7 +18,7 @@ public class MCRepositoryCustomImpl implements MCRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public List<MarketplaceCar> findMarketplaceCarList(long budgetLow, long budgetHigh, String vehicle) {
+    public List<MarketplaceCar> findMarketplaceCarProperList(long budgetLow, long budgetHigh, String vehicle) {
         QMarketplaceCar marketplaceCar = QMarketplaceCar.marketplaceCar;
         QCarModelGrade carModelGrade = QCarModelGrade.carModelGrade;
 
@@ -47,4 +47,37 @@ public class MCRepositoryCustomImpl implements MCRepositoryCustom {
                         .and(marketplaceCar.price.between(budgetLow, budgetHigh)))
                 .fetch();
     }
+
+    @Override
+    public MarketplaceCar findMarketplaceCarOverPrice(long budget, String vehicle, MarketplaceCar car) {
+        QMarketplaceCar marketplaceCar = QMarketplaceCar.marketplaceCar;
+        QCarModelGrade carModelGrade = QCarModelGrade.carModelGrade;
+
+        Integer carGrade = queryFactory.select(carModelGrade.grade)
+                .from(carModelGrade)
+                .where(carModelGrade.model.eq(car.getCarDetails().getModel()))
+                .fetchOne();
+
+        List<String> upGradeList = queryFactory.select(carModelGrade.model)
+                .from(carModelGrade)
+                .where(carModelGrade.vehicleType.eq(vehicle)
+                        .and(carModelGrade.grade.gt(carGrade))
+                )
+                .fetch();
+
+        // 고급 모델이면서 주행거리가 비슷한 차량
+        MarketplaceCar upgrade1 = queryFactory.selectFrom(marketplaceCar)
+                .leftJoin(carModelGrade)
+                .on(marketplaceCar.carDetails.model.eq(carModelGrade.model))
+                .where(marketplaceCar.carDetails.vehicleType.eq(vehicle)
+                        .and(marketplaceCar.price.gt(budget))
+                        .and(carModelGrade.model.in(upGradeList)))
+                .orderBy(marketplaceCar.price.asc())
+                .limit(1)
+                .fetchOne();
+
+        return upgrade1;
+    }
+
+
 }

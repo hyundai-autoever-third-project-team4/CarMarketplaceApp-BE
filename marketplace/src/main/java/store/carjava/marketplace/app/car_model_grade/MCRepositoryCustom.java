@@ -5,5 +5,6 @@ import store.carjava.marketplace.app.marketplace_car.entity.MarketplaceCar;
 import java.util.List;
 
 public interface MCRepositoryCustom {
-    List<MarketplaceCar> findMarketplaceCarList(long budgetLow, long budgetHigh, String vehicle);
+    List<MarketplaceCar> findMarketplaceCarProperList(long budgetLow, long budgetHigh, String vehicle);
+    MarketplaceCar findMarketplaceCarOverPrice(long budget, String vehicle, MarketplaceCar marketplaceCar);
 }

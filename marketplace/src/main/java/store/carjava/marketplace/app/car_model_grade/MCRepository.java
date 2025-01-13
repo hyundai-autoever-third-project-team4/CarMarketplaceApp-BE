@@ -7,9 +7,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface MCRepository extends JpaRepository<MarketplaceCar, String>, MCRepositoryCustom {
-    //Optional<MarketplaceCar> findTopByPriceLessThanEqualOrderByPriceDesc(Long price);
     Optional<MarketplaceCar> findTopByCarDetails_VehicleTypeAndPriceLessThanEqualOrderByPriceDesc(String vehicle, Long price);
     List<MarketplaceCar> findTop2ByCarDetails_VehicleTypeAndPriceLessThanEqualOrderByPriceDesc(String vehicle, Long price);
 
-    boolean existsByPriceGreaterThan(Long price);
+    Optional<MarketplaceCar> findTopByPriceGreaterThanOrderByPrice(Long price);
 }
