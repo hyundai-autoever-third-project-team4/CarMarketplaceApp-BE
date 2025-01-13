@@ -9,8 +9,10 @@ import store.carjava.marketplace.app.marketplace_car.entity.MarketplaceCar;
 import store.carjava.marketplace.app.marketplace_car.repository.MarketplaceCarRepository;
 import store.carjava.marketplace.app.review.dto.*;
 import store.carjava.marketplace.app.review.entity.Review;
+import store.carjava.marketplace.app.review.exception.ReviewIdNotFoundException;
 import store.carjava.marketplace.app.review.repository.ReviewRepository;
 import store.carjava.marketplace.app.user.entity.User;
+import store.carjava.marketplace.app.user.exception.UserIdNotFoundException;
 import store.carjava.marketplace.app.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
@@ -38,7 +40,7 @@ public class ReviewService {
 
         //임시 유저
         User user = userRepository.findById(1L)
-                .orElseThrow(() -> new EntityNotFoundException("User not found with id: 1"));
+                .orElseThrow(UserIdNotFoundException::new);
 
         //리뷰 내용 공백 확인
         if (StringUtils.isBlank(request.getContent())) {
@@ -63,7 +65,7 @@ public class ReviewService {
     //마이페이지_본인 작성 리뷰 조회
     public ReviewInfoListDto getMyReviews(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("User not found with id: "+userId));
+                .orElseThrow(UserIdNotFoundException::new);
 
         List<ReviewInfoDto> reviewInfoList = reviewRepository.findAllByUserIdOrderByCreatedAtDesc(userId)
                 .stream()
@@ -76,7 +78,7 @@ public class ReviewService {
     public ReviewDeleteResponse deleteReview(Long userId, Long reviewId) {
         // 1. 리뷰 존재 여부 확인
         Review review = reviewRepository.findById(reviewId)
-                .orElseThrow(() -> new EntityNotFoundException("Review not found with id: "+reviewId));
+                .orElseThrow(ReviewIdNotFoundException::new);
 
         // 2. 리뷰 작성자와 요청자가 같은지 확인
         if (!review.getUser().getId().equals(userId)) {
@@ -112,7 +114,7 @@ public class ReviewService {
     //리뷰 상세 조회
     public ReviewInfoDto getReviewDetail(Long reviewId) {
         Review review = reviewRepository.findById(reviewId)
-                .orElseThrow(() -> new EntityNotFoundException("Review not found with id: " + reviewId));
+                .orElseThrow(ReviewIdNotFoundException::new);
 
         return ReviewInfoDto.of(review);
     }
