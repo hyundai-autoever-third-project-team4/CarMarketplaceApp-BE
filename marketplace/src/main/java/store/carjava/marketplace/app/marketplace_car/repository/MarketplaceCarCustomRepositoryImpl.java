@@ -40,8 +40,6 @@ public class MarketplaceCarCustomRepositoryImpl implements MarketplaceCarCustomR
 
         OrderSpecifier<?> orderSpecifier = getOrderSpecifier(sortOrder, marketplaceCar);
 
-        //페이지네이션 설정
-
         // 메인 쿼리 생성
         var query = queryFactory
                 .selectFrom(marketplaceCar)
