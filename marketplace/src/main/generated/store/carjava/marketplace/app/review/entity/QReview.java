@@ -24,7 +24,7 @@ public class QReview extends EntityPathBase<Review> {
 
     public final StringPath content = createString("content");
 
-    public final DateTimePath<java.time.LocalDateTime> created_at = createDateTime("created_at", java.time.LocalDateTime.class);
+    public final DateTimePath<java.time.LocalDateTime> createdAt = createDateTime("createdAt", java.time.LocalDateTime.class);
 
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
@@ -34,7 +34,7 @@ public class QReview extends EntityPathBase<Review> {
 
     public final ListPath<store.carjava.marketplace.app.review_image.entity.ReviewImage, store.carjava.marketplace.app.review_image.entity.QReviewImage> ReviewImages = this.<store.carjava.marketplace.app.review_image.entity.ReviewImage, store.carjava.marketplace.app.review_image.entity.QReviewImage>createList("ReviewImages", store.carjava.marketplace.app.review_image.entity.ReviewImage.class, store.carjava.marketplace.app.review_image.entity.QReviewImage.class, PathInits.DIRECT2);
 
-    public final NumberPath<Double> star_rate = createNumber("star_rate", Double.class);
+    public final NumberPath<Double> starRate = createNumber("starRate", Double.class);
 
     public final store.carjava.marketplace.app.user.entity.QUser user;
 
