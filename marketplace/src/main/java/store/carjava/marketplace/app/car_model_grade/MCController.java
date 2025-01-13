@@ -15,6 +15,7 @@ public class MCController {
     public ResponseEntity<?> getCarRecommandation(
             @RequestBody MarketplaceCarRecommandRequest request
     ) {
+        marketplaceCarService.getRecommand(request);
         //MarketplaceCarRecommandListResponse response = marketplaceCarService.getRecommand(request);
 
         //return ResponseEntity.ok(response);

@@ -3,6 +3,7 @@ package store.carjava.marketplace.app.car_model_grade;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import store.carjava.marketplace.app.car_model_grade.entity.QCarModelGrade;
 import store.carjava.marketplace.app.marketplace_car.entity.MarketplaceCar;
@@ -10,6 +11,7 @@ import store.carjava.marketplace.app.marketplace_car.entity.QMarketplaceCar;
 
 import java.util.List;
 
+@Slf4j
 @Repository
 @RequiredArgsConstructor
 public class MCRepositoryCustomImpl implements MCRepositoryCustom {
@@ -28,7 +30,7 @@ public class MCRepositoryCustomImpl implements MCRepositoryCustom {
                         marketplaceCar.price.between(budgetLow, budgetHigh)
                                 .and(marketplaceCar.carDetails.vehicleType.eq(vehicle))
                 )
-                .groupBy(marketplaceCar.carDetails.model, carModelGrade.model)
+                .groupBy(marketplaceCar.carDetails.model, carModelGrade.grade)
                 .orderBy(
                         marketplaceCar.carDetails.model.count().desc(),
                         carModelGrade.grade.desc()
@@ -36,6 +38,8 @@ public class MCRepositoryCustomImpl implements MCRepositoryCustom {
                 .limit(1)
                 .fetchOne();
 
+        if(carmodel == null) carmodel = "";
+        log.info("선택된 차량 모델: {}",carmodel);
 
         return queryFactory
                 .selectFrom(marketplaceCar)
