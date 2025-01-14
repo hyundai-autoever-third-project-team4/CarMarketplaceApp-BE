@@ -2,11 +2,10 @@ package store.carjava.marketplace.app.reservation.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import store.carjava.marketplace.app.reservation.dto.ReservationCreateRequest;
 import store.carjava.marketplace.app.reservation.dto.ReservationCreateResponse;
+import store.carjava.marketplace.app.reservation.dto.ReservationListResponse;
 import store.carjava.marketplace.app.reservation.service.ReservationService;
 
 @RestController
@@ -22,4 +21,10 @@ public class ReservationController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/reservations/marketplace-cars/{marketplaceCarId}")
+    public ResponseEntity<?> getMarketplaceCarReservations(@PathVariable("marketplaceCarId") String marketplaceCarId) {
+        ReservationListResponse response = reservationService.getMarketplaceCarReservations(marketplaceCarId);
+
+        return ResponseEntity.ok(response);
+    }
 }

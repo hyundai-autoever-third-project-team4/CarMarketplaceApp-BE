@@ -8,17 +8,22 @@ import store.carjava.marketplace.app.marketplace_car.exception.MarketplaceCarIdN
 import store.carjava.marketplace.app.marketplace_car.repository.MarketplaceCarRepository;
 import store.carjava.marketplace.app.reservation.dto.ReservationCreateRequest;
 import store.carjava.marketplace.app.reservation.dto.ReservationCreateResponse;
+import store.carjava.marketplace.app.reservation.dto.ReservationListResponse;
 import store.carjava.marketplace.app.reservation.entity.Reservation;
 import store.carjava.marketplace.app.reservation.exception.ReservationAlreadyExistsException;
 import store.carjava.marketplace.app.reservation.repository.ReservationRepository;
 import store.carjava.marketplace.app.user.entity.User;
 import store.carjava.marketplace.common.util.UserResolver;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 public class ReservationService {
+
+    private static final int LIMIT_DAYS = 14;   // 조회할 수 있는 일수
 
     private final ReservationRepository reservationRepository;
     private final UserResolver userResolver;
@@ -54,5 +59,16 @@ public class ReservationService {
 
         // 6) 예약 정보 response dto 생성 후 리턴
         return ReservationCreateResponse.from(savedReservation);
+    }
+
+    public ReservationListResponse getMarketplaceCarReservations(String marketplaceCarId) {
+        // 1) marketplaceCarId에 해당하는 entity 조회
+        MarketplaceCar marketplaceCar = marketplaceCarRepository.findById(marketplaceCarId)
+                .orElseThrow(MarketplaceCarIdNotFoundException::new);
+
+        // 2) Reservation Table에서 해당 marketplace car에 대한
+        Map<LocalDate, Boolean> reservationAvailability = reservationRepository.getReservationAvailability(marketplaceCarId, LIMIT_DAYS);
+
+        return ReservationListResponse.of(marketplaceCarId, reservationAvailability);
     }
 }
