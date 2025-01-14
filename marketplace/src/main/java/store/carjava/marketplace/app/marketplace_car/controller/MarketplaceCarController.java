@@ -3,6 +3,8 @@ package store.carjava.marketplace.app.marketplace_car.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -129,6 +131,13 @@ public class MarketplaceCarController {
         return ResponseEntity.ok(filteredCars);
     }
 
+    @Operation(summary = "이차어때 추천", description = "이차어때의 적정 / 저렴 / 비싼 차량을 추천합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "이차어때 추천 성공. 적정 / 저렴 / 비싼 차량 순. 결과 없는 경우 null 반환",
+                content = @Content(mediaType = "application/json",
+                schema = @Schema(implementation = MarketplaceCarRecommandListResponse.class))),
+            @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content())
+    })
     @GetMapping("/recommand")
     public ResponseEntity<?> getCarRecommandation(
             @RequestBody MarketplaceCarRecommandRequest request

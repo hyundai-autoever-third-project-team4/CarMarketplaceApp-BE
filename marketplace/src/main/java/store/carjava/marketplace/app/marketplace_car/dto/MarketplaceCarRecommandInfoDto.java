@@ -9,8 +9,8 @@ public record MarketplaceCarRecommandInfoDto(
         @Schema(description = "차 이름", example = "2022 그랜저(IG) 하이브리드 르블랑")
         String name,
 
-        @Schema(description = "가격", example = "3390만원")
-        String price,
+        @Schema(description = "가격(천만원)", example = "3390")
+        Long price,
 
         @Schema(description = "등록일자", example = "21년 07월")
         String registrationDate,
@@ -25,7 +25,6 @@ public record MarketplaceCarRecommandInfoDto(
                 if(marketplaceCar == null) return null;
 
                 DecimalFormat formatter = new DecimalFormat("#,###");
-                String price = formatter.format(marketplaceCar.getPrice() / 10000) + "만원";
                 String mileage = formatter.format(marketplaceCar.getCarDetails().getMileage()) + "km";
 
                 formatter = new DecimalFormat("00");
@@ -35,7 +34,7 @@ public record MarketplaceCarRecommandInfoDto(
 
                 return new MarketplaceCarRecommandInfoDto(
                         marketplaceCar.getCarDetails().getName(),
-                        price,
+                        marketplaceCar.getPrice() / 10000,
                         registrationDate,
                         mileage,
                         marketplaceCar.getMainImage()

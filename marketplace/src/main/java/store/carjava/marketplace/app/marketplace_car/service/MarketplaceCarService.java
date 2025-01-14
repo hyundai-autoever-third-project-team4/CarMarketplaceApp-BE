@@ -224,6 +224,11 @@ public class MarketplaceCarService {
     public MarketplaceCarRecommandListResponse getRecommand(MarketplaceCarRecommandRequest request) {
         long budget = request.budget() * 10000;
         String vehicle = request.vehicleType();
+
+        if(!vehicle.equals("승용") && !vehicle.equals("SUV") && !vehicle.equals("승합") && !vehicle.equals("EV")){
+            throw new VehicleTypeNotFoundException();
+        }
+
         MarketplaceCar normal, less, over;
 
         // 적정, 저렴 추천
