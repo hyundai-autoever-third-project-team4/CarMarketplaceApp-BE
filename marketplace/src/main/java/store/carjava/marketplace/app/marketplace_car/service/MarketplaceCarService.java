@@ -272,7 +272,7 @@ public class MarketplaceCarService {
                 .build();
     }
 
-
+    // 상태별 차량 조회 API Service
     public List<MarketplaceCarSendToManagerDto> getCarsByStatus(String status) {
 
         List<MarketplaceCar> marketplaceCars = marketplaceCarRepository.findByStatus(status);
