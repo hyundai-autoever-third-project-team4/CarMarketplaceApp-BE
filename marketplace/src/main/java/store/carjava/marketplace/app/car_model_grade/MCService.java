@@ -14,7 +14,7 @@ import java.util.Optional;
 public class MCService {
     private final MCRepository marketplaceCarRepository;
 
-    public void getRecommand(MarketplaceCarRecommandRequest request) {
+    public MarketplaceCarRecommandListResponse getRecommand(MarketplaceCarRecommandRequest request) {
         long budget = request.budget() * 10000;
         String vehicle = request.vehicleType();
         MarketplaceCar normal, less, over;
@@ -31,8 +31,8 @@ public class MCService {
             less = null;
         } else{
             // 예산 내 차가 여러 대인 경우
-            long budgetLow = (long) (budget * 0.9);
-            long budgetHigh = (long) (budget * 0.95);
+            long budgetLow = (long) (budget * 0.92);
+            long budgetHigh = (long) (budget * 0.97);
 
             List<MarketplaceCar> carList = marketplaceCarRepository.findMarketplaceCarProperList(budgetLow, budgetHigh, vehicle);
 
@@ -57,9 +57,6 @@ public class MCService {
             }
         }
 
-        log.info("선택한 적정 차 이름:{} / 타입:{} / 주행거리:{} / 모델:{} / 가격:{}", normal.getCarDetails().getName(), normal.getCarDetails().getVehicleType(), normal.getCarDetails().getMileage(), normal.getCarDetails().getModel(), normal.getPrice());
-        log.info("선택한 저렴 차 이름:{} / 타입:{} / 주행거리:{} / 모델:{} / 가격:{}", less.getCarDetails().getName(), less.getCarDetails().getVehicleType(), less.getCarDetails().getMileage(), less.getCarDetails().getModel(), less.getPrice());
-
         // 초과 추천
         Optional<MarketplaceCar> overExist = marketplaceCarRepository.findTopByPriceGreaterThanOrderByPrice(budget);
         if (overExist.isEmpty()) {
@@ -69,14 +66,30 @@ public class MCService {
             over = overExist.get();
         }
         else{
-            over = marketplaceCarRepository.findMarketplaceCarOverPrice(budget, vehicle, normal);
-            if (over != null) {
-                log.info("선택한 비싼 차 이름:{} 타입:{} 주행거리:{} 모델:{} / 가격:{}", over.getCarDetails().getName(), over.getCarDetails().getVehicleType(), over.getCarDetails().getMileage(), over.getCarDetails().getModel(), over.getPrice());
-            }else log.info("선택된 차 없음~~");
+            // 고급 모델 차량
+            MarketplaceCar upgrade1 = marketplaceCarRepository.findUpgradeModelCarOverPrice(budget, vehicle, normal);
+            // 동일 모델 차량, 짧은 주행거리 + 최신 연식
+            MarketplaceCar upgrade2 = marketplaceCarRepository.findCarMoreOptionOverPrice(budget, vehicle, normal);
 
-           if(over == null){ over = overExist.get();}
+            if (upgrade1 != null){
+                log.info("고급 모델 후보: {} / 가격: {} / 주행거리: {}", upgrade1.getCarDetails().getName(), upgrade1.getPrice(), upgrade1.getCarDetails().getMileage());
+            }
+            if (upgrade2 != null){
+                log.info("동일 모델 후보: {} / 가격: {} / 주행거리: {}", upgrade2.getCarDetails().getName(), upgrade2.getPrice(), upgrade2.getCarDetails().getMileage());
+            }
+
+            if (upgrade1 != null && upgrade2 != null) {
+                if (upgrade1.getPrice() < upgrade2.getPrice()) { over = upgrade1; }
+                else { over = upgrade2; }
+            }
+            else if (upgrade1 != null) { over = upgrade1; }
+            else if (upgrade2 != null) { over = upgrade2; }
+            else { over = overExist.get(); }
         }
 
-        return;
+        return MarketplaceCarRecommandListResponse.of(
+                MarketplaceCarRecommandInfoDto.of(normal),
+                MarketplaceCarRecommandInfoDto.of(less),
+                MarketplaceCarRecommandInfoDto.of(over));
     }
 }
