@@ -37,6 +37,7 @@ public class SecurityConfig {
 
         // 인증 및 권한 설정
         List<String> publicPaths = List.of(
+                "/payment/**",
                 "/swagger-ui**",
                 "/swagger-ui/**",
                 "/api-docs/**",
@@ -64,7 +65,7 @@ public class SecurityConfig {
 
         // 허용할 출처 설정
         configuration.setAllowedOrigins(List.of(
-                "http://localhost:3000",
+                "http://127.0.0.1:5500",    // live server test용
                 "http://localhost:8081",
                 "https://chajava.store"
         ));

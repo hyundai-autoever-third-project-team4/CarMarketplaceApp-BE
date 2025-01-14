@@ -37,6 +37,9 @@ dependencies {
     // AWS S3 업로드
     implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
 
+    // JSON 파싱을 위한 의존성 설정
+    implementation group: 'com.googlecode.json-simple', name: 'json-simple', version: '1.1.1'
+
     /* [ Swagger ] Spring Doc 2.8.1  */
     // Swagger를 사용하여 API 문서화 (Spring Boot 통합)
     implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.8.1'
