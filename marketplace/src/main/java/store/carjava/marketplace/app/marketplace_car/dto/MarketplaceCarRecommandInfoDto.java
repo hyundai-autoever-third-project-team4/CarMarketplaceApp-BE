@@ -6,6 +6,9 @@ import store.carjava.marketplace.app.marketplace_car.entity.MarketplaceCar;
 import java.text.DecimalFormat;
 
 public record MarketplaceCarRecommandInfoDto(
+        @Schema(description = "차 id", example = "GJU241125010629")
+        String id,
+
         @Schema(description = "차 이름", example = "2022 그랜저(IG) 하이브리드 르블랑")
         String name,
 
@@ -33,6 +36,7 @@ public record MarketplaceCarRecommandInfoDto(
                 String registrationDate = year + "년 " + formatter.format(month) + "일";
 
                 return new MarketplaceCarRecommandInfoDto(
+                        marketplaceCar.getId(),
                         marketplaceCar.getCarDetails().getName(),
                         marketplaceCar.getPrice() / 10000,
                         registrationDate,

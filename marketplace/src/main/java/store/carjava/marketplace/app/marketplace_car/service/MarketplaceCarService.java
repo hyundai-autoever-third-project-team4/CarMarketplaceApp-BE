@@ -222,50 +222,70 @@ public class MarketplaceCarService {
     }
 
     public MarketplaceCarRecommandListResponse getRecommand(MarketplaceCarRecommandRequest request) {
-        long budget = request.budget() * 10000;
-        String vehicle = request.vehicleType();
+        String carId = request.carId();
+        List<String> vehicle = request.vehicleType();
+        long budget;
 
-        if(!vehicle.equals("승용") && !vehicle.equals("SUV") && !vehicle.equals("승합") && !vehicle.equals("EV")){
-            throw new VehicleTypeNotFoundException();
+        MarketplaceCar normal = null, less = null, over = null;
+        boolean isFirstRecommand = true;
+
+        vehicle.forEach(vehicleType -> {
+            if(!vehicleType.equals("승용") && !vehicleType.equals("SUV") && !vehicleType.equals("승합") && !vehicleType.equals("EV")){
+                throw new VehicleTypeNotFoundException();
+            }
+        });
+
+        // 재추천인 경우
+        if (carId != null){
+            normal = marketplaceCarRepository.findById(carId).orElseThrow(MarketplaceCarIdNotFoundException::new);
+            budget = normal.getPrice();
+            isFirstRecommand = false;
+        }
+        // 첫 추천인 경우
+        else{
+            budget = request.budget() * 10000;
         }
 
-        MarketplaceCar normal, less, over;
-
         // 적정, 저렴 추천
-        List<MarketplaceCar> carExist = marketplaceCarRepository.findTop2ByCarDetails_VehicleTypeAndPriceLessThanEqualOrderByPriceDesc(vehicle, budget);
-        if (carExist.isEmpty()) {
-            // 예산 내 차가 0대인 경우 - 너무 적은 예산
-            normal = null;
-            less = null;
-        } else if (carExist.size() == 1) {
-            // 예산 내 차가 1대인 경우
-            normal = carExist.get(0);
-            less = null;
+        List<MarketplaceCar> carExist = marketplaceCarRepository.findTop2ByCarDetails_VehicleTypeInAndPriceLessThanEqualOrderByPriceDesc(vehicle, budget);
+        // 예산 내 차가 0대
+        if(carExist.isEmpty()){
+
+        }
+        // 예산 내 차가 1대
+        else if (carExist.size() == 1) {
+            if(isFirstRecommand) normal = carExist.get(0);
+            else less = carExist.get(0);
         } else{
-            // 예산 내 차가 여러 대인 경우
-            long budgetLow = (long) (budget * 0.92);
-            long budgetHigh = (long) (budget * 0.97);
+            List<MarketplaceCar> carList = marketplaceCarRepository
+                    .findMarketplaceCarProperList((long) (budget * 0.92), (long) (budget * 0.97), vehicle);
 
-            List<MarketplaceCar> carList = marketplaceCarRepository.findMarketplaceCarProperList(budgetLow, budgetHigh, vehicle);
-
-            // 적정 가격 범위 내에 차가 없거나 1개만 존재하는 경우
-            if (carList.size() < 2) {
-                long normalPrice;
-
-                // 범위 내 차가 없음
-                if (carList.isEmpty()) {
+            // 적정 가격 범위 내에 차가 없는 경우
+            Optional<MarketplaceCar> lessCarExist;
+            if (carList.isEmpty()){
+                if(isFirstRecommand) {
                     normal = carExist.get(0);
-                    normalPrice = carExist.get(0).getPrice();
-                } else {    // 범위 내 차가 1대
-                    normal = carList.get(0);
-                    normalPrice = carList.get(0).getPrice();
+                    lessCarExist = marketplaceCarRepository
+                            .findTopByCarDetails_VehicleTypeInAndPriceLessThanEqualOrderByPriceDesc(vehicle, normal.getPrice() -1);
+                    less = lessCarExist.orElse(null);
                 }
-                Optional<MarketplaceCar> lessCarExist = marketplaceCarRepository.findTopByCarDetails_VehicleTypeAndPriceLessThanEqualOrderByPriceDesc(vehicle, normalPrice - 1);
-                less = lessCarExist.orElse(null);
+                else less = carExist.get(0);
             }
-            else{
-                normal = carList.get(0);
-                less = carList.get(carList.size() - 1);
+            // 적정 가격 범위 내 차가 1대 있는 경우
+            else if (carList.size() == 1) {
+                if(isFirstRecommand) {
+                    normal = carList.get(0);
+                    lessCarExist = marketplaceCarRepository
+                            .findTopByCarDetails_VehicleTypeInAndPriceLessThanEqualOrderByPriceDesc(vehicle, normal.getPrice() -1);
+                    less = lessCarExist.orElse(null);
+                }
+                else less = carList.get(0);
+            } else{
+                if(isFirstRecommand){
+                    normal = carList.get(0);
+                    less = carList.get(carList.size() - 1);
+                }
+                else less = carList.get(0);
             }
         }
 
@@ -273,15 +293,13 @@ public class MarketplaceCarService {
         Optional<MarketplaceCar> overExist = marketplaceCarRepository.findTopByPriceGreaterThanOrderByPrice(budget);
         if (overExist.isEmpty()) {
             over = null;
-        }
-        else if (normal == null) {
+        } else if (normal == null) {
             over = overExist.get();
-        }
-        else{
+        } else{
             // 고급 모델 차량
             MarketplaceCar upgrade1 = marketplaceCarRepository.findUpgradeModelCarOverPrice(budget, vehicle, normal);
             // 동일 모델 차량, 짧은 주행거리 + 최신 연식
-            MarketplaceCar upgrade2 = marketplaceCarRepository.findCarMoreOptionOverPrice(budget, vehicle, normal);
+            MarketplaceCar upgrade2 = marketplaceCarRepository.findCarMoreOptionOverPrice(budget, normal);
 
             if (upgrade1 != null && upgrade2 != null) {
                 if (upgrade1.getPrice() < upgrade2.getPrice()) { over = upgrade1; }
