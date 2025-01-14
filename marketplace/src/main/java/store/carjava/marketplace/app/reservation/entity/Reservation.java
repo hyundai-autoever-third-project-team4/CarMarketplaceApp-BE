@@ -12,6 +12,7 @@ import store.carjava.marketplace.app.user.entity.User;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Entity
 @Builder
@@ -38,7 +39,7 @@ public class Reservation {
     private LocalDate reservationDate;
 
     @Column(name = "reservation_time",nullable = false)
-    private LocalDateTime reservationTime;
+    private LocalTime reservationTime;
 
     @Column(name = "created_at" , nullable = false)
     private LocalDateTime createdAt;

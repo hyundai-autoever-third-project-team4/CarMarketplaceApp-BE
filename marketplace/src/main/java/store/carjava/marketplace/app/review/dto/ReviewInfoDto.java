@@ -2,8 +2,11 @@ package store.carjava.marketplace.app.review.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import store.carjava.marketplace.app.review.entity.Review;
+import store.carjava.marketplace.app.review_image.dto.ReviewImageDto;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public record ReviewInfoDto(
         @Schema(description = "생성된 리뷰 ID", example = "1")
@@ -28,7 +31,10 @@ public record ReviewInfoDto(
         String carModel,
 
         @Schema(description = "리뷰 작성자 이메일", example = "abc@naver.com")
-        String writerEmail
+        String writerEmail,
+
+        @Schema(description = "차량 이미지 url", example = "")
+        List<ReviewImageDto> images
 
 
 
@@ -42,7 +48,10 @@ public record ReviewInfoDto(
                 review.getMarketplaceCar().getCarDetails().getName(),
                 review.getMarketplaceCar().getId(),
                 review.getMarketplaceCar().getCarDetails().getModel(),
-                review.getUser().getEmail()
+                review.getUser().getEmail(),
+                review.getReviewImages().stream()
+                        .map(ReviewImageDto::of)
+                        .collect(Collectors.toList())
 
                 );
     }

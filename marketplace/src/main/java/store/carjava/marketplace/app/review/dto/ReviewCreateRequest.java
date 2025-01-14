@@ -4,6 +4,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 
+import java.util.List;
+
 @Schema(description = "리뷰 작성 요청 데이터")
 public record ReviewCreateRequest(
         @Schema(description = "구매한 차 ID")
@@ -15,10 +17,9 @@ public record ReviewCreateRequest(
 
 
         @Schema(description = "별점")
-        Double starRate,
+        Double starRate
 
-        @Schema(description = "차량 사진")
-        String imageUrl
+
 ) {
 
 }
