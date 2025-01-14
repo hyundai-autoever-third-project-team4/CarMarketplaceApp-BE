@@ -9,9 +9,11 @@ import store.carjava.marketplace.app.marketplace_car.entity.MarketplaceCar;
 import store.carjava.marketplace.app.marketplace_car.repository.MarketplaceCarRepository;
 import store.carjava.marketplace.app.review.dto.*;
 import store.carjava.marketplace.app.review.entity.Review;
+import store.carjava.marketplace.app.review.exception.ReviewAlreadyExistsException;
 import store.carjava.marketplace.app.review.exception.ReviewIdNotFoundException;
 import store.carjava.marketplace.app.review.exception.ReviewWriterNotMatchException;
 import store.carjava.marketplace.app.review.repository.ReviewRepository;
+import store.carjava.marketplace.app.review_image.entity.ReviewImage;
 import store.carjava.marketplace.app.user.entity.User;
 import store.carjava.marketplace.app.user.exception.UserIdNotFoundException;
 import store.carjava.marketplace.app.user.repository.UserRepository;
@@ -31,7 +33,7 @@ public class ReviewService {
 
     private final UserResolver userResolver;
 
-    public ReviewCreateResponse createReview(ReviewCreateRequest request) {
+    public ReviewCreateResponse createReview(ReviewCreateRequest request, List<String> imageUrls) {
 
         // 현재 요청하는 사용자 추출
         User currentUser = userResolver.getCurrentUser();
@@ -40,12 +42,43 @@ public class ReviewService {
         MarketplaceCar car = carRepository.findById(request.carId())
                 .orElseThrow(() -> new EntityNotFoundException("Car not found with id:" + request.carId()));
 
+        // 해당 사용자가 이미 이 차량에 대한 리뷰를 작성했는지 확인
+        if (reviewRepository.existsByUserAndMarketplaceCar(currentUser, car)) {
+            throw new ReviewAlreadyExistsException();
+        }
+
         //리뷰 내용 공백 확인
         if (StringUtils.isBlank(request.content())) {
             throw new IllegalArgumentException("리뷰 내용은 필수입니다");
         }
 
-        Review review = Review.builder()
+        //리뷰 엔티티 생성.
+        Review review = createReviewEntity(request, currentUser, car);
+
+        // 이미지가 있는 경우 ReviewImage 엔티티들을 생성하고 리뷰와 연결
+        if (!imageUrls.isEmpty()) {
+            addImagesToReview(review, imageUrls);
+        }
+
+        // 리뷰를 저장하고 응답을 반환
+        Review savedReview = reviewRepository.save(review);
+        return ReviewCreateResponse.of(savedReview);
+
+    }
+
+    private void addImagesToReview(Review review, List<String> imageUrls) {
+
+        for (String imageUrl : imageUrls) {
+            ReviewImage reviewImage = ReviewImage.builder()
+                    .review(review)
+                    .imageUrl(imageUrl)
+                    .build();
+            review.getReviewImages().add(reviewImage);
+        }
+    }
+
+    private Review createReviewEntity(ReviewCreateRequest request, User currentUser, MarketplaceCar car) {
+        return Review.builder()
                 .marketplaceCar(car)
                 .user(currentUser)
                 .model(car.getCarDetails().getModel())
@@ -53,12 +86,6 @@ public class ReviewService {
                 .starRate(request.starRate())
                 .createdAt(LocalDateTime.now())
                 .build();
-
-        // 리뷰를 저장하고 응답을 반환
-        Review savedReview = reviewRepository.save(review);
-
-        return ReviewCreateResponse.of(savedReview);
-
     }
 
     //마이페이지_본인 작성 리뷰 조회

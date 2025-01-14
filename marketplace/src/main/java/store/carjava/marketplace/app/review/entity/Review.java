@@ -36,7 +36,8 @@ public class Review {
     private MarketplaceCar marketplaceCar;
 
     @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ReviewImage> ReviewImages = new ArrayList<>();
+    @Builder.Default
+    private List<ReviewImage> reviewImages = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)

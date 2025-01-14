@@ -32,7 +32,7 @@ public class QReview extends EntityPathBase<Review> {
 
     public final StringPath model = createString("model");
 
-    public final ListPath<store.carjava.marketplace.app.review_image.entity.ReviewImage, store.carjava.marketplace.app.review_image.entity.QReviewImage> ReviewImages = this.<store.carjava.marketplace.app.review_image.entity.ReviewImage, store.carjava.marketplace.app.review_image.entity.QReviewImage>createList("ReviewImages", store.carjava.marketplace.app.review_image.entity.ReviewImage.class, store.carjava.marketplace.app.review_image.entity.QReviewImage.class, PathInits.DIRECT2);
+    public final ListPath<store.carjava.marketplace.app.review_image.entity.ReviewImage, store.carjava.marketplace.app.review_image.entity.QReviewImage> reviewImages = this.<store.carjava.marketplace.app.review_image.entity.ReviewImage, store.carjava.marketplace.app.review_image.entity.QReviewImage>createList("reviewImages", store.carjava.marketplace.app.review_image.entity.ReviewImage.class, store.carjava.marketplace.app.review_image.entity.QReviewImage.class, PathInits.DIRECT2);
 
     public final NumberPath<Double> starRate = createNumber("starRate", Double.class);
 
