@@ -6,5 +6,6 @@ import java.util.List;
 
 public interface MCRepositoryCustom {
     List<MarketplaceCar> findMarketplaceCarProperList(long budgetLow, long budgetHigh, String vehicle);
-    MarketplaceCar findMarketplaceCarOverPrice(long budget, String vehicle, MarketplaceCar marketplaceCar);
+    MarketplaceCar findUpgradeModelCarOverPrice(long budget, String vehicle, MarketplaceCar marketplaceCar);
+    MarketplaceCar findCarMoreOptionOverPrice(long budget, String vehicle, MarketplaceCar marketplaceCar);
 }

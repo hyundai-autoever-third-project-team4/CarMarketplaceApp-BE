@@ -22,14 +22,16 @@ public record MarketplaceCarRecommandInfoDto(
         String mainImage
 ) {
         public static MarketplaceCarRecommandInfoDto of(MarketplaceCar marketplaceCar){
+                if(marketplaceCar == null) return null;
+
                 DecimalFormat formatter = new DecimalFormat("#,###");
                 String price = formatter.format(marketplaceCar.getPrice() / 10000) + "만원";
                 String mileage = formatter.format(marketplaceCar.getCarDetails().getMileage()) + "km";
 
                 formatter = new DecimalFormat("00");
+                Integer year = marketplaceCar.getCarDetails().getRegistrationDate().getYear();
                 Integer month = marketplaceCar.getCarDetails().getRegistrationDate().getMonthValue();
-                Integer day = marketplaceCar.getCarDetails().getRegistrationDate().getDayOfMonth();
-                String registrationDate = month + "년 " + formatter.format(day) + "일";
+                String registrationDate = year + "년 " + formatter.format(month) + "일";
 
                 return new MarketplaceCarRecommandInfoDto(
                         marketplaceCar.getCarDetails().getName(),
