@@ -30,7 +30,7 @@ public class QReservation extends EntityPathBase<Reservation> {
 
     public final DatePath<java.time.LocalDate> reservationDate = createDate("reservationDate", java.time.LocalDate.class);
 
-    public final DateTimePath<java.time.LocalDateTime> reservationTime = createDateTime("reservationTime", java.time.LocalDateTime.class);
+    public final TimePath<java.time.LocalTime> reservationTime = createTime("reservationTime", java.time.LocalTime.class);
 
     public final store.carjava.marketplace.app.user.entity.QUser user;
 

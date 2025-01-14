@@ -5,6 +5,7 @@ import lombok.Builder;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Builder
 public record ReservationInfoDto(
@@ -22,7 +23,7 @@ public record ReservationInfoDto(
         LocalDate reservationDate,
 
         @Schema(description = "예약 시간", example = "2023-12-01T14:00:00")
-        LocalDateTime reservationTime,
+        LocalTime reservationTime,
 
         @Schema(description = "예약 생성 날짜 및 시간", example = "2023-11-20T10:30:00")
         LocalDateTime createdAt
