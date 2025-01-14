@@ -19,6 +19,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.List;
+
 import store.carjava.marketplace.common.jwt.JwtTokenVerifier;
 
 @Component
@@ -29,8 +30,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
-            @NonNull HttpServletResponse response,
-            @NonNull FilterChain filterChain) throws ServletException, IOException {
+                                    @NonNull HttpServletResponse response,
+                                    @NonNull FilterChain filterChain) throws ServletException, IOException {
+
+        String requestURI = request.getRequestURI();
+
+        // /filter 및 /recommend 경로는 필터 체인을 실행하지 않고 반환
+        if (requestURI.startsWith("/filter") || requestURI.startsWith("/recommend")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         String token = resolveTokenFromHeaderOrCookie(request);
 
         if (token != null) {
