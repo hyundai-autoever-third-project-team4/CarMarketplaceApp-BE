@@ -7,18 +7,19 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarRegisterRequest;
 import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarResponse;
 import store.carjava.marketplace.app.marketplace_car.entity.MarketplaceCar;
 import store.carjava.marketplace.app.marketplace_car.service.MarketplaceCarService;
 
 import java.util.List;
 
+@Slf4j
 @Tag(name = "MarketplaceCar", description = "마켓플레이스 차량 관련 API")
 @RestController
 @RequiredArgsConstructor
@@ -126,4 +127,22 @@ public class MarketplaceCarController {
         );
         return ResponseEntity.ok(filteredCars);
     }
+
+    @PostMapping("/api-docs/test")
+    public void test() {
+        log.info("APItest입니다.");
+    }
+
+    @PostMapping("/api-docs/register")
+    public ResponseEntity<MarketplaceCar> registerCar(@RequestBody MarketplaceCarRegisterRequest request) {
+        try {
+            MarketplaceCar marketplaceCar = marketplaceCarService.registerCar(request);
+            return ResponseEntity.ok(marketplaceCar);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+
+
+
 }
