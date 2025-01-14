@@ -11,6 +11,7 @@ import store.carjava.marketplace.app.like.dto.LikeInfoDto;
 import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarDetailsDto;
 import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarRegisterRequest;
 import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarResponse;
+import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarSendToManagerDto;
 import store.carjava.marketplace.app.marketplace_car.entity.MarketplaceCar;
 import store.carjava.marketplace.app.marketplace_car.exception.*;
 import store.carjava.marketplace.app.marketplace_car.repository.MarketplaceCarRepository;
@@ -21,6 +22,7 @@ import store.carjava.marketplace.app.reservation.dto.ReservationInfoDto;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -222,24 +224,92 @@ public class MarketplaceCarService {
     }
 
 
-    public MarketplaceCar registerCar(MarketplaceCarRegisterRequest request) {
+    // 처음 판매자가 판매차량을 등록할때 등록하는 service
+    public MarketplaceCarSendToManagerDto sellRegisterCar(MarketplaceCarRegisterRequest request) {
         // BaseCar 조회
-        BaseCar baseCar = baseCarRepository.findByCarDetailsLicensePlateAndOwnerName(
+        BaseCar baseCar = baseCarRepository.findByCarDetails_LicensePlateAndOwnerName(
                         request.licensePlate(),
                         request.ownerName())
                 .orElseThrow(() -> new IllegalArgumentException("해당 번호판과 이름에 해당하는 차량이 존재하지 않습니다."));
 
         // MarketplaceCar 생성
         MarketplaceCar marketplaceCar = MarketplaceCar.builder()
+                .id(baseCar.getId())
                 .carDetails(baseCar.getCarDetails()) // BaseCar에서 CarDetails 설정
-                .price(request.price()) // 요청에서 가격 설정
+                .price(0L) // 요청에서 가격 설정
                 .status("판매 대기") // 상태
                 .marketplaceRegistrationDate(LocalDate.now()) // 현재 날짜로 등록일 설정
                 .build();
 
+        // DTO로 변환 후 반환
+        return MarketplaceCarSendToManagerDto.builder()
+                .id(marketplaceCar.getId())
+                .carDetails(
+                        MarketplaceCarDetailsDto.builder()
+                                .licensePlate(marketplaceCar.getCarDetails().getLicensePlate())
+                                .brand(marketplaceCar.getCarDetails().getBrand())
+                                .name(marketplaceCar.getCarDetails().getName())
+                                .driveType(marketplaceCar.getCarDetails().getDriveType())
+                                .engineCapacity(marketplaceCar.getCarDetails().getEngineCapacity())
+                                .exteriorColor(marketplaceCar.getCarDetails().getExteriorColor())
+                                .interiorColor(marketplaceCar.getCarDetails().getInteriorColor())
+                                .registrationDate(marketplaceCar.getCarDetails().getRegistrationDate())
+                                .model(marketplaceCar.getCarDetails().getModel())
+                                .colorType(marketplaceCar.getCarDetails().getColorType())
+                                .fuelType(marketplaceCar.getCarDetails().getFuelType())
+                                .mileage(marketplaceCar.getCarDetails().getMileage())
+                                .modelYear(marketplaceCar.getCarDetails().getModelYear())
+                                .seatingCapacity(marketplaceCar.getCarDetails().getSeatingCapacity())
+                                .transmission(marketplaceCar.getCarDetails().getTransmission())
+                                .vehicleType(marketplaceCar.getCarDetails().getVehicleType())
+                                .build()
+                )
+                .testDriveCenterName("") // 기본값으로 설정하거나 동적으로 할당
+                .price(marketplaceCar.getPrice())
+                .marketplaceRegistrationDate(marketplaceCar.getMarketplaceRegistrationDate())
+                .status(marketplaceCar.getStatus())
+                .mainImage("") // 메인 이미지 URL
+                .build();
+    }
 
-        // 저장
-        return marketplaceCarRepository.save(marketplaceCar);
+
+    public List<MarketplaceCarSendToManagerDto> getCarsByStatus(String status) {
+
+        List<MarketplaceCar> marketplaceCars = marketplaceCarRepository.findByStatus(status);
+
+        List<MarketplaceCarSendToManagerDto> dtoList = new ArrayList<>();
+        for (MarketplaceCar marketplaceCar : marketplaceCars) {
+            MarketplaceCarSendToManagerDto dto = MarketplaceCarSendToManagerDto.builder()
+                    .id(marketplaceCar.getId())
+                    .carDetails(
+                            MarketplaceCarDetailsDto.builder()
+                                    .licensePlate(marketplaceCar.getCarDetails().getLicensePlate())
+                                    .brand(marketplaceCar.getCarDetails().getBrand())
+                                    .name(marketplaceCar.getCarDetails().getName())
+                                    .driveType(marketplaceCar.getCarDetails().getDriveType())
+                                    .engineCapacity(marketplaceCar.getCarDetails().getEngineCapacity())
+                                    .exteriorColor(marketplaceCar.getCarDetails().getExteriorColor())
+                                    .interiorColor(marketplaceCar.getCarDetails().getInteriorColor())
+                                    .registrationDate(marketplaceCar.getCarDetails().getRegistrationDate())
+                                    .model(marketplaceCar.getCarDetails().getModel())
+                                    .colorType(marketplaceCar.getCarDetails().getColorType())
+                                    .fuelType(marketplaceCar.getCarDetails().getFuelType())
+                                    .mileage(marketplaceCar.getCarDetails().getMileage())
+                                    .modelYear(marketplaceCar.getCarDetails().getModelYear())
+                                    .seatingCapacity(marketplaceCar.getCarDetails().getSeatingCapacity())
+                                    .transmission(marketplaceCar.getCarDetails().getTransmission())
+                                    .vehicleType(marketplaceCar.getCarDetails().getVehicleType())
+                                    .build()
+                    )
+                    .testDriveCenterName("") // 기본값으로 설정하거나 동적으로 할당
+                    .price(marketplaceCar.getPrice())
+                    .marketplaceRegistrationDate(marketplaceCar.getMarketplaceRegistrationDate())
+                    .status(marketplaceCar.getStatus())
+                    .mainImage("") // 메인 이미지 URL
+                    .build();
+            dtoList.add(dto);
+        }
+        return dtoList;
     }
 
 

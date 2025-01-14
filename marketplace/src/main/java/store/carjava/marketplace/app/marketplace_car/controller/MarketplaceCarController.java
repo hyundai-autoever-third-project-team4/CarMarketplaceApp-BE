@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarRegisterRequest;
 import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarResponse;
+import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarSendToManagerDto;
 import store.carjava.marketplace.app.marketplace_car.entity.MarketplaceCar;
 import store.carjava.marketplace.app.marketplace_car.service.MarketplaceCarService;
 
@@ -134,12 +135,12 @@ public class MarketplaceCarController {
     }
 
     @PostMapping("/api-docs/register")
-    public ResponseEntity<MarketplaceCar> registerCar(@RequestBody MarketplaceCarRegisterRequest request) {
+    public ResponseEntity<?> registerCar(@RequestBody MarketplaceCarRegisterRequest request) {
         try {
-            MarketplaceCar marketplaceCar = marketplaceCarService.registerCar(request);
-            return ResponseEntity.ok(marketplaceCar);
+            MarketplaceCarSendToManagerDto MarketplaceCarSendToManagerDto = marketplaceCarService.sellRegisterCar(request);
+            return ResponseEntity.ok(MarketplaceCarSendToManagerDto);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(null);
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
