@@ -1,6 +1,7 @@
 package store.carjava.marketplace.app.review.controller;
 
 
+import io.jsonwebtoken.io.IOException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -8,19 +9,40 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import store.carjava.marketplace.app.review.dto.*;
 import store.carjava.marketplace.app.review.service.ReviewService;
+import store.carjava.marketplace.common.util.image.ImageUploader;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
 @Tag(name = "Review", description = "구매한 차 리뷰 관련 API")
 public class ReviewController {
     private final ReviewService reviewService;
+    private final ImageUploader imageUploader;
 
     @Operation(description = "구매할 차량 리뷰작성")
     @PostMapping("/review")
-    public ResponseEntity<ReviewCreateResponse> createReview(@Valid @RequestBody ReviewCreateRequest request) {
-        ReviewCreateResponse response = reviewService.createReview(request);
+    public ResponseEntity<ReviewCreateResponse> createReview(
+            @RequestParam("carId") String carId,
+            @RequestParam("content") String content,
+            @RequestParam("starRate") Double starRate,
+            @RequestParam(value = "files", required = false) List<MultipartFile> files
+
+    ) throws IOException, java.io.IOException {
+        // 이미지 파일이 전송된 경우에만 S3에 업로드 수행
+        List<String> imageUrls = files != null && !files.isEmpty()
+                ? imageUploader.uploadMultiFiles(files, "reviews")
+                : List.of();
+
+
+        // ReviewCreateRequest 객체 생성
+        ReviewCreateRequest request = new ReviewCreateRequest(carId, content, starRate);
+
+        // 리뷰 생성 서비스 호출
+        ReviewCreateResponse response = reviewService.createReview(request, imageUrls);
         return ResponseEntity.ok(response);
 
     }
