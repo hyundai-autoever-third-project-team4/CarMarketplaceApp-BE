@@ -14,6 +14,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -24,21 +26,31 @@ public class ImageUploader {
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
-    // MultipartFile을 전달받아 File로 전환한 후 S3에 업로드 후, s3 주소 리턴
-    public String upload(MultipartFile multipartFile, String dirName) throws IOException {
+    // 여러 MultipartFile 업로드
+    public List<String> uploadMultiFiles(List<MultipartFile> multipartFiles, String dirName) throws IOException {
+        return multipartFiles.stream()
+                .map(file -> {
+                    try {
+                        return uploadSingleFile(file, dirName);
+                    } catch (IOException e) {
+                        throw new RuntimeException("파일 업로드 실패: " + file.getOriginalFilename(), e);
+                    }
+                })
+                .collect(Collectors.toList());
+    }
+
+    // 단일 MultipartFile 업로드
+    public String uploadSingleFile(MultipartFile multipartFile, String dirName) throws IOException {
         File uploadFile = convert(multipartFile)
                 .orElseThrow(() -> new IllegalArgumentException("MultipartFile -> File 전환 실패"));
         return upload(uploadFile, dirName);
     }
 
     private String upload(File uploadFile, String dirName) {
-        // UUID 생성 후 파일 이름으로 설정
         String fileName = dirName + "/" + UUID.randomUUID() + "_" + uploadFile.getName();
         String uploadImageUrl = putS3(uploadFile, fileName);
-
-        removeNewFile(uploadFile); // 로컬에 생성된 File 삭제
-
-        return uploadImageUrl; // 업로드된 파일의 S3 URL 반환
+        removeNewFile(uploadFile);
+        return uploadImageUrl;
     }
 
     private void removeNewFile(File targetFile) {
