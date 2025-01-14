@@ -3,10 +3,13 @@ package store.carjava.marketplace.app.marketplace_car.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import store.carjava.marketplace.app.base_car.entity.BaseCar;
+import store.carjava.marketplace.app.base_car.repository.BaseCarRepository;
 import store.carjava.marketplace.app.car_purchase_history.dto.CarPurchaseHistoryInfoDto;
 import store.carjava.marketplace.app.car_sales_history.dto.CarSalesHistoryInfoDto;
 import store.carjava.marketplace.app.like.dto.LikeInfoDto;
 import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarDetailsDto;
+import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarRegisterRequest;
 import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarResponse;
 import store.carjava.marketplace.app.marketplace_car.entity.MarketplaceCar;
 import store.carjava.marketplace.app.marketplace_car.exception.*;
@@ -16,6 +19,8 @@ import store.carjava.marketplace.app.marketplace_car_image.dto.MarketplaceCarIma
 import store.carjava.marketplace.app.marketplace_car_option.dto.marketplaceCarOptionInfoDto;
 import store.carjava.marketplace.app.reservation.dto.ReservationInfoDto;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,7 +29,7 @@ import java.util.stream.Collectors;
 public class MarketplaceCarService {
 
     private final MarketplaceCarRepository marketplaceCarRepository;
-
+    private final BaseCarRepository baseCarRepository;
 
     public List<MarketplaceCarResponse> getFilteredCars(String model, String fuelType, String brand, String colorType,
                                                         String driveType, String licensePlate, String transmission,
@@ -57,7 +62,6 @@ public class MarketplaceCarService {
         }
         //유효한 상태인지 확인
         if(status != null && !isValidStatus(status)) {
-            System.out.println("#####################"+status);
             throw new StatusNotFoundException(status);
         }
 
@@ -216,4 +220,33 @@ public class MarketplaceCarService {
                 .marketplaceCarOptionInfoDtos(marketplaceCarOptionInfoDtos)
                 .build();
     }
+
+
+    public MarketplaceCar registerCar(MarketplaceCarRegisterRequest request) {
+        // BaseCar 조회
+        BaseCar baseCar = baseCarRepository.findByCarDetailsLicensePlateAndOwnerName(
+                        request.licensePlate(),
+                        request.ownerName())
+                .orElseThrow(() -> new IllegalArgumentException("해당 번호판과 이름에 해당하는 차량이 존재하지 않습니다."));
+
+        // MarketplaceCar 생성
+        MarketplaceCar marketplaceCar = MarketplaceCar.builder()
+                .carDetails(baseCar.getCarDetails()) // BaseCar에서 CarDetails 설정
+                .price(request.price()) // 요청에서 가격 설정
+                .status("판매 대기") // 상태
+                .marketplaceRegistrationDate(LocalDate.now()) // 현재 날짜로 등록일 설정
+                .build();
+
+
+        // 저장
+        return marketplaceCarRepository.save(marketplaceCar);
+    }
+
+
+
+
+
+
+
+
 }
