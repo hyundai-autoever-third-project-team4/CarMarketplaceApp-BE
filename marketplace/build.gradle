@@ -34,6 +34,9 @@ dependencies {
     // Thymeleaf-Dialect : 관리자 페이지 템플릿 레이아웃 구조 설정
     implementation group: 'nz.net.ultraq.thymeleaf', name: 'thymeleaf-layout-dialect', version: '3.3.0'
 
+    // AWS S3 업로드
+    implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+
     /* [ Swagger ] Spring Doc 2.8.1  */
     // Swagger를 사용하여 API 문서화 (Spring Boot 통합)
     implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.8.1'
