@@ -1,4 +1,4 @@
-package store.carjava.marketplace.common.util;
+package store.carjava.marketplace.common.security;
 
 
 import org.springframework.http.HttpStatus;

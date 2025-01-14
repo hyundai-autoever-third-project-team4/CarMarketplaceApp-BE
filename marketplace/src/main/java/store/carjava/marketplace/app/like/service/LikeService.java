@@ -12,8 +12,8 @@ import store.carjava.marketplace.app.like.repository.LikeRepository;
 import store.carjava.marketplace.app.marketplace_car.entity.MarketplaceCar;
 import store.carjava.marketplace.app.marketplace_car.repository.MarketplaceCarRepository;
 import store.carjava.marketplace.app.user.entity.User;
-import store.carjava.marketplace.common.util.UserNotAuthenticatedException;
-import store.carjava.marketplace.common.util.UserResolver;
+import store.carjava.marketplace.common.security.UserNotAuthenticatedException;
+import store.carjava.marketplace.common.util.user.UserResolver;
 
 import java.util.List;
 
