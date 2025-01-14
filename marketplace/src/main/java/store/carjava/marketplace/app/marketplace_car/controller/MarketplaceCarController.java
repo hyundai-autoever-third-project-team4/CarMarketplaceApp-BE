@@ -11,10 +11,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarRecommandListResponse;
+import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarRecommandRequest;
 import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarResponse;
-import store.carjava.marketplace.app.marketplace_car.entity.MarketplaceCar;
 import store.carjava.marketplace.app.marketplace_car.service.MarketplaceCarService;
 
 import java.util.List;
@@ -125,5 +127,14 @@ public class MarketplaceCarController {
                 name, sortOrder, pageable
         );
         return ResponseEntity.ok(filteredCars);
+    }
+
+    @GetMapping("/recommand")
+    public ResponseEntity<?> getCarRecommandation(
+            @RequestBody MarketplaceCarRecommandRequest request
+    ) {
+        MarketplaceCarRecommandListResponse response = marketplaceCarService.getRecommand(request);
+
+        return ResponseEntity.ok(response);
     }
 }

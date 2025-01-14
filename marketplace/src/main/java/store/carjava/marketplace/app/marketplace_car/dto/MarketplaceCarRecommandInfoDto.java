@@ -1,4 +1,4 @@
-package store.carjava.marketplace.app.car_model_grade;
+package store.carjava.marketplace.app.marketplace_car.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import store.carjava.marketplace.app.marketplace_car.entity.MarketplaceCar;
