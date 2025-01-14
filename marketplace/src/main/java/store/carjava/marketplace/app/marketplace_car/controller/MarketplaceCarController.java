@@ -129,11 +129,6 @@ public class MarketplaceCarController {
         return ResponseEntity.ok(filteredCars);
     }
 
-    @PostMapping("/api-docs/test")
-    public void test() {
-        log.info("APItest입니다.");
-    }
-
     @PostMapping("/api-docs/register")
     public ResponseEntity<?> registerCar(@RequestBody MarketplaceCarRegisterRequest request) {
         try {
@@ -144,6 +139,12 @@ public class MarketplaceCarController {
         }
     }
 
+    @GetMapping("/api-docs/status")
+    public ResponseEntity<List<MarketplaceCarSendToManagerDto>> getCarsByStatus(
+            @RequestParam String status) {
+        List<MarketplaceCarSendToManagerDto> cars = marketplaceCarService.getCarsByStatus(status);
+        return ResponseEntity.ok(cars);
+    }
 
 
 }
