@@ -31,7 +31,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(@NonNull HttpServletRequest request,
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain) throws ServletException, IOException {
-        String token = resolveToken(request);
+        String token = resolveTokenFromHeaderOrCookie(request);
 
         if (token != null) {
             try {
@@ -68,11 +68,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response); // 다음 필터로 요청 전달
     }
 
-    private String resolveToken(HttpServletRequest request) {
+    private String resolveTokenFromHeaderOrCookie(HttpServletRequest request) {
+        // Authorization 헤더에서 토큰 가져오기
         String bearerToken = request.getHeader("Authorization");
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7);
         }
-        return null;
+
+        // 쿠키에서 토큰 가져오기
+        if (request.getCookies() != null) {
+            for (jakarta.servlet.http.Cookie cookie : request.getCookies()) {
+                if ("accessToken".equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
+
+        return null; // 헤더와 쿠키 모두에서 토큰을 찾지 못한 경우 null 반환
     }
 }

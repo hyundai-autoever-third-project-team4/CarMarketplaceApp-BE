@@ -1,6 +1,7 @@
 package store.carjava.marketplace.app.marketplace_car.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import store.carjava.marketplace.app.car_purchase_history.dto.CarPurchaseHistoryInfoDto;
 import store.carjava.marketplace.app.car_sales_history.dto.CarSalesHistoryInfoDto;
@@ -8,6 +9,7 @@ import store.carjava.marketplace.app.like.dto.LikeInfoDto;
 import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarDetailsDto;
 import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarResponse;
 import store.carjava.marketplace.app.marketplace_car.entity.MarketplaceCar;
+import store.carjava.marketplace.app.marketplace_car.exception.*;
 import store.carjava.marketplace.app.marketplace_car.repository.MarketplaceCarRepository;
 import store.carjava.marketplace.app.marketplace_car_extra_option.dto.MarketplaceCarExtraOptionInfoDto;
 import store.carjava.marketplace.app.marketplace_car_image.dto.MarketplaceCarImageInfoDto;
@@ -31,19 +33,68 @@ public class MarketplaceCarService {
                                                         Integer maxMileage, Integer minModelYear, Integer maxModelYear,
                                                         List<Long> optionIds, String testDriveCenterName, String status,
                                                         Integer minEngineCapacity, Integer maxEngineCapacity, String name,
-                                                        String sortOrder
+                                                        String sortOrder, Pageable pageable
     ) {
 
-        return marketplaceCarRepository.filterCars(model, fuelType, brand, colorType,
-                        driveType, licensePlate, transmission, vehicleType,
-                        modelYear, seatingCapacity, maxPrice, minPrice,minMileage,
-                        maxMileage, minModelYear, maxModelYear ,optionIds, testDriveCenterName,
-                        status, minEngineCapacity, maxEngineCapacity, name, sortOrder
-                )
+        // 비즈니스 로직 검증
+        if (minPrice != null && maxPrice != null &&
+                minPrice > maxPrice) {
+            throw new MinPriceExceedsMaxPriceException();
+        }
 
-                .stream()
+        if (minModelYear != null && maxModelYear != null &&
+                minModelYear > maxModelYear) {
+            throw new MaxPriceLessThanMinPriceException();
+        }
+
+        // 브랜드가 주어졌을 때, 해당 브랜드가 있는지 확인
+        if (brand != null && !brandExists(brand)) {
+            throw new BrandNotFoundException(brand);  // 존재하지 않으면 예외 발생
+        }
+        // 유효한 연료타입인지 확인
+        if (fuelType != null && !isValidFuelType(fuelType)) {
+            throw new FuelTypeNotFoundException(fuelType);  // 유효하지 않으면 예외 발생
+        }
+        //유효한 상태인지 확인
+        if(status != null && !isValidStatus(status)) {
+            System.out.println("#####################"+status);
+            throw new StatusNotFoundException(status);
+        }
+
+        var filteredCars = marketplaceCarRepository.filterCars(model, fuelType, brand, colorType,
+                driveType, licensePlate, transmission, vehicleType,
+                modelYear, seatingCapacity, maxPrice, minPrice, minMileage,
+                maxMileage, minModelYear, maxModelYear, optionIds, testDriveCenterName,
+                status, minEngineCapacity, maxEngineCapacity, name, sortOrder, pageable);
+
+        if (filteredCars.isEmpty()) {
+            throw new CarNotFoundException(); // 예외 발생
+        }
+
+        return filteredCars.stream()
                 .map(this::buildMarketplaceCarResponse)
                 .toList();
+    }
+
+
+    // 유효한 연료타입을 확인하는 메서드
+    private boolean isValidFuelType(String fuelType) {
+        List<String> validFuelTypes = List.of("가솔린", "디젤", "전기", "하이브리드");
+        return validFuelTypes.contains(fuelType);
+    }
+
+    // 유효한 연료타입을 확인하는 메서드
+    private boolean isValidStatus(String status) {
+        List<String> validStatus = List.of("구매 가능", "승인 대기", "구매 불가");
+        return validStatus.contains(status);
+    }
+
+
+    // 브랜드가 존재하는지 체크하는 메서드
+    private boolean brandExists(String brand) {
+        // 예시로 단순히 `true` 또는 `false` 반환하도록 할 수 있습니다.
+        List<String> validBrands = List.of("현대", "제네시스");  // 실제 브랜드 목록
+        return validBrands.contains(brand);
     }
 
     // 모든 차량 데이터 조회
@@ -53,6 +104,7 @@ public class MarketplaceCarService {
                 .map(this::buildMarketplaceCarResponse)
                 .toList();
     }
+
 
     private MarketplaceCarResponse buildMarketplaceCarResponse(MarketplaceCar car) {
         // CarDetailsDto 생성

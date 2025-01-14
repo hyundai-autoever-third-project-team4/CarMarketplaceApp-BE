@@ -15,7 +15,7 @@ import store.carjava.marketplace.app.review.repository.ReviewRepository;
 import store.carjava.marketplace.app.user.entity.User;
 import store.carjava.marketplace.app.user.exception.UserIdNotFoundException;
 import store.carjava.marketplace.app.user.repository.UserRepository;
-import store.carjava.marketplace.common.util.UserResolver;
+import store.carjava.marketplace.common.util.user.UserResolver;
 
 import java.time.LocalDateTime;
 import java.util.List;

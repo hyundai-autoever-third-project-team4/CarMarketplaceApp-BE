@@ -1,0 +1,129 @@
+<div th:fragment="modal">
+
+  <script>
+    function previewImage(input, previewId) {
+      const file = input.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          document.getElementById(previewId).src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function previewMultipleImages(input, containerId) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = ""; // 초기화
+      Array.from(input.files).forEach((file) => {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const img = document.createElement("img");
+          img.src = e.target.result;
+          img.className = "img-thumbnail";
+          img.style.maxWidth = "100px";
+          img.style.maxHeight = "100px";
+          container.appendChild(img);
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+  </script>
+  <div class="modal fade" id="sampleModal" tabindex="-1" aria-labelledby="sampleModalLabel"
+       aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold" id="sampleModalLabel">차량 세부 정보 등록</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"
+                  aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form action="#" method="post" enctype="multipart/form-data">
+
+            <!-- 대표 이미지 업로드 -->
+            <div class="mb-5">
+              <label for="mainImage" class="form-label fw-bold">대표 이미지 업로드</label>
+              <div class="text-center mb-3">
+                <img id="mainImagePreview"
+                     src="https://via.placeholder.com/400x300?text=대표+이미지+미리보기" alt="대표 이미지 미리보기"
+                     class="img-thumbnail" style="max-width: 400px; max-height: 300px;">
+              </div>
+              <input type="file" class="form-control" id="mainImage" name="mainImage"
+                     accept="image/*" onchange="previewImage(this, 'mainImagePreview')">
+              <small class="form-text text-muted">차량의 대표 이미지를 업로드하세요 (1개만 업로드 가능).</small>
+            </div>
+
+            <!-- 세부 이미지 업로드 -->
+            <div class="mb-5">
+              <label class="form-label fw-bold">세부 이미지 업로드</label>
+
+              <div class="row">
+                <!-- 차량 외부 이미지 -->
+                <div class="col-md-6 mb-4">
+                  <label for="exteriorImages" class="form-label">차량 외부 이미지 (앞, 뒤, 좌, 우)</label>
+                  <div id="exteriorPreviewContainer" class="d-flex flex-wrap gap-2 mb-2">
+                    <small class="text-muted">업로드된 이미지가 여기에 표시됩니다.</small>
+                  </div>
+                  <input type="file" class="form-control" id="exteriorImages" name="exteriorImages"
+                         accept="image/*" multiple
+                         onchange="previewMultipleImages(this, 'exteriorPreviewContainer')">
+                </div>
+
+                <!-- 차량 내부 이미지 -->
+                <div class="col-md-6 mb-4">
+                  <label for="interiorImages" class="form-label">차량 내부 이미지 (운전석, 조수석)</label>
+                  <div id="interiorPreviewContainer" class="d-flex flex-wrap gap-2 mb-2">
+                    <small class="text-muted">업로드된 이미지가 여기에 표시됩니다.</small>
+                  </div>
+                  <input type="file" class="form-control" id="interiorImages" name="interiorImages"
+                         accept="image/*" multiple
+                         onchange="previewMultipleImages(this, 'interiorPreviewContainer')">
+                </div>
+              </div>
+
+              <div class="row">
+                <!-- 휠 이미지 -->
+                <div class="col-md-6 mb-4">
+                  <label for="wheelImages" class="form-label">차량 휠 이미지 (1, 2, 3, 4)</label>
+                  <div id="wheelPreviewContainer" class="d-flex flex-wrap gap-2 mb-2">
+                    <small class="text-muted">업로드된 이미지가 여기에 표시됩니다.</small>
+                  </div>
+                  <input type="file" class="form-control" id="wheelImages" name="wheelImages"
+                         accept="image/*" multiple
+                         onchange="previewMultipleImages(this, 'wheelPreviewContainer')">
+                </div>
+
+                <!-- 추가 이미지 -->
+                <div class="col-md-6 mb-4">
+                  <label for="additionalImages" class="form-label">추가 이미지</label>
+                  <div id="additionalPreviewContainer" class="d-flex flex-wrap gap-2 mb-2">
+                    <small class="text-muted">업로드된 이미지가 여기에 표시됩니다.</small>
+                  </div>
+                  <input type="file" class="form-control" id="additionalImages"
+                         name="additionalImages" accept="image/*" multiple
+                         onchange="previewMultipleImages(this, 'additionalPreviewContainer')">
+                </div>
+              </div>
+            </div>
+
+            <!-- 차량 가격 설정 -->
+            <div class="mb-3">
+              <label for="price" class="form-label fw-bold">차량 가격 (만원)</label>
+              <input type="number" class="form-control" id="price" name="price"
+                     placeholder="예: 3000">
+              <small class="form-text text-muted">차량의 가격을 입력하세요.</small>
+            </div>
+          </form>
+        </div>
+
+        <!-- 모달 하단 -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+          <button type="submit" class="btn btn-primary">등록 완료</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

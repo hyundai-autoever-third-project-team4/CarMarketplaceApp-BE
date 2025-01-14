@@ -1,11 +1,159 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{admin/layout}">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/layout}">
 <head>
   <title>차자바 차량 판매 관리</title>
+  <style>
+    .sale-card {
+      background: #f8f9fa;
+      border: 1px solid #e9ecef;
+      border-radius: 8px;
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .sale-card .car-image {
+      height: 120px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+
+    .sale-card h5 {
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .sale-card .info-label {
+      font-weight: bold;
+      color: #495057;
+    }
+
+    .sale-card .info-value {
+      font-size: 0.9rem;
+      color: #6c757d;
+    }
+
+    .tab-content {
+      margin-top: 20px;
+    }
+  </style>
 </head>
 <body>
 <div layout:fragment="content">
-  <h1>차량 판매 관리</h1>
+  <h1 class="mb-4">차량 판매 관리</h1>
+
+  <!-- 탭 네비게이션 -->
+  <ul class="nav nav-tabs">
+    <li class="nav-item">
+      <a class="nav-link active" id="waiting-tab" data-bs-toggle="tab" href="#waiting" role="tab"
+         aria-controls="waiting" aria-selected="true">판매 승인 대기</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" id="canceled-tab" data-bs-toggle="tab" href="#canceled" role="tab"
+         aria-controls="canceled" aria-selected="false">판매 승인 취소</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" id="completed-tab" data-bs-toggle="tab" href="#completed" role="tab"
+         aria-controls="completed" aria-selected="false">판매 승인 완료</a>
+    </li>
+  </ul>
+
+  <!-- 탭 내용 -->
+  <div class="tab-content">
+    <!-- 판매 승인 대기 -->
+    <div class="tab-pane fade show active" id="waiting" role="tabpanel"
+         aria-labelledby="waiting-tab">
+      <div class="row">
+        <div class="col-12">
+          <div class="sale-card d-flex align-items-center">
+            <div class="me-4">
+              <img
+                  src="https://certified-static.hyundai.com/contents/goods/shootConts/tobepic/02/exterior/GJK240903008701/PRD602_233.JPG"
+                  class="car-image" alt="Car Image">
+            </div>
+            <div class="flex-grow-1">
+              <h5>GV70 3.5 Turbo Edition</h5>
+              <div class="d-flex flex-column">
+                <span><span class="info-label">판매 금액:</span> <span class="info-value">6,500만원</span></span>
+                <span><span class="info-label">차량 번호판:</span> <span
+                    class="info-value">202가3030</span></span>
+                <span><span class="info-label">판매자:</span> <span
+                    class="info-value">홍길동</span></span>
+                <span><span class="info-label">날짜:</span> <span class="info-value">2025-01-12</span></span>
+              </div>
+            </div>
+            <!-- 버튼 -->
+            <div class="sale-card">
+              <button class="btn btn-success btn-sm" data-bs-toggle="modal"
+                      data-bs-target="#sampleModal">승인
+              </button>
+            </div>
+
+            <!-- 모달 삽입 -->
+            <div th:insert="~{admin/car-registration-modal :: modal}"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 판매 승인 취소 -->
+    <div class="tab-pane fade" id="canceled" role="tabpanel" aria-labelledby="canceled-tab">
+      <div class="row">
+        <div class="col-12">
+          <div class="sale-card d-flex align-items-center">
+            <div class="me-4">
+              <img
+                  src="https://certified-static.hyundai.com/contents/goods/shootConts/tobepic/02/exterior/GJK240903008702/PRD602_234.JPG"
+                  class="car-image" alt="Car Image">
+            </div>
+            <div class="flex-grow-1">
+              <h5>Kia K5 GT-Line</h5>
+              <div class="d-flex flex-column">
+                <span><span class="info-label">판매 금액:</span> <span class="info-value">4,200만원</span></span>
+                <span><span class="info-label">차량 번호판:</span> <span
+                    class="info-value">101다3030</span></span>
+                <span><span class="info-label">판매자:</span> <span
+                    class="info-value">김영희</span></span>
+                <span><span class="info-label">날짜:</span> <span class="info-value">2025-01-10</span></span>
+              </div>
+            </div>
+            <div>
+              <button class="btn btn-danger btn-sm">삭제</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 판매 승인 완료 -->
+    <div class="tab-pane fade" id="completed" role="tabpanel" aria-labelledby="completed-tab">
+      <div class="row">
+        <div class="col-12">
+          <div class="sale-card d-flex align-items-center">
+            <div class="me-4">
+              <img
+                  src="https://certified-static.hyundai.com/contents/goods/shootConts/tobepic/02/exterior/HDN241014009627/PRD602_233.JPG"
+                  class="car-image" alt="Car Image">
+            </div>
+            <div class="flex-grow-1">
+              <h5>Hyundai Tucson</h5>
+              <div class="d-flex flex-column">
+                <span><span class="info-label">판매 금액:</span> <span class="info-value">3,200만원</span></span>
+                <span><span class="info-label">차량 번호판:</span> <span
+                    class="info-value">405가1212</span></span>
+                <span><span class="info-label">판매자:</span> <span
+                    class="info-value">이철수</span></span>
+                <span><span class="info-label">날짜:</span> <span class="info-value">2025-01-09</span></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
 </div>
+
 </body>
 </html>
