@@ -22,10 +22,10 @@ public class TestDriveCenter {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @OneToMany(mappedBy = "testDriveCenter", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "testDriveCenter", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<MarketplaceCar> marketplaceCars = new ArrayList<>();
 
-    @Column(name = "name",nullable = false)
+    @Column(name = "name", nullable = false)
     private String name;
 
     @Column(name = "address", nullable = false)
