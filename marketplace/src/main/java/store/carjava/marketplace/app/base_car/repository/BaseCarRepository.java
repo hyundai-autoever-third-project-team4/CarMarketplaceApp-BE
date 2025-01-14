@@ -7,5 +7,5 @@ import java.util.List;
 import java.util.Optional;
 
 public interface BaseCarRepository extends JpaRepository<BaseCar, String> {
-    Optional<BaseCar> findByCarDetailsLicensePlateAndOwnerName(String licensePlate, String ownerName);
+    Optional<BaseCar> findByCarDetails_LicensePlateAndOwnerName(String licensePlate, String ownerName);
 }

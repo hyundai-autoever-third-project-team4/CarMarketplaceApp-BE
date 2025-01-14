@@ -8,6 +8,7 @@ import store.carjava.marketplace.app.test_drive_center.entity.TestDriveCenter;
 import java.util.List;
 
 @Repository
-public interface MarketplaceCarRepository extends JpaRepository<MarketplaceCar, String>, MarketplaceCarCustomRepository {
+public interface MarketplaceCarRepository extends JpaRepository<MarketplaceCar, String>, MarketplaceCarCustomRepository{
+    List<MarketplaceCar> findByStatus(String status);
     List<MarketplaceCar> findAllByTestDriveCenter(TestDriveCenter testDriveCenter);
 }
