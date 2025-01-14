@@ -13,7 +13,7 @@ import store.carjava.marketplace.app.reservation.entity.Reservation;
 import store.carjava.marketplace.app.reservation.exception.ReservationAlreadyExistsException;
 import store.carjava.marketplace.app.reservation.repository.ReservationRepository;
 import store.carjava.marketplace.app.user.entity.User;
-import store.carjava.marketplace.common.util.UserResolver;
+import store.carjava.marketplace.common.util.user.UserResolver;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
