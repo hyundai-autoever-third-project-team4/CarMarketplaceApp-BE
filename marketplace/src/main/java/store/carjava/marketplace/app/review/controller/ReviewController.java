@@ -23,7 +23,7 @@ public class ReviewController {
     private final ReviewService reviewService;
     private final ImageUploader imageUploader;
 
-    @Operation(description = "구매할 차량 리뷰작성")
+    @Operation(description = "구매한 차량 리뷰작성")
     @PostMapping("/review")
     public ResponseEntity<ReviewCreateResponse> createReview(
             @RequestParam("carId") String carId,
