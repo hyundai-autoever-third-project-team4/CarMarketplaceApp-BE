@@ -1,4 +1,4 @@
-package store.carjava.marketplace.common.util;
+package store.carjava.marketplace.common.util.user;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import store.carjava.marketplace.app.user.entity.User;
 import store.carjava.marketplace.app.user.exception.UserIdNotFoundException;
 import store.carjava.marketplace.app.user.repository.UserRepository;
+import store.carjava.marketplace.common.security.UserNotAuthenticatedException;
 
 @Component
 @RequiredArgsConstructor
