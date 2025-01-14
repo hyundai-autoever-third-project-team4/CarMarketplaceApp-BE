@@ -208,8 +208,9 @@ public class MarketplaceCarCustomRepositoryImpl implements MarketplaceCarCustomR
     }
 
     // 이차어때 차량 추천
+    // 예산보다 조금 적은 금액 내 차량 리스트
     @Override
-    public List<MarketplaceCar> findMarketplaceCarProperList(long budgetLow, long budgetHigh, String vehicle) {
+    public List<MarketplaceCar> findMarketplaceCarProperList(long budgetLow, long budgetHigh, List<String> vehicle) {
         QMarketplaceCar marketplaceCar = QMarketplaceCar.marketplaceCar;
         QCarModelGrade carModelGrade = QCarModelGrade.carModelGrade;
 
@@ -219,7 +220,7 @@ public class MarketplaceCarCustomRepositoryImpl implements MarketplaceCarCustomR
                 .leftJoin(carModelGrade).on(marketplaceCar.carDetails.model.eq(carModelGrade.model))
                 .where(
                         marketplaceCar.price.between(budgetLow, budgetHigh)
-                                .and(marketplaceCar.carDetails.vehicleType.eq(vehicle))
+                                .and(marketplaceCar.carDetails.vehicleType.in(vehicle))
                 )
                 .groupBy(marketplaceCar.carDetails.model, carModelGrade.grade)
                 .orderBy(
@@ -239,8 +240,9 @@ public class MarketplaceCarCustomRepositoryImpl implements MarketplaceCarCustomR
                 .fetch();
     }
 
+    // 초과 금액 추천 - 고급 모델 중 추천
     @Override
-    public MarketplaceCar findUpgradeModelCarOverPrice(long budget, String vehicle, MarketplaceCar car) {
+    public MarketplaceCar findUpgradeModelCarOverPrice(long budget, List<String> vehicle, MarketplaceCar car) {
         QMarketplaceCar marketplaceCar = QMarketplaceCar.marketplaceCar;
         QCarModelGrade carModelGrade = QCarModelGrade.carModelGrade;
 
@@ -252,12 +254,12 @@ public class MarketplaceCarCustomRepositoryImpl implements MarketplaceCarCustomR
         return queryFactory.selectFrom(marketplaceCar)
                 .leftJoin(carModelGrade)
                 .on(marketplaceCar.carDetails.model.eq(carModelGrade.model))
-                .where(marketplaceCar.carDetails.vehicleType.eq(vehicle)
+                .where(marketplaceCar.carDetails.vehicleType.in(vehicle)
                         .and(marketplaceCar.price.gt(budget))
                         .and(carModelGrade.model.in(
                                 JPAExpressions.select(carModelGrade.model)
                                         .from(carModelGrade)
-                                        .where(carModelGrade.vehicleType.eq(vehicle)
+                                        .where(carModelGrade.vehicleType.in(vehicle)
                                                 .and(carModelGrade.grade.gt(carGrade))
                                         )
                         ))
@@ -267,8 +269,9 @@ public class MarketplaceCarCustomRepositoryImpl implements MarketplaceCarCustomR
                 .fetchOne();
     }
 
+    // 초과 금액 추천 - 동일 모델 중 추천
     @Override
-    public MarketplaceCar findCarMoreOptionOverPrice(long budget, String vehicle, MarketplaceCar car) {
+    public MarketplaceCar findCarMoreOptionOverPrice(long budget, MarketplaceCar car) {
         QMarketplaceCar marketplaceCar = QMarketplaceCar.marketplaceCar;
         //QMarketplaceCarOption carOption = QMarketplaceCarOption.marketplaceCarOption;
         //QMarketplaceCarExtraOption carExtraOption = QMarketplaceCarExtraOption.marketplaceCarExtraOption;
@@ -289,7 +292,7 @@ public class MarketplaceCarCustomRepositoryImpl implements MarketplaceCarCustomR
                 .fetch();*/
 
 
-        // 적정 추천과 같은 모델이면서 최신 연식, 주행거리 비슷한 것
+        // 적정 추천과 같은 모델이면서 최신 연식 + (적정 추천의 주행거리 + 5000km) 이하인 것
         return queryFactory.select(marketplaceCar)
                 .from(marketplaceCar)
                 .where(marketplaceCar.carDetails.model.eq(car.getCarDetails().getModel())
