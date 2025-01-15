@@ -3,6 +3,8 @@ package store.carjava.marketplace.app.marketplace_car.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -12,11 +14,21 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
 import org.springframework.web.bind.annotation.*;
 import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarRegisterRequest;
 import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarResponse;
 import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarSendToManagerDto;
 import store.carjava.marketplace.app.marketplace_car.entity.MarketplaceCar;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarRecommandListResponse;
+import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarRecommandRequest;
+import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarResponse;
+
 import store.carjava.marketplace.app.marketplace_car.service.MarketplaceCarService;
 
 import java.util.List;
@@ -130,6 +142,7 @@ public class MarketplaceCarController {
         return ResponseEntity.ok(filteredCars);
     }
 
+
     @PostMapping("/api-docs/register")
     public ResponseEntity<String> registerCar(@RequestBody MarketplaceCarRegisterRequest request) {
         try {
@@ -187,5 +200,23 @@ public class MarketplaceCarController {
 
 
 
+
+
+    @Operation(summary = "이차어때 추천", description = "이차어때의 적정 / 저렴 / 비싼 차량을 추천합니다. 첫 추천에는 차 id = null. 재추천에는 차 id 필수.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "이차어때 추천 성공. 적정 / 저렴 / 비싼 차량 순. 결과 없는 경우 null 반환",
+                content = @Content(mediaType = "application/json",
+                schema = @Schema(implementation = MarketplaceCarRecommandListResponse.class))),
+            @ApiResponse(responseCode = "400", description = "잘못된 데이터 요청"),
+            @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content())
+    })
+    @GetMapping("/recommend")
+    public ResponseEntity<?> getCarRecommandation(
+            @RequestBody MarketplaceCarRecommandRequest request
+    ) {
+        MarketplaceCarRecommandListResponse response = marketplaceCarService.getRecommand(request);
+
+        return ResponseEntity.ok(response);
+    }
 
 }

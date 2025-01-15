@@ -43,6 +43,7 @@ public class SecurityConfig {
                 "/resources/**",
                 "/login-page",
                 "/login/**",
+                "/recommend/**",
                 "/filter/**",
                 "/cars/**"
         );
