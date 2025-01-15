@@ -115,9 +115,9 @@ public class MarketplaceCarService {
         return validFuelTypes.contains(fuelType);
     }
 
-    // 유효한 연료타입을 확인하는 메서드
+    // 유효한 상태를 확인하는 메서드
     private boolean isValidStatus(String status) {
-        List<String> validStatus = List.of("구매 가능", "승인 대기", "구매 불가");
+        List<String> validStatus = List.of("AVAILABLE_FOR_PURCHASE", "PENDING_PURCHASE_APPROVAL", "NOT_AVAILABLE_FOR_PURCHASE", "PENDING_SALE", "SALE_APPROVED");
         return validStatus.contains(status);
     }
 
@@ -264,7 +264,7 @@ public class MarketplaceCarService {
                 .id(baseCar.getId())
                 .carDetails(baseCar.getCarDetails()) // BaseCar에서 CarDetails 설정
                 .price(0L) // 요청에서 가격 설정
-                .status("판매 대기") // 상태
+                .status("PENDING_SALE") // 상태
                 .mainImage(baseCar.getMainImage())
                 .marketplaceRegistrationDate(LocalDate.now()) // 현재 날짜로 등록일 설정
                 .build();
@@ -342,7 +342,7 @@ public class MarketplaceCarService {
                 .id(car.getId())
                 .carDetails(car.getCarDetails())
                 .price(price)
-                .status("판매 승인")
+                .status("SALE_APPROVED")
                 .marketplaceRegistrationDate(LocalDate.now())
                 .testDriveCenter(testDriveCenter) // 연관된 TestDriveCenter 설정
                 .mainImage(car.getMainImage())
@@ -352,6 +352,7 @@ public class MarketplaceCarService {
         marketplaceCarRepository.save(car);
     }
 
+    // 판매자가 가격보고 승인했을때 최종 판매 API
     public void completeSaleCar(String id) {
         // 차량 조회
         MarketplaceCar car = marketplaceCarRepository.findById(id)
@@ -362,7 +363,7 @@ public class MarketplaceCarService {
                 .id(car.getId())
                 .carDetails(car.getCarDetails())
                 .price(car.getPrice())
-                .status("구매 가능") // 상태 업데이트
+                .status("AVAILABLE_FOR_PURCHASE") // 상태 업데이트
                 .marketplaceRegistrationDate(car.getMarketplaceRegistrationDate())
                 .mainImage(car.getMainImage())
                 .testDriveCenter(car.getTestDriveCenter())
