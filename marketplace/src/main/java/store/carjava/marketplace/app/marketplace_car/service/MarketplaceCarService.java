@@ -1,16 +1,27 @@
 package store.carjava.marketplace.app.marketplace_car.service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+
+import store.carjava.marketplace.app.base_car.entity.BaseCar;
+import store.carjava.marketplace.app.base_car.repository.BaseCarRepository;
+
 import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarRecommandInfoDto;
 import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarRecommandListResponse;
 import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarRecommandRequest;
+
 import store.carjava.marketplace.app.car_purchase_history.dto.CarPurchaseHistoryInfoDto;
 import store.carjava.marketplace.app.car_sales_history.dto.CarSalesHistoryInfoDto;
+import store.carjava.marketplace.app.car_sales_history.entity.CarSalesHistory;
+import store.carjava.marketplace.app.car_sales_history.repository.CarSalseHistoryRepository;
 import store.carjava.marketplace.app.like.dto.LikeInfoDto;
 import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarDetailsDto;
+import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarRegisterRequest;
 import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarResponse;
+import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarSendToManagerDto;
 import store.carjava.marketplace.app.marketplace_car.entity.MarketplaceCar;
 import store.carjava.marketplace.app.marketplace_car.exception.*;
 import store.carjava.marketplace.app.marketplace_car.repository.MarketplaceCarRepository;
@@ -18,17 +29,27 @@ import store.carjava.marketplace.app.marketplace_car_extra_option.dto.Marketplac
 import store.carjava.marketplace.app.marketplace_car_image.dto.MarketplaceCarImageInfoDto;
 import store.carjava.marketplace.app.marketplace_car_option.dto.marketplaceCarOptionInfoDto;
 import store.carjava.marketplace.app.reservation.dto.ReservationInfoDto;
+import store.carjava.marketplace.app.test_drive_center.dto.TestDriveCenterChangeDto;
+import store.carjava.marketplace.app.test_drive_center.entity.TestDriveCenter;
+import store.carjava.marketplace.app.test_drive_center.repository.TestDriveCenterRepository;
+import store.carjava.marketplace.app.user.entity.User;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class MarketplaceCarService {
 
     private final MarketplaceCarRepository marketplaceCarRepository;
-
+    private final BaseCarRepository baseCarRepository;
+    private final TestDriveCenterRepository testDriveCenterRepository;
+    private final CarSalseHistoryRepository carSalseHistoryRepository;
 
     public List<MarketplaceCarResponse> getFilteredCars(String model, String fuelType, String brand, String colorType,
                                                         String driveType, String licensePlate, String transmission,
@@ -61,7 +82,6 @@ public class MarketplaceCarService {
         }
         //유효한 상태인지 확인
         if(status != null && !isValidStatus(status)) {
-            System.out.println("#####################"+status);
             throw new StatusNotFoundException(status);
         }
 
@@ -221,6 +241,129 @@ public class MarketplaceCarService {
                 .build();
     }
 
+
+
+    // 처음 판매자가 판매차량을 등록할때 등록하는 service
+    public void sellRegisterCar(MarketplaceCarRegisterRequest request) {
+        // BaseCar 조회
+        BaseCar baseCar = baseCarRepository.findByCarDetails_LicensePlateAndOwnerName(
+                        request.licensePlate(),
+                        request.ownerName())
+                .orElseThrow(() -> new IllegalArgumentException("해당 번호판과 이름에 해당하는 차량이 존재하지 않습니다."));
+
+        // MarketplaceCar 생성
+        MarketplaceCar marketplaceCar = MarketplaceCar.builder()
+                .id(baseCar.getId())
+                .carDetails(baseCar.getCarDetails()) // BaseCar에서 CarDetails 설정
+                .price(0L) // 요청에서 가격 설정
+                .status("판매 대기") // 상태
+                .mainImage(baseCar.getMainImage())
+                .marketplaceRegistrationDate(LocalDate.now()) // 현재 날짜로 등록일 설정
+                .build();
+
+        marketplaceCarRepository.save(marketplaceCar);
+    }
+
+    // 상태별 차량 조회 API Service
+    public List<MarketplaceCarSendToManagerDto> getCarsByStatus(String status) {
+
+        List<MarketplaceCar> marketplaceCars = marketplaceCarRepository.findByStatus(status);
+
+        List<MarketplaceCarSendToManagerDto> dtoList = new ArrayList<>();
+        for (MarketplaceCar marketplaceCar : marketplaceCars) {
+            MarketplaceCarSendToManagerDto dto = MarketplaceCarSendToManagerDto.builder()
+                    .id(marketplaceCar.getId())
+                    .carDetails(
+                            MarketplaceCarDetailsDto.builder()
+                                    .licensePlate(marketplaceCar.getCarDetails().getLicensePlate())
+                                    .brand(marketplaceCar.getCarDetails().getBrand())
+                                    .name(marketplaceCar.getCarDetails().getName())
+                                    .driveType(marketplaceCar.getCarDetails().getDriveType())
+                                    .engineCapacity(marketplaceCar.getCarDetails().getEngineCapacity())
+                                    .exteriorColor(marketplaceCar.getCarDetails().getExteriorColor())
+                                    .interiorColor(marketplaceCar.getCarDetails().getInteriorColor())
+                                    .registrationDate(marketplaceCar.getCarDetails().getRegistrationDate())
+                                    .model(marketplaceCar.getCarDetails().getModel())
+                                    .colorType(marketplaceCar.getCarDetails().getColorType())
+                                    .fuelType(marketplaceCar.getCarDetails().getFuelType())
+                                    .mileage(marketplaceCar.getCarDetails().getMileage())
+                                    .modelYear(marketplaceCar.getCarDetails().getModelYear())
+                                    .seatingCapacity(marketplaceCar.getCarDetails().getSeatingCapacity())
+                                    .transmission(marketplaceCar.getCarDetails().getTransmission())
+                                    .vehicleType(marketplaceCar.getCarDetails().getVehicleType())
+                                    .build()
+                    )
+                    .testDriveCenterName("") // 기본값으로 설정하거나 동적으로 할당
+                    .price(marketplaceCar.getPrice())
+                    .marketplaceRegistrationDate(marketplaceCar.getMarketplaceRegistrationDate())
+                    .status(marketplaceCar.getStatus())
+                    .mainImage(marketplaceCar.getMainImage()) // 메인 이미지 URL
+                    .build();
+            dtoList.add(dto);
+        }
+        return dtoList;
+    }
+
+    // 관리자가 판매 승인했을 때 가격
+    public void approveCar(String id, String testDriverCenterName, Long price) {
+        // 차량 조회
+        MarketplaceCar car = marketplaceCarRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("해당 차량을 찾을 수 없습니다."));
+
+        // TestDriveCenter 조회
+        TestDriveCenter testDriveCenter = testDriveCenterRepository.findByName(testDriverCenterName)
+                .orElseThrow(() -> new IllegalArgumentException("해당 이름의 시승 센터를 찾을 수 없습니다."));
+
+        // 차량 상태 업데이트 및 TestDriveCenter 연관 관계 설정
+        car = MarketplaceCar.builder()
+                .id(car.getId())
+                .carDetails(car.getCarDetails())
+                .price(price)
+                .status("판매 승인")
+                .marketplaceRegistrationDate(LocalDate.now())
+                .testDriveCenter(testDriveCenter) // 연관된 TestDriveCenter 설정
+                .mainImage(car.getMainImage())
+                .build();
+
+        // 변경된 차량 저장
+        marketplaceCarRepository.save(car);
+    }
+
+    public void completeSaleCar(String id) {
+        // 차량 조회
+        MarketplaceCar car = marketplaceCarRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("해당 차량을 찾을 수 없습니다."));
+
+        // 차량 상태 업데이트
+        car = MarketplaceCar.builder()
+                .id(car.getId())
+                .carDetails(car.getCarDetails())
+                .price(car.getPrice())
+                .status("구매 가능") // 상태 업데이트
+                .marketplaceRegistrationDate(car.getMarketplaceRegistrationDate())
+                .mainImage(car.getMainImage())
+                .testDriveCenter(car.getTestDriveCenter())
+                .build();
+
+        // 변경된 차량 저장
+        marketplaceCarRepository.save(car);
+
+        /** user 정보를 받아오면
+
+//        // 현재 로그인된 사용자 정보 가져오기
+//        User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+//
+//        // 판매 이력 생성
+//        CarSalesHistory salesHstory = CarSalesHistory.builder()
+//                .marketplaceCar(car) // 업데이트된 차량 정보
+//                .user(currentUser)
+//                .build();
+//
+//        // 판매 이력 저장
+//        carSalseHistoryRepository.save(salesHstory);**/
+    }
+
+
     public MarketplaceCarRecommandListResponse getRecommand(MarketplaceCarRecommandRequest request) {
         String carId = request.carId();
         List<String> vehicle = request.vehicleType();
@@ -315,4 +458,5 @@ public class MarketplaceCarService {
                 MarketplaceCarRecommandInfoDto.of(less),
                 MarketplaceCarRecommandInfoDto.of(over));
     }
+
 }

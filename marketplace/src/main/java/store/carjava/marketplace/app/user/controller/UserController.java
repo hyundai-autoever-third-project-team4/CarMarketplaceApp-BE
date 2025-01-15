@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import store.carjava.marketplace.app.review.dto.ReviewInfoListDto;
 import store.carjava.marketplace.app.user.dto.ReservationListResponse;
 import store.carjava.marketplace.app.user.dto.UserResponse;
+import store.carjava.marketplace.app.user.dto.UserSellCarListResponse;
 import store.carjava.marketplace.app.user.service.UserService;
 
 @RestController
@@ -33,8 +34,13 @@ public class UserController {
 
 
 
-//    @Operation(description = "마이페이지 내가 판매한 차량 리스트")
-//    @GetMapping("/mypage/sell")
+    @Operation(description = "마이페이지 내가 판매한 차량 리스트")
+    @GetMapping("/mypage/sell")
+    public ResponseEntity<UserSellCarListResponse> getUserSellList(){
+        UserSellCarListResponse response = userService.getUserSellList();
+        return ResponseEntity.ok(response);
+    }
+
 //
 //    @Operation(description = "마이페이지 내가 구매한 차량 리스트")
 //    @GetMapping("/mypage/purchase")
@@ -48,6 +54,5 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-//    @Operation(description = "마이페이지 내가 구매한 차량 리스트")
-//    @GetMapping("/mypage/review")
+
 }

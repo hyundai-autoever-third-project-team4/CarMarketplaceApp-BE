@@ -3,11 +3,11 @@ package store.carjava.marketplace.app.user.service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import store.carjava.marketplace.app.car_sales_history.entity.CarSalesHistory;
+import store.carjava.marketplace.app.car_sales_history.repository.CarSalseHistoryRepository;
 import store.carjava.marketplace.app.reservation.entity.Reservation;
 import store.carjava.marketplace.app.reservation.repository.ReservationRepository;
-import store.carjava.marketplace.app.user.dto.ReservationListResponse;
-import store.carjava.marketplace.app.user.dto.UserReservationDto;
-import store.carjava.marketplace.app.user.dto.UserResponse;
+import store.carjava.marketplace.app.user.dto.*;
 import store.carjava.marketplace.app.user.entity.User;
 import store.carjava.marketplace.app.user.repository.UserRepository;
 import store.carjava.marketplace.common.security.UserNotAuthenticatedException;
@@ -26,6 +26,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final ReservationRepository reservationRepository;
     private final UserResolver userResolver;
+    private final CarSalseHistoryRepository carSalseHistoryRepository;
 
     public UserResponse getUserPage() {
 
@@ -64,5 +65,34 @@ public class UserService {
                 .collect(Collectors.toList());
 
         return ReservationListResponse.of(ReservationList);
+    }
+
+    //유저가 판매한 차량 리스트 조회
+    public UserSellCarListResponse getUserSellList() {
+
+        // 1. 로그인한 유저 정보 가져오기.
+        User currentUser = userResolver.getCurrentUser();
+        if (currentUser == null) {
+            throw new UserNotAuthenticatedException();
+        }
+
+        // 2. car_sales_history에서 판매 내역 조회
+        List<CarSalesHistory> sellList =carSalseHistoryRepository.findByUserOrderByIdDesc(currentUser);
+
+        // 3. CarSalesHistory -> UserSellCarDto 변환
+        List<UserSellCarDto> userSellCarDtos = sellList.stream()
+                .map(history -> new UserSellCarDto(
+                        history.getMarketplaceCar().getCarDetails().getName(),
+                        history.getMarketplaceCar().getCarDetails().getLicensePlate(),
+                        history.getMarketplaceCar().getCarDetails().getRegistrationDate(),
+                        history.getMarketplaceCar().getCarDetails().getMileage(),
+                        history.getMarketplaceCar().getPrice(),
+                        history.getMarketplaceCar().getMainImage(),
+                        history.getMarketplaceCar().getStatus().toString()
+                ))
+                .collect(Collectors.toList());
+
+        // 4. UserSellCarListResponse 생성 및 반환
+        return UserSellCarListResponse.of(userSellCarDtos);
     }
 }
