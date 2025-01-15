@@ -18,12 +18,12 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@Tag(name = "Review", description = "구매한 차 리뷰 관련 API")
+@Tag(name = "리뷰 API", description = "차량 리뷰 관련 API를 제공합니다.")
 public class ReviewController {
     private final ReviewService reviewService;
     private final ImageUploader imageUploader;
 
-    @Operation(description = "구매한 차량 리뷰작성")
+    @Operation(summary = "구매한 차량 리뷰 작성", description = "구매한 차량 리뷰작성")
     @PostMapping("/review")
     public ResponseEntity<ReviewCreateResponse> createReview(
             @RequestParam("carId") String carId,
@@ -47,7 +47,7 @@ public class ReviewController {
 
     }
 
-    @Operation(description = "마이페이지에서 나의 리뷰 조회 api")
+    @Operation(summary = "내가 쓴 리뷰 조회", description = "마이페이지에서 나의 리뷰 조회 api")
     @GetMapping("/mypage/reviews")
     public ResponseEntity<ReviewInfoListDto> getUserReviews(
     ) {
@@ -55,7 +55,7 @@ public class ReviewController {
         return ResponseEntity.ok(userReviews);
     }
 
-    @Operation(description = "마이페이지 리뷰 삭제")
+    @Operation(summary = "내가 쓴 리뷰 삭제", description = "마이페이지 리뷰 삭제")
     @DeleteMapping("/review/{reviewId}")
     public ResponseEntity<ReviewDeleteResponse> deleteReview(
             @Parameter(description = "삭제할 리뷰 ID") @PathVariable("reviewId") Long reviewId
@@ -65,7 +65,7 @@ public class ReviewController {
     }
 
     //리뷰controller 말고 차량조회에서 CarDetailResponseDto에 ReviewInfoList도 함께 조회하도록 수정 필요
-    @Operation(description = "차량 상세에서 동일모델의 리뷰 조회")
+    @Operation(summary = "차량 동일 모델 리뷰 조회", description = "차량 상세에서 동일모델의 리뷰 조회")
     @GetMapping("/cars/{carId}/review")
     public ResponseEntity<ReviewInfoListDto> getCarReviews(
             @Parameter(description = "carId") @PathVariable("carId") String carId
@@ -74,7 +74,7 @@ public class ReviewController {
         return ResponseEntity.ok(carReviews);
     }
 
-    @Operation(description = "리뷰 상세 조회")
+    @Operation(summary = "리뷰 상세 조회", description = "리뷰 상세 조회")
     @GetMapping("/review/{reviewId}")
     public ResponseEntity<ReviewInfoDto> getReviewDetail(
             @Parameter(description = "리뷰 고유 Id") @PathVariable("reviewId") Long reviewId

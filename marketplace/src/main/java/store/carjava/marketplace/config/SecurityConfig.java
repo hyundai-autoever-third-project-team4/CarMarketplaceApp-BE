@@ -3,6 +3,7 @@ package store.carjava.marketplace.config;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -14,6 +15,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
 import java.util.List;
+
 import store.carjava.marketplace.common.security.JwtAuthenticationFilter;
 
 @Configuration
@@ -21,6 +23,20 @@ import store.carjava.marketplace.common.security.JwtAuthenticationFilter;
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    private static final List<String> publicPaths = List.of(
+            // [Swagger] 모두 허용
+            "/swagger-ui.html",
+            "/swagger-ui/**",
+            "/api-docs/**",
+
+            // [Thymleaf] 모두 허용
+            "/resources/**",
+
+            // [Oauth 2.0] 로그인 경로 모두 허용
+            "/login-page",
+            "/login/**"
+    );
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -35,24 +51,30 @@ public class SecurityConfig {
         // CORS 설정 추가
         http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
 
-        // 인증 및 권한 설정
-        List<String> publicPaths = List.of(
-                "/swagger-ui**",
-                "/swagger-ui/**",
-                "/api-docs/**",
-                "/resources/**",
-                "/login-page",
-                "/login/**",
-                "/filter/**",
-                "/cars/**",
-                "/recommend/**"
-
-        );
-
         http
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers(publicPaths.toArray(String[]::new)).permitAll() // 공개 경로
+                        // [Common] 공통 공개 경로
+                        .requestMatchers(publicPaths.toArray(String[]::new)).permitAll()
+
+                        // [Marketplace Car]
+                        .requestMatchers(HttpMethod.GET, "/cars/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/car/recommend").permitAll()
+                        .requestMatchers("/car/**").authenticated()
+
+                        // [Reservation]
+                        .requestMatchers(HttpMethod.GET, "/reservations/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/reservation/**").authenticated()
+
+                        // [My page]
+                        .requestMatchers("/mypage/**").authenticated()
+
+                        // [Review]
+                        .requestMatchers("/reviews/**").permitAll()
+                        .requestMatchers("/review/**").authenticated()
+
+                        // [ADMIN]
                         .requestMatchers("/admin/**").hasRole("ADMIN") // ROLE_ADMIN만 허용
+
                         .anyRequest().authenticated() // 나머지 요청은 인증 필요
                 )
                 // 커스텀 JWT 필터 추가

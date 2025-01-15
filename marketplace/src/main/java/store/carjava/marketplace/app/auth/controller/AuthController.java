@@ -34,7 +34,7 @@ public class AuthController {
 
     private final AuthService authService;
 
-    @Hidden
+    @Operation(summary = "사용자 로그인 엔드포인트", description = "키클락 로그인 페이지로 이동한 후, 인증 토큰값을 반환합니다.")
     @GetMapping("/login")
     public RedirectView redirectToKeycloak() {
         log.info("Redirecting to Keycloak for authentication");
