@@ -145,10 +145,9 @@ public class MarketplaceCarService {
 
         Long likeCount = likeRepository.countByMarketplaceCarId(car.getId());
 
-
-        Boolean isLikedByUser = null;
         // 1. 로그인한 유저 정보 가져오기.
 
+        Boolean isLikedByUser = null;
         try {
             User currentUser = userResolver.getCurrentUser();
             isLikedByUser = likeRepository.existsByMarketplaceCarIdAndUserId(car.getId(), currentUser.getId());
@@ -166,8 +165,8 @@ public class MarketplaceCarService {
                 .price(car.getPrice())
                 .marketplaceRegistrationDate(car.getMarketplaceRegistrationDate())
                 .mainImage(car.getMainImage())
-                .likeCount(likeCount)
-                .isLikedByUser(isLikedByUser)
+                .like(likeCount)
+                .islike(isLikedByUser)
                 .build();
     }
 
