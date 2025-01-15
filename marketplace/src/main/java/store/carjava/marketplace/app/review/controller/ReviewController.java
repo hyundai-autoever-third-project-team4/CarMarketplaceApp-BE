@@ -23,7 +23,7 @@ public class ReviewController {
     private final ReviewService reviewService;
     private final ImageUploader imageUploader;
 
-    @Operation(description = "구매할 차량 리뷰작성")
+    @Operation(description = "구매한 차량 리뷰작성")
     @PostMapping("/review")
     public ResponseEntity<ReviewCreateResponse> createReview(
             @RequestParam("carId") String carId,
@@ -48,11 +48,10 @@ public class ReviewController {
     }
 
     @Operation(description = "마이페이지에서 나의 리뷰 조회 api")
-    @GetMapping("/{userId}/review")
+    @GetMapping("/mypage/reviews")
     public ResponseEntity<ReviewInfoListDto> getUserReviews(
-            @Parameter(description = "회원 ID") @PathVariable("userId") Long userId
     ) {
-        ReviewInfoListDto userReviews = reviewService.getMyReviews(userId);
+        ReviewInfoListDto userReviews = reviewService.getMyReviews();
         return ResponseEntity.ok(userReviews);
     }
 
