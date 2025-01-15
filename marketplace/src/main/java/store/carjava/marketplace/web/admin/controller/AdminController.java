@@ -7,8 +7,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import store.carjava.marketplace.app.user.entity.User;
+import store.carjava.marketplace.common.util.user.UserResolver;
+import store.carjava.marketplace.web.admin.dto.AdminInfo;
 import store.carjava.marketplace.web.admin.service.AdminService;
 
 import java.util.List;
@@ -19,60 +22,53 @@ import java.util.List;
 public class AdminController {
 
     private final AdminService adminService;
+    private final UserResolver userResolver;
+
+    @ModelAttribute("adminInfo")
+    public AdminInfo populateAdminInfo() {
+        User user = userResolver.getCurrentUser();
+
+        return new AdminInfo(
+                user.getEmail(),
+                user.getRole()
+        );
+    }
 
     @GetMapping
     public String adminPage(Model model) {
-        // 현재 인증된 사용자의 Authentication 객체 가져오기
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if (authentication.getPrincipal() instanceof UserDetails userDetails) {
-            // 이메일 및 권한 정보 가져오기
-            String email = userDetails.getUsername();
-
-            // 전체 사용자 정보 조회
-            List<User> users = adminService.getAllUsers();
-
-            // 모델에 사용자 정보 추가
-            model.addAttribute("email", email);
-            model.addAttribute("roles", authentication.getAuthorities());
-
-            // 모델에 가입한 유저 정보 추가
-            model.addAttribute("users", users);
-
-            return "admin/index";
-        } else {
-            // 인증 객체가 UserDetails가 아닌 경우 예외 처리
-            throw new IllegalStateException("현재 인증된 사용자가 UserDetails 타입이 아닙니다.");
-        }
+        List<User> users = adminService.getAllUsers();
+        model.addAttribute("users", users);
+        return "admin/index";
     }
 
     @GetMapping("/cars")
-    public String carsPage(Model model) {
+    public String carsPage() {
         return "admin/cars";
     }
 
     @GetMapping("/tasks")
-    public String tasksPage(Model model) {
+    public String tasksPage() {
         return "admin/tasks";
     }
 
     @GetMapping("/users")
-    public String usersPage(Model model) {
+    public String usersPage() {
         return "admin/users";
     }
 
     @GetMapping("/car-purchases")
-    public String carPurchasesPage(Model model) {
+    public String carPurchasesPage() {
         return "admin/car-purchases";
     }
 
     @GetMapping("/car-sales")
-    public String carSalesPage(Model model) {
+    public String carSalesPage() {
         return "admin/car-sales";
     }
 
     @GetMapping("/test-drives")
-    public String testDrivesPage(Model model) {
+    public String testDrivesPage() {
         return "admin/test-drives";
     }
+
 }

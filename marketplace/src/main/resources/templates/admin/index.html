@@ -6,8 +6,8 @@
 <body>
 <div layout:fragment="content">
     <h1>어서오세요, 관리자님</h1>
-    <p><strong>관리자 Email:</strong> <span th:text="${email}">admin@example.com</span></p>
-    <p><strong>관리자 Roles:</strong> <span th:text="${roles}">[ROLE_ADMIN]</span></p>
+    <p><strong>관리자 Email:</strong> <span th:text="${adminInfo.email}">admin@example.com</span></p>
+    <p><strong>관리자 Roles:</strong> <span th:each="role : ${adminInfo.role}" th:text="${role}"></span></p>
 
     <!-- 통계 카드 -->
     <div class="row mt-4">

@@ -48,7 +48,13 @@
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav ms-auto">
+      <ul class="navbar-nav ms-auto align-items-center">
+        <!-- 사용자 정보 표시 -->
+        <li class="nav-item text-white me-3">
+          <span th:text="'로그인 사용자: ' + ${adminInfo.email}"></span>
+          <small class="text-muted ms-2" th:text="'(' + ${adminInfo.role} + ')'"></small>
+        </li>
+        <!-- 기존 메뉴 -->
         <li class="nav-item"><a class="nav-link" href="#">설정</a></li>
         <li class="nav-item"><a class="nav-link" href="#">로그아웃</a></li>
       </ul>
