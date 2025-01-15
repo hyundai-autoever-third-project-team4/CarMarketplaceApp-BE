@@ -78,6 +78,8 @@ public class SecurityConfig {
                         // [ADMIN]
                         .requestMatchers("/admin/**").hasRole("ADMIN") // ROLE_ADMIN만 허용
 
+                        .requestMatchers("/payment/**").permitAll()
+
                         .anyRequest().authenticated() // 나머지 요청은 인증 필요
                 )
                 // 커스텀 JWT 필터 추가
@@ -93,7 +95,7 @@ public class SecurityConfig {
         // 허용할 출처 설정
         configuration.setAllowedOrigins(List.of(
                 "http://localhost:5173",
-                "http://localhost:3000",
+                "http://127.0.0.1:5500",
                 "http://localhost:8081",
                 "https://chajava.store"
         ));
