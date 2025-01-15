@@ -19,6 +19,7 @@ import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Base64;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -90,8 +91,22 @@ public class PaymentService {
 
     private void makeCarPurchaseHistory(Map<String, Object> apiResponse) {
         // 현재 결제중인 유저 정보 확인
-        User user = userResolver.getCurrentUser();
+        User currentUser = userResolver.getCurrentUser();
 
+        // payment request에 들어있는 유저 정보와 같은 지 검증
+        validateRequestUserSameAsCurrentUser(currentUser, apiResponse);
+
+
+    }
+
+    private void validateRequestUserSameAsCurrentUser(User currentUser, Map<String, Object> apiResponse) {
+        Map<String, String> metadata = (Map<String, String>) apiResponse.get("metadata");
+
+        Long requestUserId = Long.valueOf(metadata.get("userId"));
+
+        if (currentUser.getId() != requestUserId) {
+            throw new
+        }
 
     }
 
