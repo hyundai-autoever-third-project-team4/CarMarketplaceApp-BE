@@ -32,10 +32,10 @@ public class CarPurchaseHistory {
     @Column(name = "approved_at", nullable = false)
     private LocalDateTime approvedAt; // 결제일
 
-    @Column(name = "confirmed_at", nullable = false)
+    @Column(name = "confirmed_at")
     private LocalDateTime confirmedAt; // 확정 날짜
 
-    @Column(name = "currency", nullable = false, length = 3)
+    @Column(name = "currency", nullable = false)
     private String currency;
 
     @Column(name = "total_amount", nullable = false)

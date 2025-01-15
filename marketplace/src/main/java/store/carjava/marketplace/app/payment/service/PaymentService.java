@@ -6,12 +6,19 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
+import store.carjava.marketplace.app.car_purchase_history.entity.CarPurchaseHistory;
 import store.carjava.marketplace.app.car_purchase_history.repository.CarPurchaseHistoryRepository;
+import store.carjava.marketplace.app.marketplace_car.entity.MarketplaceCar;
+import store.carjava.marketplace.app.marketplace_car.exception.MarketplaceCarIdNotFoundException;
+import store.carjava.marketplace.app.marketplace_car.repository.MarketplaceCarRepository;
 import store.carjava.marketplace.app.payment.dto.PaymentRequest;
 import store.carjava.marketplace.app.payment.dto.PaymentResponse;
 import store.carjava.marketplace.app.payment.exception.PaymentBodyNullException;
 import store.carjava.marketplace.app.payment.exception.PaymentClientErrorException;
+import store.carjava.marketplace.app.payment.exception.PaymentRequestUserMismatchException;
 import store.carjava.marketplace.app.user.entity.User;
+import store.carjava.marketplace.app.user.exception.UserIdNotFoundException;
+import store.carjava.marketplace.app.user.repository.UserRepository;
 import store.carjava.marketplace.common.util.user.UserResolver;
 
 import java.nio.charset.StandardCharsets;
@@ -19,6 +26,7 @@ import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Base64;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -26,12 +34,16 @@ import java.util.Optional;
 public class PaymentService {
 
     private final static String TOSS_API_URL = "https://api.tosspayments.com/v1/payments/confirm";
+    private final UserRepository userRepository;
+    private final CarPurchaseHistoryRepository carPurchaseHistoryRepository;
 
     @Value("${payment.secret}")
     private String WIDGET_SECRET_KEY;
 
     private final CarPurchaseHistoryRepository purchaseHistoryRepository;
+    private final MarketplaceCarRepository marketplaceCarRepository;
     private final UserResolver userResolver;
+    private final DateTimeFormatter formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 
     public PaymentResponse processPaymentConfirmation(PaymentRequest paymentRequest) {
         try {
@@ -96,7 +108,27 @@ public class PaymentService {
         // payment request에 들어있는 유저 정보와 같은 지 검증
         validateRequestUserSameAsCurrentUser(currentUser, apiResponse);
 
+        Map<String, Object> easyPay = (Map<String, Object>) apiResponse.get("easyPay");
+        Map<String, String> metadata = (Map<String, String>) apiResponse.get("metadata");
 
+        MarketplaceCar marketplaceCar = marketplaceCarRepository.findById(metadata.get("marketplaceCarId"))
+                .orElseThrow(MarketplaceCarIdNotFoundException::new);
+
+        CarPurchaseHistory carPurchaseHistory = CarPurchaseHistory.builder()
+                .orderId((String) apiResponse.get("orderId"))
+                .orderName((String) apiResponse.get("orderName"))
+                .approvedAt(OffsetDateTime.parse((String) apiResponse.get("approvedAt"), formatter).toLocalDateTime())
+                .confirmedAt(null)  // 현재 구매 확정이 되어있지 않기 때문에 null 로
+                .currency((String) apiResponse.get("currency"))
+                .totalAmount(((Number) apiResponse.get("totalAmount")).longValue())
+                .suppliedAmount(((Number) apiResponse.get("suppliedAmount")).longValue())
+                .vat(((Number) apiResponse.get("vat")).longValue())
+                .paymentMethod(easyPay != null ? (String) easyPay.get("provider") : null)
+                .marketplaceCar(marketplaceCar)
+                .user(currentUser)
+                .build();
+
+        carPurchaseHistoryRepository.save(carPurchaseHistory);
     }
 
     private void validateRequestUserSameAsCurrentUser(User currentUser, Map<String, Object> apiResponse) {
@@ -104,15 +136,12 @@ public class PaymentService {
 
         Long requestUserId = Long.valueOf(metadata.get("userId"));
 
-        if (currentUser.getId() != requestUserId) {
-            throw new
+        if (!Objects.equals(currentUser.getId(), requestUserId)) {
+            throw new PaymentRequestUserMismatchException();
         }
-
     }
 
     private PaymentResponse makePaymentResponse(Map<String, Object> apiResponse) {
-        DateTimeFormatter formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
-
         Map<String, Object> easyPay = (Map<String, Object>) apiResponse.get("easyPay");
         return new PaymentResponse(
                 (String) apiResponse.get("orderId"),
