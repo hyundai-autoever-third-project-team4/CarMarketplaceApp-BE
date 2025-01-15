@@ -32,4 +32,6 @@ public class BaseCar {
     @OneToMany(mappedBy = "baseCar", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BaseCarOption> baseCarOptions = new ArrayList<>();
 
+    @Column(name = "main_image", nullable = false)
+    private String mainImage;
 }

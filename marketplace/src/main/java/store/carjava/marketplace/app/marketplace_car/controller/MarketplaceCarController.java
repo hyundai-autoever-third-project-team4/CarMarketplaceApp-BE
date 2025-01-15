@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarRegisterRequest;
@@ -130,12 +131,16 @@ public class MarketplaceCarController {
     }
 
     @PostMapping("/api-docs/register")
-    public ResponseEntity<?> registerCar(@RequestBody MarketplaceCarRegisterRequest request) {
+    public ResponseEntity<String> registerCar(@RequestBody MarketplaceCarRegisterRequest request) {
         try {
-            MarketplaceCarSendToManagerDto MarketplaceCarSendToManagerDto = marketplaceCarService.sellRegisterCar(request);
-            return ResponseEntity.ok(MarketplaceCarSendToManagerDto);
+            marketplaceCarService.sellRegisterCar(request);
+
+            return ResponseEntity.ok("판매차량 등록 성공!");
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("서버 오류가 발생했습니다. 나중에 다시 시도해주세요.");
         }
     }
 
@@ -145,6 +150,25 @@ public class MarketplaceCarController {
         List<MarketplaceCarSendToManagerDto> cars = marketplaceCarService.getCarsByStatus(status);
         return ResponseEntity.ok(cars);
     }
+
+    @PutMapping("/api-docs/approve")
+    public ResponseEntity<String> approveCar(
+            @RequestParam String carId,
+            @RequestParam String testDriveCenterName,
+            @RequestParam Long price
+        ) {
+        try {
+            marketplaceCarService.approveCar(carId, testDriveCenterName, price);
+            return ResponseEntity.ok("차량 판매가 승인되었습니다.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("서버 오류가 발생했습니다. 나중에 다시 시도해주세요.");
+        }
+    }
+
+
 
 
 }
