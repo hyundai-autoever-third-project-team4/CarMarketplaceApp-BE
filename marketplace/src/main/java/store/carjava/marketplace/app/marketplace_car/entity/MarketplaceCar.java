@@ -53,6 +53,27 @@ public class MarketplaceCar {
     @Column(name = "main_image")
     private String mainImage; // 메인 이미지
 
+    //차량 상태변경
+    public void updateStatus(String newStatus) {
+        // 유효한 상태값인지 검증
+        if (!isValidStatus(newStatus)) {
+            throw new IllegalArgumentException("Invalid status: " + newStatus);
+        }
+        this.status = newStatus;
+    }
+
+    // 유효한 상태값 검증
+    private boolean isValidStatus(String status) {
+        List<String> validStatus = List.of(
+                "AVAILABLE_FOR_PURCHASE",
+                "PENDING_PURCHASE_APPROVAL",
+                "NOT_AVAILABLE_FOR_PURCHASE",
+                "PENDING_SALE",
+                "SALE_APPROVED"
+        );
+        return validStatus.contains(status);
+    }
+
     @OneToMany(mappedBy = "marketplaceCar", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<MarketplaceCarImage> marketplaceCarImages = new ArrayList<>();
