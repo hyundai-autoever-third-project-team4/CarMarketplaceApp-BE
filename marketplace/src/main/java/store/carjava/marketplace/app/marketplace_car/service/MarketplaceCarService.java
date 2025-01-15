@@ -10,19 +10,14 @@ import org.springframework.web.multipart.MultipartFile;
 import store.carjava.marketplace.app.base_car.entity.BaseCar;
 import store.carjava.marketplace.app.base_car.repository.BaseCarRepository;
 
-import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarRecommandInfoDto;
-import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarRecommandListResponse;
-import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarRecommandRequest;
+import store.carjava.marketplace.app.like.repository.LikeRepository;
+import store.carjava.marketplace.app.marketplace_car.dto.*;
 
 import store.carjava.marketplace.app.car_purchase_history.dto.CarPurchaseHistoryInfoDto;
 import store.carjava.marketplace.app.car_sales_history.dto.CarSalesHistoryInfoDto;
 import store.carjava.marketplace.app.car_sales_history.entity.CarSalesHistory;
 import store.carjava.marketplace.app.car_sales_history.repository.CarSalseHistoryRepository;
 import store.carjava.marketplace.app.like.dto.LikeInfoDto;
-import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarDetailsDto;
-import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarRegisterRequest;
-import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarResponse;
-import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarSendToManagerDto;
 import store.carjava.marketplace.app.marketplace_car.entity.MarketplaceCar;
 import store.carjava.marketplace.app.marketplace_car.exception.*;
 import store.carjava.marketplace.app.marketplace_car.repository.MarketplaceCarRepository;
@@ -60,6 +55,7 @@ public class MarketplaceCarService {
     private final UserResolver userResolver;
     private final ImageUploader imageUploader;
     private final MarketplaceCarImageService marketplaceCarImageService;
+    private final LikeRepository likeRepository;
 
     public List<MarketplaceCarResponse> getFilteredCars(List<String> models, List<String> fuelTypes, String brand, List<String> colorTypes,
                                                         String driveType, String licensePlate, String transmission,
@@ -146,55 +142,39 @@ public class MarketplaceCarService {
 
 
     private MarketplaceCarResponse buildMarketplaceCarResponse(MarketplaceCar car) {
-        // CarDetailsDto 생성
-        MarketplaceCarDetailsDto carDetailsDto = MarketplaceCarDetailsDto.builder()
-                .brand(car.getCarDetails().getBrand())
-                .model(car.getCarDetails().getModel())
-                .driveType(car.getCarDetails().getDriveType())
-                .engineCapacity(car.getCarDetails().getEngineCapacity())
-                .exteriorColor(car.getCarDetails().getExteriorColor())
-                .interiorColor(car.getCarDetails().getInteriorColor())
-                .colorType(car.getCarDetails().getColorType())
-                .fuelType(car.getCarDetails().getFuelType())
-                .licensePlate(car.getCarDetails().getLicensePlate())
-                .mileage(car.getCarDetails().getMileage())
-                .modelYear(car.getCarDetails().getModelYear())
+
+        Long likeCount = likeRepository.countByMarketplaceCarId(car.getId());
+
+        // 1. 로그인한 유저 정보 가져오기.
+        User currentUser = userResolver.getCurrentUser();
+        if (currentUser == null) {
+            throw new UserNotAuthenticatedException();
+        }
+
+        // 2. 사용자가 이 차량을 찜했는지 여부 확인
+        boolean isLikedByUser = likeRepository.existsByMarketplaceCarIdAndUserId(car.getId(), currentUser.getId());
+
+        // MarketplaceCarResponse 생성
+        return MarketplaceCarResponse.builder()
+                .id(car.getId())
                 .name(car.getCarDetails().getName())
-                .seatingCapacity(car.getCarDetails().getSeatingCapacity())
-                .transmission(car.getCarDetails().getTransmission())
-                .vehicleType(car.getCarDetails().getVehicleType())
-                .registrationDate(car.getCarDetails().getRegistrationDate())
+                .mileage(car.getCarDetails().getMileage())
+                .price(car.getPrice())
+                .marketplaceRegistrationDate(car.getMarketplaceRegistrationDate())
+                .mainImage(car.getMainImage())
+                .likeCount(likeCount)
+                .isLikedByUser(isLikedByUser)
                 .build();
+    }
 
-        // ReservationDto 리스트 생성
-        List<ReservationInfoDto> reservationDtos = car.getReservations().stream()
-                .map(reservation -> ReservationInfoDto.builder()
-                        .id(reservation.getId())
-                        .marketplaceCarId(car.getId())  // MarketplaceCar의 ID 포함
-                        .userId(reservation.getUser().getId())  // User의 ID 포함
-                        .reservationDate(reservation.getReservationDate())
-                        .reservationTime(reservation.getReservationTime())
-                        .createdAt(reservation.getCreatedAt())
-                        .build())
-                .collect(Collectors.toList());
+    // 상세 페이지에 전달해줄 데이터 Service
 
-        // LikeDto 리스트 생성
-        List<LikeInfoDto> likeDtos = car.getLikes().stream()
-                .map(like -> LikeInfoDto.builder()
-                        .id(like.getId())
-                        .marketplaceCarId(car.getId())
-                        .userId(like.getUser().getId())
-                        .build())
-                .collect(Collectors.toList());
+    public MarketplaceCarDetailPageResponse getCarDetailPageResponse(String carId){
 
-        // CarMarketplaceCarImageDto 리스트 생성
-        List<MarketplaceCarImageInfoDto> carMarketplaceCarImageDtos = car.getMarketplaceCarImages().stream()
-                .map(marketplaceCarImage -> MarketplaceCarImageInfoDto.builder()
-                        .id(marketplaceCarImage.getId())
-                        .marketplaceCarId(car.getId())
-                        .imageUrl(marketplaceCarImage.getImageUrl())
-                        .build())
-                .collect(Collectors.toList());
+        MarketplaceCar car = marketplaceCarRepository.findById(carId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 차량을 찾을 수 없습니다."));
+
+        Long likeCount = likeRepository.countByMarketplaceCarId(carId);
 
         // CarMarketplaceCarExtraOptionDto 리스트 생성
         List<MarketplaceCarExtraOptionInfoDto> carMarketplaceCarExtraOptionDtos = car.getMarketplaceCarExtraOptions().stream()
@@ -206,21 +186,13 @@ public class MarketplaceCarService {
                         .build())
                 .collect(Collectors.toList());
 
-        // CarPurchaseHistoryInfoDto 리스트 생성
-        List<CarPurchaseHistoryInfoDto>  carPurchaseHistoryInfoDtos =car.getCarPurchaseHistories().stream()
-                .map(purchaseHistory -> CarPurchaseHistoryInfoDto.builder()
-                        .id(purchaseHistory.getId())
-                        .marketplaceCarId(car.getId())
-                        .userId(purchaseHistory.getUser().getId())
-                        .build())
-                .collect(Collectors.toList());
 
-        // CarPurchaseHistoryInfoDto 리스트 생성
-        List<CarSalesHistoryInfoDto>  carSalesHistoryInfoDtos =car.getCarSalesHistories().stream()
-                .map(salesHistory -> CarSalesHistoryInfoDto.builder()
-                        .id(salesHistory.getId())
+        // CarMarketplaceCarImageDto 리스트 생성
+        List<MarketplaceCarImageInfoDto> carMarketplaceCarImageDtos = car.getMarketplaceCarImages().stream()
+                .map(marketplaceCarImage -> MarketplaceCarImageInfoDto.builder()
+                        .id(marketplaceCarImage.getId())
                         .marketplaceCarId(car.getId())
-                        .userId(salesHistory.getUser().getId())
+                        .imageUrl(marketplaceCarImage.getImageUrl())
                         .build())
                 .collect(Collectors.toList());
 
@@ -237,26 +209,23 @@ public class MarketplaceCarService {
                         .build())
                 .collect(Collectors.toList());
 
-        // MarketplaceCarResponse 생성
-        return MarketplaceCarResponse.builder()
+        return MarketplaceCarDetailPageResponse.builder()
                 .id(car.getId())
-                .carDetails(carDetailsDto)
+                .carDetails(car.getCarDetails())
                 .testDriveCenterName(car.getTestDriveCenter() != null ? car.getTestDriveCenter().getName() : null)
                 .price(car.getPrice())
                 .marketplaceRegistrationDate(car.getMarketplaceRegistrationDate())
                 .status(car.getStatus())
                 .mainImage(car.getMainImage())
-                .reservationDtos(reservationDtos) // 예약 리스트 포함
-                .likeDtos(likeDtos)
-                .marketplaceCarImageDtos(carMarketplaceCarImageDtos)
+                .LikeCount(likeCount)
                 .carMarketplaceCarExtraOptionDtos(carMarketplaceCarExtraOptionDtos)
-                .carPurchaseHistoryInfoDtos(carPurchaseHistoryInfoDtos)
-                .carSalesHistoryInfoDtos(carSalesHistoryInfoDtos)
+                .marketplaceCarImageDtos(carMarketplaceCarImageDtos)
                 .marketplaceCarOptionInfoDtos(marketplaceCarOptionInfoDtos)
                 .build();
+
+
+
     }
-
-
 
     // 처음 판매자가 판매차량을 등록할때 등록하는 service
     public void sellRegisterCar(MarketplaceCarRegisterRequest request) {
