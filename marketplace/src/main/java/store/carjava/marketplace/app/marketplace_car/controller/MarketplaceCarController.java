@@ -15,17 +15,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarRegisterRequest;
-import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarResponse;
-import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarSendToManagerDto;
+import store.carjava.marketplace.app.marketplace_car.dto.*;
 import store.carjava.marketplace.app.marketplace_car.entity.MarketplaceCar;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarRecommandListResponse;
-import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarRecommandRequest;
 import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarResponse;
 
 import store.carjava.marketplace.app.marketplace_car.service.MarketplaceCarService;
@@ -164,5 +160,27 @@ public class MarketplaceCarController {
     ) {
         MarketplaceCarRecommandListResponse response = marketplaceCarService.getRecommand(request);
         return ResponseEntity.ok(response);
+    }
+
+
+    @GetMapping("/car/{carId}/detail")
+    public ResponseEntity<MarketplaceCarDetailPageResponse> detailCar(
+            @PathVariable String carId) {
+
+        try {
+            // Service 호출을 통해 차량 상세 정보를 가져옴
+            MarketplaceCarDetailPageResponse response = marketplaceCarService.getCarDetailPageResponse(carId);
+
+            // 성공적으로 정보를 가져왔을 때 HTTP 200 OK와 함께 응답
+            return ResponseEntity.ok(response);
+
+        } catch (IllegalArgumentException e) {
+            // 차량이 없거나 잘못된 요청에 대해 HTTP 404 Not Found와 에러 메시지 응답
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+
+        } catch (Exception e) {
+            // 기타 예외 발생 시 HTTP 500 Internal Server Error 응답
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
 }
