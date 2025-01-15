@@ -43,7 +43,8 @@ public class SecurityConfig {
                 "/resources/**",
                 "/login-page",
                 "/login/**",
-                "/filter/**"
+                "/filter/**",
+                "/recommend/**"
         );
 
         http
