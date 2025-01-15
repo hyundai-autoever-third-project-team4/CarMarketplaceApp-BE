@@ -36,10 +36,10 @@ public record MarketplaceCarResponse(
         String mainImage,
 
         @Schema(description = "로그인된 사용자의 찜 유무")
-        Boolean isLikedByUser,
+        Boolean islike,
 
         @Schema(description = "좋아요 갯수")
-        Long likeCount
+        Long like
 
 ) {
 }
