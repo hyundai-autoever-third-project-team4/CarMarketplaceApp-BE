@@ -17,6 +17,7 @@ import store.carjava.marketplace.app.review_image.entity.ReviewImage;
 import store.carjava.marketplace.app.user.entity.User;
 import store.carjava.marketplace.app.user.exception.UserIdNotFoundException;
 import store.carjava.marketplace.app.user.repository.UserRepository;
+import store.carjava.marketplace.common.security.UserNotAuthenticatedException;
 import store.carjava.marketplace.common.util.user.UserResolver;
 
 import java.time.LocalDateTime;
@@ -89,11 +90,15 @@ public class ReviewService {
     }
 
     //마이페이지_본인 작성 리뷰 조회
-    public ReviewInfoListDto getMyReviews(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(UserIdNotFoundException::new);
+    public ReviewInfoListDto getMyReviews() {
 
-        List<ReviewInfoDto> reviewInfoList = reviewRepository.findAllByUserIdOrderByCreatedAtDesc(userId)
+        // 로그인한 유저 정보 가져오기.
+        User currentUser = userResolver.getCurrentUser();
+        if (currentUser == null) {
+            throw new UserNotAuthenticatedException();
+        }
+
+        List<ReviewInfoDto> reviewInfoList = reviewRepository.findAllByUserIdOrderByCreatedAtDesc(currentUser.getId())
                 .stream()
                 .map(ReviewInfoDto::of)
                 .collect(Collectors.toList());

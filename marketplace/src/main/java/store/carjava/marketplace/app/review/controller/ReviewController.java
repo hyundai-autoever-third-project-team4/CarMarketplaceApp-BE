@@ -48,11 +48,10 @@ public class ReviewController {
     }
 
     @Operation(description = "마이페이지에서 나의 리뷰 조회 api")
-    @GetMapping("/{userId}/review")
+    @GetMapping("/mypage/reviews")
     public ResponseEntity<ReviewInfoListDto> getUserReviews(
-            @Parameter(description = "회원 ID") @PathVariable("userId") Long userId
     ) {
-        ReviewInfoListDto userReviews = reviewService.getMyReviews(userId);
+        ReviewInfoListDto userReviews = reviewService.getMyReviews();
         return ResponseEntity.ok(userReviews);
     }
 

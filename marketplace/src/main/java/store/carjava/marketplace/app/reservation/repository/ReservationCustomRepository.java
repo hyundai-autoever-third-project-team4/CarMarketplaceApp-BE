@@ -5,6 +5,7 @@ import store.carjava.marketplace.app.user.entity.User;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -18,4 +19,6 @@ public interface ReservationCustomRepository {
 
     //마이페이지 가까운 예약내역 조회
     Optional<Reservation> findUpcomingReservation(User user);
+
+
 }

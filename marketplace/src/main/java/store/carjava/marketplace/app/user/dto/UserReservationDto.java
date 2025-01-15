@@ -2,15 +2,11 @@ package store.carjava.marketplace.app.user.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import store.carjava.marketplace.app.reservation.entity.Reservation;
-import store.carjava.marketplace.app.user.entity.User;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-@Schema(description = "마이페이지 첫화면/이름 및 가까운 예약 내역")
-public record UserResponse(
-        @Schema(description = "유저이름", example = "홍길동")
-        String userName,
+public record UserReservationDto(
 
         @Schema(description = "예약한 차이름", example = "2023 GV70 가솔린 2.5터보 AWD 스탠다드디자인")
         String carName,
@@ -26,23 +22,9 @@ public record UserResponse(
 
         @Schema(description = "예약 시간", example = "12:30:00")
         LocalTime reservationTime
-
-
 ) {
-        public static UserResponse of(User user, Reservation reservation){
-                if (reservation == null) {
-                        return new UserResponse(
-                                user.getName(),
-                                null,
-                                null,
-                                null,
-                                null,
-                                null
-                        );
-                }
-
-                return new UserResponse(
-                        user.getName(),
+        public static UserReservationDto of(Reservation reservation) {
+                return new UserReservationDto(
                         reservation.getMarketplaceCar().getCarDetails().getName(),
                         reservation.getMarketplaceCar().getMainImage(),
                         reservation.getMarketplaceCar().getTestDriveCenter().getName(),
@@ -51,16 +33,4 @@ public record UserResponse(
                 );
 
         }
-
-        public static UserResponse empty(User user) {
-                return new UserResponse(
-                        user.getName(),
-                        null,
-                        null,
-                        null,
-                        null,
-                        null
-                );
-        }
-
 }

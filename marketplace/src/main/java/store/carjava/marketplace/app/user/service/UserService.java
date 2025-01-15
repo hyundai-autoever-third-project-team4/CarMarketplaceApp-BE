@@ -5,13 +5,18 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import store.carjava.marketplace.app.reservation.entity.Reservation;
 import store.carjava.marketplace.app.reservation.repository.ReservationRepository;
+import store.carjava.marketplace.app.user.dto.ReservationListResponse;
+import store.carjava.marketplace.app.user.dto.UserReservationDto;
 import store.carjava.marketplace.app.user.dto.UserResponse;
 import store.carjava.marketplace.app.user.entity.User;
 import store.carjava.marketplace.app.user.repository.UserRepository;
 import store.carjava.marketplace.common.security.UserNotAuthenticatedException;
 import store.carjava.marketplace.common.util.user.UserResolver;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -43,5 +48,21 @@ public class UserService {
 
 
 
+    }
+
+    //유저 시승 예약 내역 리스트 조회
+    public ReservationListResponse getUserReservationList() {
+        // 1. 로그인한 유저 정보 가져오기.
+        User currentUser = userResolver.getCurrentUser();
+        if (currentUser == null) {
+            throw new UserNotAuthenticatedException();
+        }
+
+        List<UserReservationDto> ReservationList = reservationRepository.findByUserOrderByReservationDateDescReservationTimeDesc(currentUser)
+                .stream()
+                .map(UserReservationDto::of)
+                .collect(Collectors.toList());
+
+        return ReservationListResponse.of(ReservationList);
     }
 }

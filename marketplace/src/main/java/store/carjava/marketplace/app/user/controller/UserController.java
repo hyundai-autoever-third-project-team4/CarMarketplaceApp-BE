@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 import store.carjava.marketplace.app.review.dto.ReviewInfoListDto;
+import store.carjava.marketplace.app.user.dto.ReservationListResponse;
 import store.carjava.marketplace.app.user.dto.UserResponse;
 import store.carjava.marketplace.app.user.service.UserService;
 
@@ -40,8 +41,12 @@ public class UserController {
 //
 //
 //
-//    @Operation(description = "마이페이지 시승 예약 내역")
-//    @GetMapping("/mypage/reservation")
+    @Operation(description = "마이페이지 시승 예약 내역")
+    @GetMapping("/mypage/reservations")
+    public ResponseEntity<ReservationListResponse> getUserReservationList(){
+        ReservationListResponse response = userService.getUserReservationList();
+        return ResponseEntity.ok(response);
+    }
 
 //    @Operation(description = "마이페이지 내가 구매한 차량 리스트")
 //    @GetMapping("/mypage/review")
