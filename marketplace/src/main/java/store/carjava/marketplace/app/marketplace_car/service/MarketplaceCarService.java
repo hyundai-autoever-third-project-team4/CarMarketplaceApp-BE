@@ -235,15 +235,15 @@ public class MarketplaceCarService {
             }
         });
 
+        // 첫 추천인 경우
+        if (carId.equals("null")){
+            budget = request.budget() * 10000;
+        }
         // 재추천인 경우
-        if (carId != null){
+        else{
             normal = marketplaceCarRepository.findById(carId).orElseThrow(MarketplaceCarIdNotFoundException::new);
             budget = normal.getPrice();
             isFirstRecommand = false;
-        }
-        // 첫 추천인 경우
-        else{
-            budget = request.budget() * 10000;
         }
 
         // 적정, 저렴 추천
