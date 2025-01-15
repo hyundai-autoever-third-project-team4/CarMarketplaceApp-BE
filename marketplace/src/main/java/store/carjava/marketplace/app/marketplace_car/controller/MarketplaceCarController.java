@@ -168,6 +168,23 @@ public class MarketplaceCarController {
         }
     }
 
+    @PutMapping("/api-docs/complete-sale")
+    public ResponseEntity<String> completeSaleCar(
+            @RequestParam String carId
+    ) {
+        try {
+            marketplaceCarService.completeSaleCar(carId);
+            return ResponseEntity.ok("최종 판매 완료!");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("서버 오류가 발생했습니다. 나중에 다시 시도해주세요.");
+        }
+    }
+
+
+
 
 
 
