@@ -51,9 +51,9 @@ public class MarketplaceCarService {
     private final TestDriveCenterRepository testDriveCenterRepository;
     private final CarSalseHistoryRepository carSalseHistoryRepository;
 
-    public List<MarketplaceCarResponse> getFilteredCars(String model, String fuelType, String brand, String colorType,
+    public List<MarketplaceCarResponse> getFilteredCars(List<String> models, List<String> fuelTypes, String brand, List<String> colorTypes,
                                                         String driveType, String licensePlate, String transmission,
-                                                        String vehicleType, Integer modelYear, Integer seatingCapacity,
+                                                        List<String> vehicleTypes, Integer modelYear, Integer seatingCapacity,
                                                         Long maxPrice, Long minPrice, Integer minMileage,
                                                         Integer maxMileage, Integer minModelYear, Integer maxModelYear,
                                                         List<Long> optionIds, String testDriveCenterName, String status,
@@ -76,17 +76,22 @@ public class MarketplaceCarService {
         if (brand != null && !brandExists(brand)) {
             throw new BrandNotFoundException(brand);  // 존재하지 않으면 예외 발생
         }
-        // 유효한 연료타입인지 확인
-        if (fuelType != null && !isValidFuelType(fuelType)) {
-            throw new FuelTypeNotFoundException(fuelType);  // 유효하지 않으면 예외 발생
-        }
+//        // 유효한 연료타입인지 확인
+//        if (fuelTypes != null && !fuelTypes.isEmpty()) {
+//            for (String fuelType : fuelTypes) {
+//                if (!isValidFuelType(fuelType)) {
+//                    throw new FuelTypeNotFoundException(fuelType);
+//                }
+//            }
+//        }
+
         //유효한 상태인지 확인
         if(status != null && !isValidStatus(status)) {
             throw new StatusNotFoundException(status);
         }
 
-        var filteredCars = marketplaceCarRepository.filterCars(model, fuelType, brand, colorType,
-                driveType, licensePlate, transmission, vehicleType,
+        var filteredCars = marketplaceCarRepository.filterCars(models, fuelTypes, brand, colorTypes,
+                driveType, licensePlate, transmission, vehicleTypes,
                 modelYear, seatingCapacity, maxPrice, minPrice, minMileage,
                 maxMileage, minModelYear, maxModelYear, optionIds, testDriveCenterName,
                 status, minEngineCapacity, maxEngineCapacity, name, sortOrder, pageable);
