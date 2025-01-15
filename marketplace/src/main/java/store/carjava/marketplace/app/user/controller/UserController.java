@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+import store.carjava.marketplace.app.user.dto.UserPurchaseListResponse;
 import store.carjava.marketplace.app.user.dto.UserReservationListResponse;
 import store.carjava.marketplace.app.user.dto.UserResponse;
 import store.carjava.marketplace.app.user.dto.UserSellCarListResponse;
@@ -21,7 +22,7 @@ public class UserController {
 
 
 
-    @Operation(description = "마이페이지 첫화면-유저 이름 및 가까운 예약 내역")
+    @Operation(summary = "마이페이지 첫화면", description = "마이페이지 첫화면-유저 이름 및 가까운 예약 내역")
     @GetMapping("/mypage")
     public ResponseEntity<UserResponse> getUserPage(){
         UserResponse response = userService.getUserPage();
@@ -30,20 +31,24 @@ public class UserController {
 
 
 
-    @Operation(description = "마이페이지 내가 판매한 차량 리스트")
+    @Operation(summary = "마이페이지 내가 판 차", description = "마이페이지 내가 판매한 차량 리스트")
     @GetMapping("/mypage/sell")
     public ResponseEntity<UserSellCarListResponse> getUserSellList(){
         UserSellCarListResponse response = userService.getUserSellList();
         return ResponseEntity.ok(response);
     }
 
-//
-//    @Operation(description = "마이페이지 내가 구매한 차량 리스트")
-//    @GetMapping("/mypage/purchase")
-//
-//
-//
-    @Operation(description = "마이페이지 시승 예약 내역")
+
+    @Operation(description = "마이페이지 내가 구매한 차량 리스트")
+    @GetMapping("/mypage/purchase")
+    public ResponseEntity<UserPurchaseListResponse> getUserPurchaseList(){
+        UserPurchaseListResponse response = userService.getUserPurchaseList();
+        return ResponseEntity.ok(response);
+    }
+
+
+
+    @Operation(summary = "유저 시승 예약 내역", description = "마이페이지 시승 예약 내역")
     @GetMapping("/mypage/reservations")
     public ResponseEntity<UserReservationListResponse> getUserReservationList(){
         UserReservationListResponse response = userService.getUserReservationList();

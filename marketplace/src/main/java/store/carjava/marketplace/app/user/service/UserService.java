@@ -3,10 +3,14 @@ package store.carjava.marketplace.app.user.service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import store.carjava.marketplace.app.car_purchase_history.entity.CarPurchaseHistory;
+import store.carjava.marketplace.app.car_purchase_history.repository.CarPurchaseHistoryRepository;
 import store.carjava.marketplace.app.car_sales_history.entity.CarSalesHistory;
 import store.carjava.marketplace.app.car_sales_history.repository.CarSalseHistoryRepository;
+import store.carjava.marketplace.app.marketplace_car.entity.MarketplaceCar;
 import store.carjava.marketplace.app.reservation.entity.Reservation;
 import store.carjava.marketplace.app.reservation.repository.ReservationRepository;
+import store.carjava.marketplace.app.review.repository.ReviewRepository;
 import store.carjava.marketplace.app.user.dto.*;
 import store.carjava.marketplace.app.user.entity.User;
 import store.carjava.marketplace.app.user.repository.UserRepository;
@@ -26,6 +30,8 @@ public class UserService {
     private final ReservationRepository reservationRepository;
     private final UserResolver userResolver;
     private final CarSalseHistoryRepository carSalseHistoryRepository;
+    private final CarPurchaseHistoryRepository carPurchaseHistoryRepository;
+    private final ReviewRepository reviewRepository;
 
     public UserResponse getUserPage() {
 
@@ -93,5 +99,40 @@ public class UserService {
 
         // 4. UserSellCarListResponse 생성 및 반환
         return UserSellCarListResponse.of(userSellCarDtos);
+    }
+
+
+    // 유저가 구매한 차량 리스트 조회
+    public UserPurchaseListResponse getUserPurchaseList() {
+        // 1. 로그인한 유저 정보 가져오기.
+        User currentUser = userResolver.getCurrentUser();
+        if (currentUser == null) {
+            throw new UserNotAuthenticatedException();
+        }
+
+        // 2. car_purchase_history 구매 내역 조회
+        List<CarPurchaseHistory> purchaseList = carPurchaseHistoryRepository.findByUserOrderByIdDesc(currentUser);
+
+        // 3. 구매 내역을 DTO로 변환
+        List<UserPurchaseCarDto> carDtoList = purchaseList.stream()
+                .map(history -> {
+                    MarketplaceCar car = history.getMarketplaceCar();
+                    // 해당 유저가 이 차량에 대해 리뷰를 작성했는지 확인
+                    boolean isReviewed = reviewRepository.existsByUserAndMarketplaceCar(currentUser, car);
+
+                    return new UserPurchaseCarDto(
+                            car.getCarDetails().getName(),
+                            car.getCarDetails().getLicensePlate(),
+                            car.getCarDetails().getRegistrationDate(),
+                            car.getCarDetails().getMileage(),
+                            car.getPrice(),
+                            car.getMainImage(),
+                            car.getStatus(),
+                            isReviewed
+                    );
+                })
+                .toList();
+
+        return new UserPurchaseListResponse(carDtoList);
     }
 }
