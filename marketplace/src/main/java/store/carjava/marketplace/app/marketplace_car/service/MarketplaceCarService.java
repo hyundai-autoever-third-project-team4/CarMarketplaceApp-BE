@@ -394,9 +394,10 @@ public class MarketplaceCarService {
         // 재추천인 경우
         else{
             normal = marketplaceCarRepository.findById(carId).orElseThrow(MarketplaceCarIdNotFoundException::new);
-            budget = normal.getPrice();
+            budget = normal.getPrice() - 1;
             isFirstRecommand = false;
         }
+
 
         // 적정, 저렴 추천
         List<MarketplaceCar> carExist = marketplaceCarRepository.findTop2ByCarDetails_VehicleTypeInAndPriceLessThanEqualOrderByPriceDesc(vehicle, budget);
@@ -442,6 +443,7 @@ public class MarketplaceCarService {
         }
 
         // 초과 추천
+        if(!isFirstRecommand) budget = budget+1;
         Optional<MarketplaceCar> overExist = marketplaceCarRepository.findTopByPriceGreaterThanOrderByPrice(budget);
         if (overExist.isEmpty()) {
             over = null;
