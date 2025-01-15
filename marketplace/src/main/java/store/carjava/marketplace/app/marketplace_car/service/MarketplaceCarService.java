@@ -258,7 +258,7 @@ public class MarketplaceCarService {
             else less = carExist.get(0);
         } else{
             List<MarketplaceCar> carList = marketplaceCarRepository
-                    .findMarketplaceCarProperList((long) (budget * 0.92), (long) (budget * 0.97), vehicle);
+                    .findMarketplaceCarProperList((long) (budget * 0.92), (long) (budget * 0.96), vehicle);
 
             // 적정 가격 범위 내에 차가 없는 경우
             Optional<MarketplaceCar> lessCarExist;
