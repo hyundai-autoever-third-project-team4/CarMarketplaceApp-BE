@@ -33,6 +33,8 @@ import store.carjava.marketplace.app.test_drive_center.dto.TestDriveCenterChange
 import store.carjava.marketplace.app.test_drive_center.entity.TestDriveCenter;
 import store.carjava.marketplace.app.test_drive_center.repository.TestDriveCenterRepository;
 import store.carjava.marketplace.app.user.entity.User;
+import store.carjava.marketplace.common.security.UserNotAuthenticatedException;
+import store.carjava.marketplace.common.util.user.UserResolver;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -50,6 +52,7 @@ public class MarketplaceCarService {
     private final BaseCarRepository baseCarRepository;
     private final TestDriveCenterRepository testDriveCenterRepository;
     private final CarSalseHistoryRepository carSalseHistoryRepository;
+    private final UserResolver userResolver;
 
     public List<MarketplaceCarResponse> getFilteredCars(List<String> models, List<String> fuelTypes, String brand, List<String> colorTypes,
                                                         String driveType, String licensePlate, String transmission,
@@ -353,19 +356,20 @@ public class MarketplaceCarService {
         // 변경된 차량 저장
         marketplaceCarRepository.save(car);
 
-        /** user 정보를 받아오면
+        // 1. 로그인한 유저 정보 가져오기.
+        User currentUser = userResolver.getCurrentUser();
+        if (currentUser == null) {
+            throw new UserNotAuthenticatedException();
+        }
 
-//        // 현재 로그인된 사용자 정보 가져오기
-//        User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-//
-//        // 판매 이력 생성
-//        CarSalesHistory salesHstory = CarSalesHistory.builder()
-//                .marketplaceCar(car) // 업데이트된 차량 정보
-//                .user(currentUser)
-//                .build();
-//
-//        // 판매 이력 저장
-//        carSalseHistoryRepository.save(salesHstory);**/
+        // 판매 이력 생성
+        CarSalesHistory salesHstory = CarSalesHistory.builder()
+                .marketplaceCar(car) // 업데이트된 차량 정보
+                .user(currentUser)
+                .build();
+
+        // 판매 이력 저장
+        carSalseHistoryRepository.save(salesHstory);
     }
 
 
