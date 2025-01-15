@@ -210,7 +210,7 @@ public class MarketplaceCarController {
             @ApiResponse(responseCode = "400", description = "잘못된 데이터 요청"),
             @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content())
     })
-    @GetMapping("/recommand")
+    @GetMapping("/recommend")
     public ResponseEntity<?> getCarRecommandation(
             @RequestBody MarketplaceCarRecommandRequest request
     ) {
