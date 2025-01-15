@@ -34,6 +34,13 @@ public class UserService {
         Optional<Reservation> upcomingReservation = reservationRepository.findUpcomingReservation(currentUser);
 
 
+        // 3. UserResponse 생성
+        // - 예약이 있는 경우: 유저 정보와 예약 정보를 함께 반환
+        // - 예약이 없는 경우: 유저 정보만 반환
+        return upcomingReservation
+                .map(reservation -> UserResponse.of(currentUser, reservation))
+                .orElseGet(() -> UserResponse.empty(currentUser));
+
 
 
     }

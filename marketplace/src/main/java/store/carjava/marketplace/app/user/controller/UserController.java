@@ -2,14 +2,20 @@ package store.carjava.marketplace.app.user.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RestController;
 import store.carjava.marketplace.app.review.dto.ReviewInfoListDto;
 import store.carjava.marketplace.app.user.dto.UserResponse;
 import store.carjava.marketplace.app.user.service.UserService;
 
+@RestController
+@RequiredArgsConstructor
+@Tag(name = "mypage", description = "마이페이지 관련 api")
 public class UserController {
 
     private final UserService userService;
@@ -25,15 +31,18 @@ public class UserController {
     }
 
 
-    @GetMapping("/mypage/like")
 
-    @GetMapping("/mypage/sell")
+//    @Operation(description = "마이페이지 내가 판매한 차량 리스트")
+//    @GetMapping("/mypage/sell")
+//
+//    @Operation(description = "마이페이지 내가 구매한 차량 리스트")
+//    @GetMapping("/mypage/purchase")
+//
+//
+//
+//    @Operation(description = "마이페이지 시승 예약 내역")
+//    @GetMapping("/mypage/reservation")
 
-    @GetMapping("/mypage/purchase")
-
-
-
-    @GetMapping("/mypage/reservation")
-
-    @GetMapping("/mypage/review")
+//    @Operation(description = "마이페이지 내가 구매한 차량 리스트")
+//    @GetMapping("/mypage/review")
 }
