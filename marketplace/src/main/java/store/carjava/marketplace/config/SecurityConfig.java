@@ -72,6 +72,9 @@ public class SecurityConfig {
                         .requestMatchers("/reviews/**").permitAll()
                         .requestMatchers("/review/**").authenticated()
 
+                        // [Test Driver Center]
+                        .requestMatchers("/test-driver-centers/**").permitAll()
+
                         // [ADMIN]
                         .requestMatchers("/admin/**").hasRole("ADMIN") // ROLE_ADMIN만 허용
 
