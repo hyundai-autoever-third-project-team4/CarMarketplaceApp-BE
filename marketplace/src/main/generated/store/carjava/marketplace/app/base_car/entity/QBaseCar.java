@@ -28,6 +28,8 @@ public class QBaseCar extends EntityPathBase<BaseCar> {
 
     public final StringPath id = createString("id");
 
+    public final StringPath mainImage = createString("mainImage");
+
     public final StringPath ownerName = createString("ownerName");
 
     public QBaseCar(String variable) {
