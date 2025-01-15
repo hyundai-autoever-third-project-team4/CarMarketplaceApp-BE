@@ -72,6 +72,9 @@ public class SecurityConfig {
                         .requestMatchers("/reviews/**").permitAll()
                         .requestMatchers("/review/**").authenticated()
 
+                        // [Test Driver Center]
+                        .requestMatchers("/test-driver-centers/**").permitAll()
+
                         // [ADMIN]
                         .requestMatchers("/admin/**").hasRole("ADMIN") // ROLE_ADMIN만 허용
 
@@ -90,7 +93,7 @@ public class SecurityConfig {
         // 허용할 출처 설정
         configuration.setAllowedOrigins(List.of(
                 "http://localhost:5173",
-                "http://localhost:3000",
+                "http://127.0.0.1:5500",
                 "http://localhost:8081",
                 "https://chajava.store"
         ));
