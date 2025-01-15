@@ -1,10 +1,12 @@
 package store.carjava.marketplace.app.review.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Builder;
 import store.carjava.marketplace.app.review.entity.Review;
 
 import java.time.LocalDateTime;
 
+@Builder
 public record ReviewCreateResponse(
         @Schema(description = "생성된 리뷰 ID", example = "1")
         Long reviewId,
