@@ -30,8 +30,8 @@ public class MarketplaceCarCustomRepositoryImpl implements MarketplaceCarCustomR
     private EntityManager entityManager;
 
     @Override
-    public Page<MarketplaceCar> filterCars(String model, String fuelType, String brand, String colorType, String driveType,
-                                           String licensePlate, String transmission, String vehicleType, Integer modelYear,
+    public Page<MarketplaceCar> filterCars(List<String> models, List<String> fuelTypes, String brand, List<String> colorTypes, String driveType,
+                                           String licensePlate, String transmission, List<String> vehicleTypes, Integer modelYear,
                                            Integer seatingCapacity, Long minPrice, Long maxPrice, Integer minMileage,
                                            Integer maxMileage, Integer minModelYear, Integer maxModelYear, List<Long> optionIds,
                                            String testDriveCenterName, String status, Integer minEngineCapacity, Integer maxEngineCapacity,
@@ -48,14 +48,14 @@ public class MarketplaceCarCustomRepositoryImpl implements MarketplaceCarCustomR
                 .innerJoin(marketplaceCarOption)
                 .on(marketplaceCarOption.marketplaceCar.id.eq(marketplaceCar.id))
                 .where(
-                        modelEq(marketplaceCar, model),
-                        fuelTypeEq(marketplaceCar, fuelType),
+                        modelsIn(marketplaceCar, models),
+                        fuelTypeIn(marketplaceCar, fuelTypes),
                         brandEq(marketplaceCar, brand),
-                        colorTypeEq(marketplaceCar, colorType),
+                        colorTypeIn(marketplaceCar, colorTypes),
                         driveTypeEq(marketplaceCar, driveType),
                         licensePlateEq(marketplaceCar, licensePlate),
                         transmissionEq(marketplaceCar, transmission),
-                        vehicleTypeEq(marketplaceCar, vehicleType),
+                        vehicleTypeIn(marketplaceCar, vehicleTypes),
                         modelYearEq(marketplaceCar, modelYear),
                         seatingCapacityEq(marketplaceCar, seatingCapacity),
                         priceGreaterOrEqual(marketplaceCar, minPrice),
@@ -87,20 +87,21 @@ public class MarketplaceCarCustomRepositoryImpl implements MarketplaceCarCustomR
         return new PageImpl<>(results, pageable, total);
     }
 
-    private BooleanExpression modelEq(QMarketplaceCar marketplaceCar, String model) {
-        return model == null ? null : marketplaceCar.carDetails.model.eq(model);
+    private BooleanExpression modelsIn(QMarketplaceCar marketplaceCar, List<String> models) {
+        return (models == null || models.isEmpty()) ? null : marketplaceCar.carDetails.model.in(models);
     }
 
-    private BooleanExpression fuelTypeEq(QMarketplaceCar marketplaceCar, String fuelType) {
-        return fuelType == null ? null : marketplaceCar.carDetails.fuelType.eq(fuelType);
+    private BooleanExpression fuelTypeIn(QMarketplaceCar marketplaceCar, List<String> fuelTypes) {
+        return (fuelTypes == null || fuelTypes.isEmpty()) ? null : marketplaceCar.carDetails.fuelType.in(fuelTypes);
     }
 
     private BooleanExpression brandEq(QMarketplaceCar marketplaceCar, String brand) {
         return brand == null ? null : marketplaceCar.carDetails.brand.eq(brand);
     }
 
-    private BooleanExpression colorTypeEq(QMarketplaceCar marketplaceCar, String colorType) {
-        return colorType == null ? null : marketplaceCar.carDetails.colorType.eq(colorType);
+    private BooleanExpression colorTypeIn(QMarketplaceCar marketplaceCar, List<String> colorTypes) {
+        return (colorTypes == null || colorTypes.isEmpty()) ? null : marketplaceCar.carDetails.colorType.in(colorTypes);
+
     }
 
     private BooleanExpression driveTypeEq(QMarketplaceCar marketplaceCar, String driveType) {
@@ -115,8 +116,8 @@ public class MarketplaceCarCustomRepositoryImpl implements MarketplaceCarCustomR
         return transmission == null ? null : marketplaceCar.carDetails.transmission.eq(transmission);
     }
 
-    private BooleanExpression vehicleTypeEq(QMarketplaceCar marketplaceCar, String vehicleType) {
-        return vehicleType == null ? null : marketplaceCar.carDetails.vehicleType.eq(vehicleType);
+    private BooleanExpression vehicleTypeIn(QMarketplaceCar marketplaceCar, List<String> vehicleTypes) {
+        return (vehicleTypes == null || vehicleTypes.isEmpty()) ? null : marketplaceCar.carDetails.vehicleType.in(vehicleTypes);
     }
 
     private BooleanExpression modelYearEq(QMarketplaceCar marketplaceCar, Integer modelYear) {
