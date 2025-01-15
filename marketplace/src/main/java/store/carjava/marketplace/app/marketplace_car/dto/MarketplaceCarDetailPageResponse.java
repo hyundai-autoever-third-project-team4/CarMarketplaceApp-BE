@@ -5,6 +5,7 @@ import lombok.Builder;
 import store.carjava.marketplace.app.marketplace_car_extra_option.dto.MarketplaceCarExtraOptionInfoDto;
 import store.carjava.marketplace.app.marketplace_car_image.dto.MarketplaceCarImageInfoDto;
 import store.carjava.marketplace.app.marketplace_car_option.dto.marketplaceCarOptionInfoDto;
+import store.carjava.marketplace.app.review.dto.ReviewCreateResponse;
 import store.carjava.marketplace.app.vo.CarDetails;
 
 import java.time.LocalDate;
@@ -43,7 +44,10 @@ public record MarketplaceCarDetailPageResponse(
         List<MarketplaceCarImageInfoDto> marketplaceCarImageDtos,
 
         @Schema(description = "차량 기본 옵션 정보 목록")
-        List<marketplaceCarOptionInfoDto> marketplaceCarOptionInfoDtos
+        List<marketplaceCarOptionInfoDto> marketplaceCarOptionInfoDtos,
+
+        @Schema(description = "차량 리뷰 정보 목록")
+        List<ReviewCreateResponse> reviewCreateResponses
 
 ) {
 }

@@ -27,6 +27,9 @@ import store.carjava.marketplace.app.marketplace_car_image.repository.Marketplac
 import store.carjava.marketplace.app.marketplace_car_image.service.MarketplaceCarImageService;
 import store.carjava.marketplace.app.marketplace_car_option.dto.marketplaceCarOptionInfoDto;
 import store.carjava.marketplace.app.reservation.dto.ReservationInfoDto;
+import store.carjava.marketplace.app.review.dto.ReviewCreateResponse;
+import store.carjava.marketplace.app.review.entity.Review;
+import store.carjava.marketplace.app.review.repository.ReviewRepository;
 import store.carjava.marketplace.app.test_drive_center.dto.TestDriveCenterChangeDto;
 import store.carjava.marketplace.app.test_drive_center.entity.TestDriveCenter;
 import store.carjava.marketplace.app.test_drive_center.repository.TestDriveCenterRepository;
@@ -56,6 +59,7 @@ public class MarketplaceCarService {
     private final ImageUploader imageUploader;
     private final MarketplaceCarImageService marketplaceCarImageService;
     private final LikeRepository likeRepository;
+    private final ReviewRepository reviewRepository;
 
     public List<MarketplaceCarResponse> getFilteredCars(List<String> models, List<String> fuelTypes, String brand, List<String> colorTypes,
                                                         String driveType, String licensePlate, String transmission,
@@ -212,6 +216,20 @@ public class MarketplaceCarService {
                         .build())
                 .collect(Collectors.toList());
 
+        // ReviewCreateResponse 리스트 생성
+        List<Review> reviews = reviewRepository.findTop5ByMarketplaceCar_CarDetails_ModelOrderByCreatedAtDesc(car.getCarDetails().getModel());
+
+        List<ReviewCreateResponse> reviewCreateResponses = reviews.stream()
+                .map(review -> ReviewCreateResponse.builder()
+                        .reviewId(review.getId())
+                        .starRate(review.getStarRate())
+                        .content(review.getContent())
+                        .createdAt(review.getCreatedAt())
+                        .build()
+
+                )
+                .collect(Collectors.toList());
+
         return MarketplaceCarDetailPageResponse.builder()
                 .id(car.getId())
                 .carDetails(car.getCarDetails())
@@ -224,10 +242,8 @@ public class MarketplaceCarService {
                 .carMarketplaceCarExtraOptionDtos(carMarketplaceCarExtraOptionDtos)
                 .marketplaceCarImageDtos(carMarketplaceCarImageDtos)
                 .marketplaceCarOptionInfoDtos(marketplaceCarOptionInfoDtos)
+                .reviewCreateResponses(reviewCreateResponses)
                 .build();
-
-
-
     }
 
     // 처음 판매자가 판매차량을 등록할때 등록하는 service
