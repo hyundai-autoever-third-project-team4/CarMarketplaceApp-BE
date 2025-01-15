@@ -2,6 +2,7 @@ package store.carjava.marketplace.app.marketplace_car.service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -41,6 +42,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -385,9 +387,10 @@ public class MarketplaceCarService {
         // 재추천인 경우
         else{
             normal = marketplaceCarRepository.findById(carId).orElseThrow(MarketplaceCarIdNotFoundException::new);
-            budget = normal.getPrice();
+            budget = normal.getPrice() - 1;
             isFirstRecommand = false;
         }
+
 
         // 적정, 저렴 추천
         List<MarketplaceCar> carExist = marketplaceCarRepository.findTop2ByCarDetails_VehicleTypeInAndPriceLessThanEqualOrderByPriceDesc(vehicle, budget);
@@ -433,6 +436,7 @@ public class MarketplaceCarService {
         }
 
         // 초과 추천
+        if(!isFirstRecommand) budget = budget+1;
         Optional<MarketplaceCar> overExist = marketplaceCarRepository.findTopByPriceGreaterThanOrderByPrice(budget);
         if (overExist.isEmpty()) {
             over = null;
