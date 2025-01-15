@@ -1,5 +1,6 @@
 package store.carjava.marketplace.app.car_purchase_history.entity;
 
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
