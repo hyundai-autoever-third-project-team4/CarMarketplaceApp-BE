@@ -22,11 +22,29 @@ public class QCarPurchaseHistory extends EntityPathBase<CarPurchaseHistory> {
 
     public static final QCarPurchaseHistory carPurchaseHistory = new QCarPurchaseHistory("carPurchaseHistory");
 
+    public final DateTimePath<java.time.LocalDateTime> approvedAt = createDateTime("approvedAt", java.time.LocalDateTime.class);
+
+    public final DateTimePath<java.time.LocalDateTime> confirmedAt = createDateTime("confirmedAt", java.time.LocalDateTime.class);
+
+    public final StringPath currency = createString("currency");
+
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
     public final store.carjava.marketplace.app.marketplace_car.entity.QMarketplaceCar marketplaceCar;
 
+    public final StringPath orderId = createString("orderId");
+
+    public final StringPath orderName = createString("orderName");
+
+    public final StringPath paymentMethod = createString("paymentMethod");
+
+    public final NumberPath<Long> suppliedAmount = createNumber("suppliedAmount", Long.class);
+
+    public final NumberPath<Long> totalAmount = createNumber("totalAmount", Long.class);
+
     public final store.carjava.marketplace.app.user.entity.QUser user;
+
+    public final NumberPath<Long> vat = createNumber("vat", Long.class);
 
     public QCarPurchaseHistory(String variable) {
         this(CarPurchaseHistory.class, forVariable(variable), INITS);
