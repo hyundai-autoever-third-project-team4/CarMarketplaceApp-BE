@@ -13,7 +13,7 @@ import store.carjava.marketplace.app.user.service.UserService;
 
 @RestController
 @RequiredArgsConstructor
-@Tag(name = "mypage", description = "마이페이지 관련 api")
+@Tag(name = "사용자 마이페이지 API", description = "사용자의 마이페이지 관련 api를 제공합니다.")
 public class UserController {
 
     private final UserService userService;
@@ -21,7 +21,7 @@ public class UserController {
 
 
 
-    @Operation(description = "마이페이지 첫화면-유저 이름 및 가까운 예약 내역")
+    @Operation(summary = "마이페이지 조회", description = "마이페이지 첫화면-유저 이름 및 가까운 예약 내역")
     @GetMapping("/mypage")
     public ResponseEntity<UserResponse> getUserPage(){
         UserResponse response = userService.getUserPage();
@@ -30,7 +30,7 @@ public class UserController {
 
 
 
-    @Operation(description = "마이페이지 내가 판매한 차량 리스트")
+    @Operation(summary = "나의 판매 차량 조회", description = "마이페이지 내가 판매한 차량 리스트")
     @GetMapping("/mypage/sell")
     public ResponseEntity<UserSellCarListResponse> getUserSellList(){
         UserSellCarListResponse response = userService.getUserSellList();
@@ -43,7 +43,7 @@ public class UserController {
 //
 //
 //
-    @Operation(description = "마이페이지 시승 예약 내역")
+    @Operation(summary = "나의 시승 예약 조회", description = "마이페이지 시승 예약 내역")
     @GetMapping("/mypage/reservations")
     public ResponseEntity<UserReservationListResponse> getUserReservationList(){
         UserReservationListResponse response = userService.getUserReservationList();

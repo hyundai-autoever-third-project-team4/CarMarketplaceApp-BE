@@ -14,7 +14,7 @@ import store.carjava.marketplace.app.like.service.LikeService;
 
 @RestController
 @RequiredArgsConstructor
-@Tag(name="like", description = "차량 찜하기")
+@Tag(name="좋아요 (찜) API", description = "차량 찜하기 관련 API를 제공합니다.")
 public class LikeController {
     private final LikeService likeService;
 
