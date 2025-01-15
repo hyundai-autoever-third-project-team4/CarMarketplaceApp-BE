@@ -57,16 +57,16 @@ public class MarketplaceCarController {
             @ApiResponse(responseCode = "200", description = "성공적으로 차량 정보를 반환했습니다."),
             @ApiResponse(responseCode = "500", description = "서버 에러가 발생했습니다.")
     })
-    @GetMapping("/filter")
+    @GetMapping("/cars/search")
     public ResponseEntity<List<MarketplaceCarResponse>> filterCars(
             @Parameter(description = "차량 모델 : 목록들 : G70, G80, G90, GV70, GV80, 그랜저, 쏘나타, 아반떼, 아이오닉6, 캐스퍼, 팰리세이드")
-            @RequestParam(required = false) String model,
+            @RequestParam(required = false) List<String> models,
 
             @Parameter(description = "브랜드 : 목록들 : 현대, 제네시스")
             @RequestParam(required = false) String brand,
 
             @Parameter(description = "색상 : 목록들 : 그레이, 그린, 기타, 레드, 블랙, 블루, 실버, 오렌지, 화이트")
-            @RequestParam(required = false) String colorType,
+            @RequestParam(required = false) List<String> colorTypes,
 
             @Parameter(description = "차량 전륜 2륜 구동 : 목록들 : 2WD, AWD")
             @RequestParam(required = false) String driveType,
@@ -78,7 +78,7 @@ public class MarketplaceCarController {
             @RequestParam(required = false) String transmission,
 
             @Parameter(description = "차량 종류 : 목록들 : EV, SUV, 승용")
-            @RequestParam(required = false) String vehicleType,
+            @RequestParam(required = false) List<String> vehicleTypes,
 
             @Parameter(description = "시승소 종류 : 목록들 : 광주 시승소, 대구 시승소, 대전 시승소, 부산 시승소, 서울 강서 시승소, 서울 성북 시승소, 수원 시승소, 울산 시승소, 인천 시승소, 전주 시승소, 제주 시승소, 청주 시승소")
             @RequestParam(required = false) String testDriveCenterName,
@@ -90,7 +90,7 @@ public class MarketplaceCarController {
             @RequestParam(required = false) Integer seatingCapacity,
 
             @Parameter(description = "연료 타입 : 목록들 : 가솔린, 디젤, 전기, 하이브리드")
-            @RequestParam(required = false) String fuelType,
+            @RequestParam(required = false) List<String> fuelTypes,
 
             @Parameter(description = "최대 가격 설정 : 예시 : 20000000")
             @RequestParam(required = false) Long maxPrice,
@@ -119,7 +119,11 @@ public class MarketplaceCarController {
             @Parameter(description = "최소 배기량 설정 : 예시 : 2000")
             @RequestParam(required = false) Integer minEngineCapacity,
 
-            @Parameter(description = "차량 상태 : 목록들 : 구매가능, 승인대기, 구매불가")
+            @Parameter(description = "차량 상태 : \n 목록들 : 구매가능 : Available for purchase, \n" +
+                    "구매승인대기 : Pending purchase approval, \n" +
+                    "구매 불가 : Not available for purchase, \n" +
+                    "판매 대기: Pending sale, \n" +
+                    "판매 승인: Sale approved")
             @RequestParam(required = false) String status,
 
             @Parameter(description = "차량 이름 : 예시 : 2021 G80 가솔린 2.5 터보 AWD 시그니처 디자인 셀렉션Ⅰ")
@@ -132,8 +136,8 @@ public class MarketplaceCarController {
             @PageableDefault(size = 10, page = 0) Pageable pageable
     ) {
         List<MarketplaceCarResponse> filteredCars = marketplaceCarService.getFilteredCars(
-                model, fuelType, brand, colorType,
-                driveType, licensePlate,transmission,vehicleType,
+                models, fuelTypes, brand, colorTypes,
+                driveType, licensePlate,transmission,vehicleTypes,
                 modelYear,seatingCapacity, maxPrice, minPrice, minMileage,
                  maxMileage,  minModelYear,  maxModelYear, optionIds,
                 testDriveCenterName, status, maxEngineCapacity, minEngineCapacity,
@@ -143,7 +147,7 @@ public class MarketplaceCarController {
     }
 
 
-    @PostMapping("/api-docs/register")
+    @PostMapping("/cars/register")
     public ResponseEntity<String> registerCar(@RequestBody MarketplaceCarRegisterRequest request) {
         try {
             marketplaceCarService.sellRegisterCar(request);
@@ -157,14 +161,14 @@ public class MarketplaceCarController {
         }
     }
 
-    @GetMapping("/api-docs/status")
+    @GetMapping("/cars/search/status")
     public ResponseEntity<List<MarketplaceCarSendToManagerDto>> getCarsByStatus(
             @RequestParam String status) {
         List<MarketplaceCarSendToManagerDto> cars = marketplaceCarService.getCarsByStatus(status);
         return ResponseEntity.ok(cars);
     }
 
-    @PutMapping("/api-docs/approve")
+    @PutMapping("/cars/sale/approve")
     public ResponseEntity<String> approveCar(
             @RequestParam String carId,
             @RequestParam String testDriveCenterName,
@@ -181,7 +185,7 @@ public class MarketplaceCarController {
         }
     }
 
-    @PutMapping("/api-docs/complete-sale")
+    @PutMapping("/cars/sale/complete-sale")
     public ResponseEntity<String> completeSaleCar(
             @RequestParam String carId
     ) {

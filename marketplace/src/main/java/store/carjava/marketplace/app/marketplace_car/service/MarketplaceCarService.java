@@ -34,6 +34,8 @@ import store.carjava.marketplace.app.test_drive_center.dto.TestDriveCenterChange
 import store.carjava.marketplace.app.test_drive_center.entity.TestDriveCenter;
 import store.carjava.marketplace.app.test_drive_center.repository.TestDriveCenterRepository;
 import store.carjava.marketplace.app.user.entity.User;
+import store.carjava.marketplace.common.security.UserNotAuthenticatedException;
+import store.carjava.marketplace.common.util.user.UserResolver;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -52,10 +54,11 @@ public class MarketplaceCarService {
     private final BaseCarRepository baseCarRepository;
     private final TestDriveCenterRepository testDriveCenterRepository;
     private final CarSalseHistoryRepository carSalseHistoryRepository;
+    private final UserResolver userResolver;
 
-    public List<MarketplaceCarResponse> getFilteredCars(String model, String fuelType, String brand, String colorType,
+    public List<MarketplaceCarResponse> getFilteredCars(List<String> models, List<String> fuelTypes, String brand, List<String> colorTypes,
                                                         String driveType, String licensePlate, String transmission,
-                                                        String vehicleType, Integer modelYear, Integer seatingCapacity,
+                                                        List<String> vehicleTypes, Integer modelYear, Integer seatingCapacity,
                                                         Long maxPrice, Long minPrice, Integer minMileage,
                                                         Integer maxMileage, Integer minModelYear, Integer maxModelYear,
                                                         List<Long> optionIds, String testDriveCenterName, String status,
@@ -78,17 +81,22 @@ public class MarketplaceCarService {
         if (brand != null && !brandExists(brand)) {
             throw new BrandNotFoundException(brand);  // 존재하지 않으면 예외 발생
         }
-        // 유효한 연료타입인지 확인
-        if (fuelType != null && !isValidFuelType(fuelType)) {
-            throw new FuelTypeNotFoundException(fuelType);  // 유효하지 않으면 예외 발생
-        }
+//        // 유효한 연료타입인지 확인
+//        if (fuelTypes != null && !fuelTypes.isEmpty()) {
+//            for (String fuelType : fuelTypes) {
+//                if (!isValidFuelType(fuelType)) {
+//                    throw new FuelTypeNotFoundException(fuelType);
+//                }
+//            }
+//        }
+
         //유효한 상태인지 확인
         if(status != null && !isValidStatus(status)) {
             throw new StatusNotFoundException(status);
         }
 
-        var filteredCars = marketplaceCarRepository.filterCars(model, fuelType, brand, colorType,
-                driveType, licensePlate, transmission, vehicleType,
+        var filteredCars = marketplaceCarRepository.filterCars(models, fuelTypes, brand, colorTypes,
+                driveType, licensePlate, transmission, vehicleTypes,
                 modelYear, seatingCapacity, maxPrice, minPrice, minMileage,
                 maxMileage, minModelYear, maxModelYear, optionIds, testDriveCenterName,
                 status, minEngineCapacity, maxEngineCapacity, name, sortOrder, pageable);
@@ -350,19 +358,20 @@ public class MarketplaceCarService {
         // 변경된 차량 저장
         marketplaceCarRepository.save(car);
 
-        /** user 정보를 받아오면
+        // 1. 로그인한 유저 정보 가져오기.
+        User currentUser = userResolver.getCurrentUser();
+        if (currentUser == null) {
+            throw new UserNotAuthenticatedException();
+        }
 
-//        // 현재 로그인된 사용자 정보 가져오기
-//        User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-//
-//        // 판매 이력 생성
-//        CarSalesHistory salesHstory = CarSalesHistory.builder()
-//                .marketplaceCar(car) // 업데이트된 차량 정보
-//                .user(currentUser)
-//                .build();
-//
-//        // 판매 이력 저장
-//        carSalseHistoryRepository.save(salesHstory);**/
+        // 판매 이력 생성
+        CarSalesHistory salesHstory = CarSalesHistory.builder()
+                .marketplaceCar(car) // 업데이트된 차량 정보
+                .user(currentUser)
+                .build();
+
+        // 판매 이력 저장
+        carSalseHistoryRepository.save(salesHstory);
     }
 
 

@@ -76,6 +76,7 @@ dependencies {
     // Spring Boot Test: 통합 테스트와 단위 테스트를 지원
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
+
     // Spring Security Test: 보안 관련 테스트를 위한 도구
     testImplementation 'org.springframework.security:spring-security-test'
 
