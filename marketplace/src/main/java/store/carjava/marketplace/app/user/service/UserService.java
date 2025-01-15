@@ -15,7 +15,6 @@ import store.carjava.marketplace.common.util.user.UserResolver;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 @Service
@@ -52,7 +51,7 @@ public class UserService {
     }
 
     //유저 시승 예약 내역 리스트 조회
-    public ReservationListResponse getUserReservationList() {
+    public UserReservationListResponse getUserReservationList() {
         // 1. 로그인한 유저 정보 가져오기.
         User currentUser = userResolver.getCurrentUser();
         if (currentUser == null) {
@@ -64,7 +63,7 @@ public class UserService {
                 .map(UserReservationDto::of)
                 .collect(Collectors.toList());
 
-        return ReservationListResponse.of(ReservationList);
+        return UserReservationListResponse.of(ReservationList);
     }
 
     //유저가 판매한 차량 리스트 조회

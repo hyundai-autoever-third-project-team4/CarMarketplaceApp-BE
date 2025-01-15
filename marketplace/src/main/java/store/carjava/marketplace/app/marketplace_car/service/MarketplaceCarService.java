@@ -270,6 +270,21 @@ public class MarketplaceCarService {
                 .build();
 
         marketplaceCarRepository.save(marketplaceCar);
+
+        // 1. 로그인한 유저 정보 가져오기.
+        User currentUser = userResolver.getCurrentUser();
+        if (currentUser == null) {
+            throw new UserNotAuthenticatedException();
+        }
+
+        // 판매 이력 생성
+        CarSalesHistory salesHstory = CarSalesHistory.builder()
+                .marketplaceCar(marketplaceCar) // 업데이트된 차량 정보
+                .user(currentUser)
+                .build();
+
+        // 판매 이력 저장
+        carSalseHistoryRepository.save(salesHstory);
     }
 
     // 상태별 차량 조회 API Service
@@ -356,20 +371,7 @@ public class MarketplaceCarService {
         // 변경된 차량 저장
         marketplaceCarRepository.save(car);
 
-        // 1. 로그인한 유저 정보 가져오기.
-        User currentUser = userResolver.getCurrentUser();
-        if (currentUser == null) {
-            throw new UserNotAuthenticatedException();
-        }
 
-        // 판매 이력 생성
-        CarSalesHistory salesHstory = CarSalesHistory.builder()
-                .marketplaceCar(car) // 업데이트된 차량 정보
-                .user(currentUser)
-                .build();
-
-        // 판매 이력 저장
-        carSalseHistoryRepository.save(salesHstory);
     }
 
 
