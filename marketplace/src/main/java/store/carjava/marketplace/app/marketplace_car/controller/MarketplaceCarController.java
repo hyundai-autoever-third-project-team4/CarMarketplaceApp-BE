@@ -14,7 +14,20 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import store.carjava.marketplace.app.marketplace_car.dto.*;
+import org.springframework.web.multipart.MultipartFile;
+import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarRegisterRequest;
+import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarResponse;
+import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarSendToManagerDto;
+import store.carjava.marketplace.app.marketplace_car.entity.MarketplaceCar;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarRecommandListResponse;
+import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarRecommandRequest;
+import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarResponse;
+
 import store.carjava.marketplace.app.marketplace_car.service.MarketplaceCarService;
 
 import java.util.List;
@@ -107,10 +120,11 @@ public class MarketplaceCarController {
     public ResponseEntity<String> approveCar(
             @RequestParam(name = "carId") String carId,
             @RequestParam(name = "testDriveCenterName") String testDriveCenterName,
-            @RequestParam(name = "price") Long price
-    ) {
+            @RequestParam(name = "price") Long price,
+            @RequestParam(name = "files") List<MultipartFile> files
+        ) {
         try {
-            marketplaceCarService.approveCar(carId, testDriveCenterName, price);
+            marketplaceCarService.approveCar(carId, testDriveCenterName, price, files);
             return ResponseEntity.ok("차량 판매가 승인되었습니다.");
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());

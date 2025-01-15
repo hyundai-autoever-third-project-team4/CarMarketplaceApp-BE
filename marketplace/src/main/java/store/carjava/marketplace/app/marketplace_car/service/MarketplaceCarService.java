@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import org.springframework.web.multipart.MultipartFile;
 import store.carjava.marketplace.app.base_car.entity.BaseCar;
 import store.carjava.marketplace.app.base_car.repository.BaseCarRepository;
 
@@ -27,6 +28,8 @@ import store.carjava.marketplace.app.marketplace_car.exception.*;
 import store.carjava.marketplace.app.marketplace_car.repository.MarketplaceCarRepository;
 import store.carjava.marketplace.app.marketplace_car_extra_option.dto.MarketplaceCarExtraOptionInfoDto;
 import store.carjava.marketplace.app.marketplace_car_image.dto.MarketplaceCarImageInfoDto;
+import store.carjava.marketplace.app.marketplace_car_image.repository.MarketplaceCarImageRepository;
+import store.carjava.marketplace.app.marketplace_car_image.service.MarketplaceCarImageService;
 import store.carjava.marketplace.app.marketplace_car_option.dto.marketplaceCarOptionInfoDto;
 import store.carjava.marketplace.app.reservation.dto.ReservationInfoDto;
 import store.carjava.marketplace.app.test_drive_center.dto.TestDriveCenterChangeDto;
@@ -34,8 +37,10 @@ import store.carjava.marketplace.app.test_drive_center.entity.TestDriveCenter;
 import store.carjava.marketplace.app.test_drive_center.repository.TestDriveCenterRepository;
 import store.carjava.marketplace.app.user.entity.User;
 import store.carjava.marketplace.common.security.UserNotAuthenticatedException;
+import store.carjava.marketplace.common.util.image.ImageUploader;
 import store.carjava.marketplace.common.util.user.UserResolver;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -53,6 +58,8 @@ public class MarketplaceCarService {
     private final TestDriveCenterRepository testDriveCenterRepository;
     private final CarSalseHistoryRepository carSalseHistoryRepository;
     private final UserResolver userResolver;
+    private final ImageUploader imageUploader;
+    private final MarketplaceCarImageService marketplaceCarImageService;
 
     public List<MarketplaceCarResponse> getFilteredCars(List<String> models, List<String> fuelTypes, String brand, List<String> colorTypes,
                                                         String driveType, String licensePlate, String transmission,
@@ -328,13 +335,14 @@ public class MarketplaceCarService {
     }
 
     // 관리자가 판매 승인했을 때 가격
-    public void approveCar(String id, String testDriverCenterName, Long price) {
+    @Transactional
+    public void approveCar(String id, String testDriveCenterName, Long price, List<MultipartFile> files) throws IOException {
         // 차량 조회
         MarketplaceCar car = marketplaceCarRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("해당 차량을 찾을 수 없습니다."));
 
         // TestDriveCenter 조회
-        TestDriveCenter testDriveCenter = testDriveCenterRepository.findByName(testDriverCenterName)
+        TestDriveCenter testDriveCenter = testDriveCenterRepository.findByName(testDriveCenterName)
                 .orElseThrow(() -> new IllegalArgumentException("해당 이름의 시승 센터를 찾을 수 없습니다."));
 
         // 차량 상태 업데이트 및 TestDriveCenter 연관 관계 설정
@@ -348,8 +356,17 @@ public class MarketplaceCarService {
                 .mainImage(car.getMainImage())
                 .build();
 
-        // 변경된 차량 저장
+        // 차량 저장
         marketplaceCarRepository.save(car);
+
+        // 이미지 파일 처리 및 저장
+        if (files != null && !files.isEmpty()) {
+            // S3에 파일 업로드 및 URL 생성
+            List<String> imageUrls = imageUploader.uploadMultiFiles(files, "marketplace-car-images");
+
+            // 서비스 호출로 DB 저장
+            marketplaceCarImageService.saveImages(id, imageUrls);
+        }
     }
 
     // 판매자가 가격보고 승인했을때 최종 판매 API

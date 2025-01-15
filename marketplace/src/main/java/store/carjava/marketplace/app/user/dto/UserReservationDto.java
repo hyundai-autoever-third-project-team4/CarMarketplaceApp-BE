@@ -8,7 +8,7 @@ import java.time.LocalTime;
 
 public record UserReservationDto(
 
-        @Schema(description = "예약한 차이름", example = "2023 GV70 가솔린 2.5터보 AWD 스탠다드디자인")
+        @Schema(description = "예약한 차이름", example = "2023GV70 가솔린 2.5터보 AWD 스탠다드디자인")
         String carName,
 
         @Schema(description = "차량사진", example = "https://certified-static.hyundai.com/contents/goods/shootConts/tobepic/02/exterior/GGK241216011103/PRD602_233.JPG/dims/crop/2304x1536+600+770/resize/380x253/optimize")

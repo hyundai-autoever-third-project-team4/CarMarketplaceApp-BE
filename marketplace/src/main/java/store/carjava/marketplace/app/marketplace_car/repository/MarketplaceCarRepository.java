@@ -16,7 +16,6 @@ public interface MarketplaceCarRepository extends JpaRepository<MarketplaceCar, 
     List<MarketplaceCar> findByStatus(String status);
     Optional<MarketplaceCar> findTopByCarDetails_VehicleTypeInAndPriceLessThanEqualOrderByPriceDesc(List<String> vehicle, Long price);
     List<MarketplaceCar> findTop2ByCarDetails_VehicleTypeInAndPriceLessThanEqualOrderByPriceDesc(List<String> vehicle, Long price);
-
     Optional<MarketplaceCar> findTopByPriceGreaterThanOrderByPrice(Long price);
 
 }
