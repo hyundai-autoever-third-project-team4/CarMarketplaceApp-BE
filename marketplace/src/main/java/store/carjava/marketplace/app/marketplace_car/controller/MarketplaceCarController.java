@@ -131,11 +131,12 @@ public class MarketplaceCarController {
         return ResponseEntity.ok(filteredCars);
     }
 
-    @Operation(summary = "이차어때 추천", description = "이차어때의 적정 / 저렴 / 비싼 차량을 추천합니다.")
+    @Operation(summary = "이차어때 추천", description = "이차어때의 적정 / 저렴 / 비싼 차량을 추천합니다. 첫 추천에는 차 id = null. 재추천에는 차 id 필수.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "이차어때 추천 성공. 적정 / 저렴 / 비싼 차량 순. 결과 없는 경우 null 반환",
                 content = @Content(mediaType = "application/json",
                 schema = @Schema(implementation = MarketplaceCarRecommandListResponse.class))),
+            @ApiResponse(responseCode = "400", description = "잘못된 데이터 요청"),
             @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content())
     })
     @GetMapping("/recommand")

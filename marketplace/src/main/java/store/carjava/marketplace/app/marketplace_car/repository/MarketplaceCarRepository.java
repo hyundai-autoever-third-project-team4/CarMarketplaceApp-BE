@@ -12,8 +12,8 @@ import java.util.Optional;
 public interface MarketplaceCarRepository extends JpaRepository<MarketplaceCar, String>, MarketplaceCarCustomRepository {
     List<MarketplaceCar> findAllByTestDriveCenter(TestDriveCenter testDriveCenter);
 
-    Optional<MarketplaceCar> findTopByCarDetails_VehicleTypeAndPriceLessThanEqualOrderByPriceDesc(String vehicle, Long price);
-    List<MarketplaceCar> findTop2ByCarDetails_VehicleTypeAndPriceLessThanEqualOrderByPriceDesc(String vehicle, Long price);
+    Optional<MarketplaceCar> findTopByCarDetails_VehicleTypeInAndPriceLessThanEqualOrderByPriceDesc(List<String> vehicle, Long price);
+    List<MarketplaceCar> findTop2ByCarDetails_VehicleTypeInAndPriceLessThanEqualOrderByPriceDesc(List<String> vehicle, Long price);
 
     Optional<MarketplaceCar> findTopByPriceGreaterThanOrderByPrice(Long price);
 }
