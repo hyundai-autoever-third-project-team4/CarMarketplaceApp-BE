@@ -23,7 +23,7 @@ public record UserSellCarDto(
         @Schema(description = "차량사진", example = "https://certified-static.hyundai.com/contents/goods/shootConts/tobepic/02/exterior/GGK241216011103/PRD602_233.JPG/dims/crop/2304x1536+600+770/resize/380x253/optimize")
         String mainImage,
 
-        @Schema(description = "차량상태", example = "PENDING_SALE_APPROVAL")
+        @Schema(description = "차량상태", example = "PENDING_SALE")
         String status
 
 
