@@ -3,11 +3,14 @@ package store.carjava.marketplace.app.marketplace_car.service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import store.carjava.marketplace.app.base_car.entity.BaseCar;
 import store.carjava.marketplace.app.base_car.repository.BaseCarRepository;
 import store.carjava.marketplace.app.car_purchase_history.dto.CarPurchaseHistoryInfoDto;
 import store.carjava.marketplace.app.car_sales_history.dto.CarSalesHistoryInfoDto;
+import store.carjava.marketplace.app.car_sales_history.entity.CarSalesHistory;
+import store.carjava.marketplace.app.car_sales_history.repository.CarSalseHistoryRepository;
 import store.carjava.marketplace.app.like.dto.LikeInfoDto;
 import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarDetailsDto;
 import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarRegisterRequest;
@@ -23,6 +26,7 @@ import store.carjava.marketplace.app.reservation.dto.ReservationInfoDto;
 import store.carjava.marketplace.app.test_drive_center.dto.TestDriveCenterChangeDto;
 import store.carjava.marketplace.app.test_drive_center.entity.TestDriveCenter;
 import store.carjava.marketplace.app.test_drive_center.repository.TestDriveCenterRepository;
+import store.carjava.marketplace.app.user.entity.User;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -38,6 +42,7 @@ public class MarketplaceCarService {
     private final MarketplaceCarRepository marketplaceCarRepository;
     private final BaseCarRepository baseCarRepository;
     private final TestDriveCenterRepository testDriveCenterRepository;
+    private final CarSalseHistoryRepository carSalseHistoryRepository;
 
     public List<MarketplaceCarResponse> getFilteredCars(String model, String fuelType, String brand, String colorType,
                                                         String driveType, String licensePlate, String transmission,
@@ -309,10 +314,45 @@ public class MarketplaceCarService {
                 .status("판매 승인")
                 .marketplaceRegistrationDate(LocalDate.now())
                 .testDriveCenter(testDriveCenter) // 연관된 TestDriveCenter 설정
+                .mainImage(car.getMainImage())
                 .build();
 
         // 변경된 차량 저장
         marketplaceCarRepository.save(car);
+    }
+
+    public void completeSaleCar(String id) {
+        // 차량 조회
+        MarketplaceCar car = marketplaceCarRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("해당 차량을 찾을 수 없습니다."));
+
+        // 차량 상태 업데이트
+        car = MarketplaceCar.builder()
+                .id(car.getId())
+                .carDetails(car.getCarDetails())
+                .price(car.getPrice())
+                .status("구매 가능") // 상태 업데이트
+                .marketplaceRegistrationDate(car.getMarketplaceRegistrationDate())
+                .mainImage(car.getMainImage())
+                .testDriveCenter(car.getTestDriveCenter())
+                .build();
+
+        // 변경된 차량 저장
+        marketplaceCarRepository.save(car);
+
+        /** user 정보를 받아오면
+
+//        // 현재 로그인된 사용자 정보 가져오기
+//        User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+//
+//        // 판매 이력 생성
+//        CarSalesHistory salesHstory = CarSalesHistory.builder()
+//                .marketplaceCar(car) // 업데이트된 차량 정보
+//                .user(currentUser)
+//                .build();
+//
+//        // 판매 이력 저장
+//        carSalseHistoryRepository.save(salesHstory);**/
     }
 
 
