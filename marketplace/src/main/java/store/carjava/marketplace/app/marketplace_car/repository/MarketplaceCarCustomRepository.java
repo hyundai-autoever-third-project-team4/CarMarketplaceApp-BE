@@ -15,4 +15,8 @@ public interface MarketplaceCarCustomRepository {
                                     List<Long> optionIds, String testDriveCenterName, String status, Integer minEngineCapacity,
                                     Integer maxEngineCapacity, String name, String sortOrder , Pageable pageable
                                     );
+
+    List<MarketplaceCar> findMarketplaceCarProperList(long budgetLow, long budgetHigh, List<String> vehicle);
+    MarketplaceCar findUpgradeModelCarOverPrice(long budget, List<String> vehicle, MarketplaceCar marketplaceCar);
+    MarketplaceCar findCarMoreOptionOverPrice(long budget, MarketplaceCar marketplaceCar);
 }

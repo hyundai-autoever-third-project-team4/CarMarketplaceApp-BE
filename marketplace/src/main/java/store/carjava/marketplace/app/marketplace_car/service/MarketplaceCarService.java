@@ -5,8 +5,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+
 import store.carjava.marketplace.app.base_car.entity.BaseCar;
 import store.carjava.marketplace.app.base_car.repository.BaseCarRepository;
+
+import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarRecommandInfoDto;
+import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarRecommandListResponse;
+import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarRecommandRequest;
+
 import store.carjava.marketplace.app.car_purchase_history.dto.CarPurchaseHistoryInfoDto;
 import store.carjava.marketplace.app.car_sales_history.dto.CarSalesHistoryInfoDto;
 import store.carjava.marketplace.app.car_sales_history.entity.CarSalesHistory;
@@ -32,6 +38,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -235,6 +242,7 @@ public class MarketplaceCarService {
     }
 
 
+
     // 처음 판매자가 판매차량을 등록할때 등록하는 service
     public void sellRegisterCar(MarketplaceCarRegisterRequest request) {
         // BaseCar 조회
@@ -356,10 +364,99 @@ public class MarketplaceCarService {
     }
 
 
+    public MarketplaceCarRecommandListResponse getRecommand(MarketplaceCarRecommandRequest request) {
+        String carId = request.carId();
+        List<String> vehicle = request.vehicleType();
+        long budget;
 
+        MarketplaceCar normal = null, less = null, over = null;
+        boolean isFirstRecommand = true;
 
+        vehicle.forEach(vehicleType -> {
+            if(!vehicleType.equals("승용") && !vehicleType.equals("SUV") && !vehicleType.equals("승합") && !vehicleType.equals("EV")){
+                throw new VehicleTypeNotFoundException();
+            }
+        });
 
+        // 첫 추천인 경우
+        if (carId.equals("null")){
+            budget = request.budget() * 10000;
+        }
+        // 재추천인 경우
+        else{
+            normal = marketplaceCarRepository.findById(carId).orElseThrow(MarketplaceCarIdNotFoundException::new);
+            budget = normal.getPrice();
+            isFirstRecommand = false;
+        }
 
+        // 적정, 저렴 추천
+        List<MarketplaceCar> carExist = marketplaceCarRepository.findTop2ByCarDetails_VehicleTypeInAndPriceLessThanEqualOrderByPriceDesc(vehicle, budget);
+        // 예산 내 차가 0대
+        if(carExist.isEmpty()){
 
+        }
+        // 예산 내 차가 1대
+        else if (carExist.size() == 1) {
+            if(isFirstRecommand) normal = carExist.get(0);
+            else less = carExist.get(0);
+        } else{
+            List<MarketplaceCar> carList = marketplaceCarRepository
+                    .findMarketplaceCarProperList((long) (budget * 0.92), (long) (budget * 0.96), vehicle);
+
+            // 적정 가격 범위 내에 차가 없는 경우
+            Optional<MarketplaceCar> lessCarExist;
+            if (carList.isEmpty()){
+                if(isFirstRecommand) {
+                    normal = carExist.get(0);
+                    lessCarExist = marketplaceCarRepository
+                            .findTopByCarDetails_VehicleTypeInAndPriceLessThanEqualOrderByPriceDesc(vehicle, normal.getPrice() -1);
+                    less = lessCarExist.orElse(null);
+                }
+                else less = carExist.get(0);
+            }
+            // 적정 가격 범위 내 차가 1대 있는 경우
+            else if (carList.size() == 1) {
+                if(isFirstRecommand) {
+                    normal = carList.get(0);
+                    lessCarExist = marketplaceCarRepository
+                            .findTopByCarDetails_VehicleTypeInAndPriceLessThanEqualOrderByPriceDesc(vehicle, normal.getPrice() -1);
+                    less = lessCarExist.orElse(null);
+                }
+                else less = carList.get(0);
+            } else{
+                if(isFirstRecommand){
+                    normal = carList.get(0);
+                    less = carList.get(carList.size() - 1);
+                }
+                else less = carList.get(0);
+            }
+        }
+
+        // 초과 추천
+        Optional<MarketplaceCar> overExist = marketplaceCarRepository.findTopByPriceGreaterThanOrderByPrice(budget);
+        if (overExist.isEmpty()) {
+            over = null;
+        } else if (normal == null) {
+            over = overExist.get();
+        } else{
+            // 고급 모델 차량
+            MarketplaceCar upgrade1 = marketplaceCarRepository.findUpgradeModelCarOverPrice(budget, vehicle, normal);
+            // 동일 모델 차량, 짧은 주행거리 + 최신 연식
+            MarketplaceCar upgrade2 = marketplaceCarRepository.findCarMoreOptionOverPrice(budget, normal);
+
+            if (upgrade1 != null && upgrade2 != null) {
+                if (upgrade1.getPrice() < upgrade2.getPrice()) { over = upgrade1; }
+                else { over = upgrade2; }
+            }
+            else if (upgrade1 != null) { over = upgrade1; }
+            else if (upgrade2 != null) { over = upgrade2; }
+            else { over = overExist.get(); }
+        }
+
+        return MarketplaceCarRecommandListResponse.of(
+                MarketplaceCarRecommandInfoDto.of(normal),
+                MarketplaceCarRecommandInfoDto.of(less),
+                MarketplaceCarRecommandInfoDto.of(over));
+    }
 
 }

@@ -1,6 +1,9 @@
 package store.carjava.marketplace.app.auth.controller;
 
 import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +24,7 @@ import store.carjava.marketplace.app.auth.service.AuthService;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
+@Tag(name = "인증 API", description = "Keycloak 기반 인증 및 토큰 관리 API")
 public class AuthController {
 
     @Value("${jwt.expiration}")
@@ -64,9 +68,12 @@ public class AuthController {
                 .body(tokenResponse);
     }
 
+    @Operation(summary = "Access Token 갱신", description = "Refresh Token을 사용하여 새로운 Access Token을 발급합니다.")
     @PostMapping("/login/refresh")
     public ResponseEntity<TokenResponse> refreshAccessToken(
-            @RequestBody RefreshTokenRequest refreshTokenRequest) {
+            @RequestBody
+            @Parameter(description = "Refresh Token 요청 데이터", required = true, example = "{ \"refreshToken\": \"sample_refresh_token\" }")
+            RefreshTokenRequest refreshTokenRequest) {
         log.info("Refreshing access token");
 
         // service로 부터 로직 수행 후, 자체 accessToken return
@@ -84,4 +91,3 @@ public class AuthController {
     }
 
 }
-
