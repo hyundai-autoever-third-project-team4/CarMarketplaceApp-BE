@@ -44,7 +44,9 @@ public class SecurityConfig {
                 "/login-page",
                 "/login/**",
                 "/filter/**",
+                "/cars/**"
                 "/recommend/**"
+
         );
 
         http
