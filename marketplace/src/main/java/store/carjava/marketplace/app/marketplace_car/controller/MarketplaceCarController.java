@@ -16,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarRegisterRequest;
 import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarResponse;
 import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarSendToManagerDto;
@@ -172,10 +173,11 @@ public class MarketplaceCarController {
     public ResponseEntity<String> approveCar(
             @RequestParam String carId,
             @RequestParam String testDriveCenterName,
-            @RequestParam Long price
+            @RequestParam Long price,
+            @RequestParam List<MultipartFile> files
         ) {
         try {
-            marketplaceCarService.approveCar(carId, testDriveCenterName, price);
+            marketplaceCarService.approveCar(carId, testDriveCenterName, price, files);
             return ResponseEntity.ok("차량 판매가 승인되었습니다.");
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
