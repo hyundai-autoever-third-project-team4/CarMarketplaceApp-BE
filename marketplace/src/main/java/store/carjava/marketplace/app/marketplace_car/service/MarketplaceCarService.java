@@ -145,14 +145,18 @@ public class MarketplaceCarService {
 
         Long likeCount = likeRepository.countByMarketplaceCarId(car.getId());
 
+
+        Boolean isLikedByUser = null;
         // 1. 로그인한 유저 정보 가져오기.
-        User currentUser = userResolver.getCurrentUser();
-        if (currentUser == null) {
-            throw new UserNotAuthenticatedException();
+
+        try {
+            User currentUser = userResolver.getCurrentUser();
+            isLikedByUser = likeRepository.existsByMarketplaceCarIdAndUserId(car.getId(), currentUser.getId());
+        }
+        catch (UserNotAuthenticatedException e) {
+            isLikedByUser = false;
         }
 
-        // 2. 사용자가 이 차량을 찜했는지 여부 확인
-        boolean isLikedByUser = likeRepository.existsByMarketplaceCarIdAndUserId(car.getId(), currentUser.getId());
 
         // MarketplaceCarResponse 생성
         return MarketplaceCarResponse.builder()
