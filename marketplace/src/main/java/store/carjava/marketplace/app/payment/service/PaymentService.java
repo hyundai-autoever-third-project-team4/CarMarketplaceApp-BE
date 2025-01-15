@@ -17,11 +17,10 @@ import store.carjava.marketplace.app.payment.exception.PaymentBodyNullException;
 import store.carjava.marketplace.app.payment.exception.PaymentClientErrorException;
 import store.carjava.marketplace.app.payment.exception.PaymentRequestUserMismatchException;
 import store.carjava.marketplace.app.user.entity.User;
-import store.carjava.marketplace.app.user.exception.UserIdNotFoundException;
-import store.carjava.marketplace.app.user.repository.UserRepository;
 import store.carjava.marketplace.common.util.user.UserResolver;
 
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Base64;
@@ -33,55 +32,38 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class PaymentService {
 
-    private final static String TOSS_API_URL = "https://api.tosspayments.com/v1/payments/confirm";
-    private final UserRepository userRepository;
+    private static final String TOSS_API_URL = "https://api.tosspayments.com/v1/payments/confirm";
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
+
     private final CarPurchaseHistoryRepository carPurchaseHistoryRepository;
-
-    @Value("${payment.secret}")
-    private String WIDGET_SECRET_KEY;
-
-    private final CarPurchaseHistoryRepository purchaseHistoryRepository;
     private final MarketplaceCarRepository marketplaceCarRepository;
     private final UserResolver userResolver;
-    private final DateTimeFormatter formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
+
+    @Value("${payment.secret}")
+    private String widgetSecretKey;
 
     public PaymentResponse processPaymentConfirmation(PaymentRequest paymentRequest) {
         try {
-            // Toss Payment API 호출을 위한 restTemplate 생성
-            RestTemplate restTemplate = new RestTemplate();
+            // API 호출
+            ResponseEntity<Map> tossPaymentApiResponse = callTossPaymentApi(paymentRequest);
 
-            // API 요청 헤더 생성
-            HttpHeaders headers = makeRequestHeaders();
+            // 응답 처리
+            Map<String, Object> apiResponse = extractApiResponse(tossPaymentApiResponse);
 
-            // API 호출 바디 설정
-            Map<String, String> requestBody = makeRequestBody(paymentRequest);
+            // 구매 내역 저장
+            saveCarPurchaseHistory(apiResponse);
 
-            // API 호출을 위한 requestEntity 생성
-            HttpEntity<Map<String, String>> requestEntity = new HttpEntity<>(requestBody, headers);
-
-            // Toss Payment API 호출
-            ResponseEntity<Map> tossPaymentApiResponse = restTemplate.postForEntity(
-                    TOSS_API_URL,
-                    requestEntity,
-                    Map.class
-            );
-
-            // API 응답을 map 객체로 변환
-            Map<String, Object> apiResponse = tossPaymentApiResponse.getBody();
-            if (apiResponse == null) { // 응답 본문이 null 인 경우 = toss payment api가 오류인 경우
-                throw new PaymentBodyNullException();
-            }
-
-            // CarPurchaseHistory 생성
-            makeCarPurchaseHistory(apiResponse);
-
-            // Response 객체 생성
-            PaymentResponse paymentResponse = makePaymentResponse(apiResponse);
-
-            return paymentResponse;
+            // PaymentResponse 생성
+            return createPaymentResponse(apiResponse);
         } catch (HttpClientErrorException e) {
             throw new PaymentClientErrorException();
         }
+    }
+
+    private ResponseEntity<Map> callTossPaymentApi(PaymentRequest request) {
+        RestTemplate restTemplate = new RestTemplate();
+        HttpEntity<Map<String, String>> requestEntity = new HttpEntity<>(makeRequestBody(request), makeRequestHeaders());
+        return restTemplate.postForEntity(TOSS_API_URL, requestEntity, Map.class);
     }
 
     private Map<String, String> makeRequestBody(PaymentRequest request) {
@@ -94,22 +76,42 @@ public class PaymentService {
 
     private HttpHeaders makeRequestHeaders() {
         HttpHeaders headers = new HttpHeaders();
-
         headers.set("Authorization", createAuthorizationHeader());
         headers.setContentType(MediaType.APPLICATION_JSON);
-
         return headers;
     }
 
-    private void makeCarPurchaseHistory(Map<String, Object> apiResponse) {
-        // 현재 결제중인 유저 정보 확인
+    private String createAuthorizationHeader() {
+        return "Basic " + Base64.getEncoder().encodeToString((widgetSecretKey + ":").getBytes(StandardCharsets.UTF_8));
+    }
+
+    private Map<String, Object> extractApiResponse(ResponseEntity<Map> apiResponseEntity) {
+        Map<String, Object> apiResponse = apiResponseEntity.getBody();
+        if (apiResponse == null) {
+            throw new PaymentBodyNullException();
+        }
+        return apiResponse;
+    }
+
+    private Map<String, Object> extractEasyPay(Map<String, Object> apiResponse) {
+        return (Map<String, Object>) apiResponse.get("easyPay");
+    }
+
+    private Map<String, String> extractMetadata(Map<String, Object> apiResponse) {
+        return (Map<String, String>) apiResponse.get("metadata");
+    }
+
+    private LocalDateTime parseDate(String date) {
+        return OffsetDateTime.parse(date, FORMATTER).toLocalDateTime();
+    }
+
+    private void saveCarPurchaseHistory(Map<String, Object> apiResponse) {
         User currentUser = userResolver.getCurrentUser();
 
-        // payment request에 들어있는 유저 정보와 같은 지 검증
         validateRequestUserSameAsCurrentUser(currentUser, apiResponse);
 
-        Map<String, Object> easyPay = (Map<String, Object>) apiResponse.get("easyPay");
-        Map<String, String> metadata = (Map<String, String>) apiResponse.get("metadata");
+        Map<String, Object> easyPay = extractEasyPay(apiResponse);
+        Map<String, String> metadata = extractMetadata(apiResponse);
 
         MarketplaceCar marketplaceCar = marketplaceCarRepository.findById(metadata.get("marketplaceCarId"))
                 .orElseThrow(MarketplaceCarIdNotFoundException::new);
@@ -117,8 +119,8 @@ public class PaymentService {
         CarPurchaseHistory carPurchaseHistory = CarPurchaseHistory.builder()
                 .orderId((String) apiResponse.get("orderId"))
                 .orderName((String) apiResponse.get("orderName"))
-                .approvedAt(OffsetDateTime.parse((String) apiResponse.get("approvedAt"), formatter).toLocalDateTime())
-                .confirmedAt(null)  // 현재 구매 확정이 되어있지 않기 때문에 null 로
+                .approvedAt(parseDate((String) apiResponse.get("approvedAt")))
+                .confirmedAt(null)
                 .currency((String) apiResponse.get("currency"))
                 .totalAmount(((Number) apiResponse.get("totalAmount")).longValue())
                 .suppliedAmount(((Number) apiResponse.get("suppliedAmount")).longValue())
@@ -132,22 +134,20 @@ public class PaymentService {
     }
 
     private void validateRequestUserSameAsCurrentUser(User currentUser, Map<String, Object> apiResponse) {
-        Map<String, String> metadata = (Map<String, String>) apiResponse.get("metadata");
-
+        Map<String, String> metadata = extractMetadata(apiResponse);
         Long requestUserId = Long.valueOf(metadata.get("userId"));
-
         if (!Objects.equals(currentUser.getId(), requestUserId)) {
             throw new PaymentRequestUserMismatchException();
         }
     }
 
-    private PaymentResponse makePaymentResponse(Map<String, Object> apiResponse) {
-        Map<String, Object> easyPay = (Map<String, Object>) apiResponse.get("easyPay");
+    private PaymentResponse createPaymentResponse(Map<String, Object> apiResponse) {
+        Map<String, Object> easyPay = extractEasyPay(apiResponse);
         return new PaymentResponse(
                 (String) apiResponse.get("orderId"),
                 (String) apiResponse.get("orderName"),
-                OffsetDateTime.parse((String) apiResponse.get("requestedAt"), formatter).toLocalDateTime(),
-                OffsetDateTime.parse((String) apiResponse.get("approvedAt"), formatter).toLocalDateTime(),
+                parseDate((String) apiResponse.get("requestedAt")),
+                parseDate((String) apiResponse.get("approvedAt")),
                 (String) apiResponse.get("currency"),
                 ((Number) apiResponse.get("totalAmount")).longValue(),
                 ((Number) apiResponse.get("suppliedAmount")).longValue(),
@@ -155,12 +155,7 @@ public class PaymentService {
                 easyPay != null ? (String) easyPay.get("provider") : null
         );
     }
-
-    private String createAuthorizationHeader() {
-        Base64.Encoder encoder = Base64.getEncoder();
-        byte[] encodedBytes = encoder.encode((WIDGET_SECRET_KEY + ":").getBytes(StandardCharsets.UTF_8));
-        return "Basic " + new String(encodedBytes);
-    }
 }
+
 
 
