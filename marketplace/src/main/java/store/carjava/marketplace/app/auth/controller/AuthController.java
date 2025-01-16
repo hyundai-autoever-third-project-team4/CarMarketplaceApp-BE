@@ -36,9 +36,44 @@ public class AuthController {
 
     private final AuthService authService;
 
+    @Hidden
+    @GetMapping("/mock-login")
+    public RedirectView redirectToKeycloak() {
+        log.info("Redirecting to Keycloak for authentication");
+        String url = authService.getAuthorizationUrl();
+        return new RedirectView(url); // Keycloak 인증 페이지로 리다이렉트
+    }
+
+    @Hidden
+    @GetMapping("/login/redirect")
+    @ResponseBody
+    public ResponseEntity<CustomTokenResponse> callback(HttpServletRequest request) {
+        log.info("Handling callback from Keycloak");
+
+        // Keycloak으로부터 authorization code를 가져옴
+        String authorizationCode = request.getParameter("code");
+
+        if (authorizationCode == null) {
+            log.error("Authorization code not received");
+            return ResponseEntity.badRequest().build();
+        }
+
+        CustomTokenResponse tokenResponse = authService.generateJwtToken(authorizationCode);
+
+        // Set-Cookie 헤더 추가
+        ResponseCookie accessTokenCookie = createCookie("accessToken", tokenResponse.accessToken(), (int) accessTokenExpiration);
+        ResponseCookie refreshTokenCookie = createCookie("refreshToken", tokenResponse.refreshToken(), (int) refreshTokenExpiration);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, accessTokenCookie.toString())
+                .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
+                .body(tokenResponse);
+    }
+
+
     @Operation(summary = "사용자 로그인 엔드포인트", description = "키클락 로그인 페이지로 이동한 후, 인증 토큰값을 반환합니다.")
     @PostMapping("/login")
-    public ResponseEntity<?> redirectToKeycloak(@RequestBody TokenRequest tokenRequest) {
+    public ResponseEntity<?> loginWithAuthorizationCode(@RequestBody TokenRequest tokenRequest) {
         log.info("Redirecting to Keycloak for authentication");
 
         CustomTokenResponse response = authService.generateJwtToken(tokenRequest.authorizationCode());

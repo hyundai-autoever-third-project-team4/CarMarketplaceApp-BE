@@ -35,7 +35,9 @@ public class SecurityConfig {
 
             // [Oauth 2.0] 로그인 경로 모두 허용
             "/login-page",
-            "/login/**"
+            "/login/**",
+            "/mock-login/**"
+
     );
 
     @Bean
