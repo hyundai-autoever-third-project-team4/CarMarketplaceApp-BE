@@ -40,7 +40,7 @@ public class TestDriveCenterService {
                 .orElseThrow(TestDriverCenterIdNotFoundException::new);
 
         // 2) 시승소 id 에 해당하는 marketplace car 엔티티를 모두 조회
-        List<MarketplaceCar> marketplaceCars = marketplaceCarRepository.findAllByTestDriveCenter(testDriveCenter);
+        List<MarketplaceCar> marketplaceCars = marketplaceCarRepository.findAllByTestDriveCenterAndStatus(testDriveCenter, "AVAILABLE_FOR_PURCHASE");
 
         // 3) marketplace car 엔티티를 summary dto list로 변환
         List<MarketplaceCarSummaryDto> marketplaceCarSummaryDtos = marketplaceCars.stream()
