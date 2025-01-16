@@ -25,10 +25,5 @@ public class LikeController {
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "내가 찜한 차량 목록 조회", description = "마이페이지에서 내가 찜한 차량 목록 조회.")
-    @GetMapping("/mypage/like")
-    public ResponseEntity<MyLikeCarListResponse> getMyLikeCars() {
-        MyLikeCarListResponse myLikeCarList = likeService.getMyLikeCars();
-        return ResponseEntity.ok(myLikeCarList);
-    }
+
 }

@@ -47,22 +47,6 @@ public class ReviewController {
 
     }
 
-    @Operation(summary = "내가 쓴 리뷰 조회", description = "마이페이지에서 나의 리뷰 조회 api")
-    @GetMapping("/mypage/reviews")
-    public ResponseEntity<ReviewInfoListDto> getUserReviews(
-    ) {
-        ReviewInfoListDto userReviews = reviewService.getMyReviews();
-        return ResponseEntity.ok(userReviews);
-    }
-
-    @Operation(summary = "내가 쓴 리뷰 삭제", description = "마이페이지 리뷰 삭제")
-    @DeleteMapping("/review/{reviewId}")
-    public ResponseEntity<ReviewDeleteResponse> deleteReview(
-            @Parameter(description = "삭제할 리뷰 ID") @PathVariable("reviewId") Long reviewId
-    ) {
-        ReviewDeleteResponse responseDto = reviewService.deleteReview(reviewId);
-        return ResponseEntity.ok(responseDto);
-    }
 
     //리뷰controller 말고 차량조회에서 CarDetailResponseDto에 ReviewInfoList도 함께 조회하도록 수정 필요
     @Operation(summary = "차량 동일 모델 리뷰 조회", description = "차량 상세에서 동일모델의 리뷰 조회")

@@ -1,11 +1,19 @@
 package store.carjava.marketplace.app.user.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
+import store.carjava.marketplace.app.like.dto.MyLikeCarListResponse;
+import store.carjava.marketplace.app.like.service.LikeService;
+import store.carjava.marketplace.app.review.dto.ReviewDeleteResponse;
+import store.carjava.marketplace.app.review.dto.ReviewInfoListDto;
+import store.carjava.marketplace.app.review.service.ReviewService;
 import store.carjava.marketplace.app.user.dto.UserPurchaseListResponse;
 import store.carjava.marketplace.app.user.dto.UserReservationListResponse;
 import store.carjava.marketplace.app.user.dto.UserResponse;
@@ -18,6 +26,8 @@ import store.carjava.marketplace.app.user.service.UserService;
 public class UserController {
 
     private final UserService userService;
+    private final LikeService likeService;
+    private final ReviewService reviewService;
 
     @Operation(summary = "마이페이지 첫화면", description = "마이페이지 첫화면-유저 이름 및 가까운 예약 내역")
     @GetMapping("/mypage")
@@ -33,7 +43,7 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @Operation(description = "마이페이지 내가 구매한 차량 리스트")
+    @Operation(summary = "내가 구매한 차", description = "마이페이지 내가 구매한 차량 리스트")
     @GetMapping("/mypage/purchase")
     public ResponseEntity<UserPurchaseListResponse> getUserPurchaseList(){
         UserPurchaseListResponse response = userService.getUserPurchaseList();
@@ -45,5 +55,31 @@ public class UserController {
     public ResponseEntity<UserReservationListResponse> getUserReservationList(){
         UserReservationListResponse response = userService.getUserReservationList();
         return ResponseEntity.ok(response);
+    }
+
+
+    @Operation(summary = "내가 찜한 차량 목록 조회", description = "마이페이지에서 내가 찜한 차량 목록 조회.")
+    @GetMapping("/mypage/like")
+    public ResponseEntity<MyLikeCarListResponse> getMyLikeCars() {
+        MyLikeCarListResponse myLikeCarList = likeService.getMyLikeCars();
+        return ResponseEntity.ok(myLikeCarList);
+    }
+
+    @Operation(summary = "내가 쓴 리뷰 조회", description = "마이페이지에서 나의 리뷰 조회 api")
+    @GetMapping("/mypage/reviews")
+    public ResponseEntity<ReviewInfoListDto> getUserReviews(
+    ) {
+        ReviewInfoListDto userReviews = reviewService.getMyReviews();
+        return ResponseEntity.ok(userReviews);
+    }
+
+
+    @Operation(summary = "내가 쓴 리뷰 삭제", description = "마이페이지 리뷰 삭제")
+    @DeleteMapping("mypage/reviews/{reviewId}")
+    public ResponseEntity<ReviewDeleteResponse> deleteReview(
+            @Parameter(description = "삭제할 리뷰 ID") @PathVariable("reviewId") Long reviewId
+    ) {
+        ReviewDeleteResponse responseDto = reviewService.deleteReview(reviewId);
+        return ResponseEntity.ok(responseDto);
     }
 }
