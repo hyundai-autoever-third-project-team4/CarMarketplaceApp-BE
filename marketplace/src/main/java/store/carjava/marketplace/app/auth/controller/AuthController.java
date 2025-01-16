@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.view.RedirectView;
 import store.carjava.marketplace.app.auth.dto.CustomTokenResponse;
 import store.carjava.marketplace.app.auth.dto.RefreshTokenRequest;
+import store.carjava.marketplace.app.auth.dto.TokenRequest;
 import store.carjava.marketplace.app.auth.dto.TokenResponse;
 import store.carjava.marketplace.app.auth.service.AuthService;
 
@@ -36,11 +37,13 @@ public class AuthController {
     private final AuthService authService;
 
     @Operation(summary = "사용자 로그인 엔드포인트", description = "키클락 로그인 페이지로 이동한 후, 인증 토큰값을 반환합니다.")
-    @GetMapping("/login")
-    public RedirectView redirectToKeycloak() {
+    @PostMapping("/login")
+    public ResponseEntity<?> redirectToKeycloak(@RequestBody TokenRequest tokenRequest) {
         log.info("Redirecting to Keycloak for authentication");
-        String url = authService.getAuthorizationUrl();
-        return new RedirectView(url); // Keycloak 인증 페이지로 리다이렉트
+
+        CustomTokenResponse response = authService.generateJwtToken(tokenRequest.authorizationCode());
+
+        return ResponseEntity.ok(response);
     }
 
     @Hidden
