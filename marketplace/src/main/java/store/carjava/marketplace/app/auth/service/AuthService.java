@@ -65,12 +65,12 @@ public class AuthService {
                 "&scope=openid profile email";
     }
 
-    public CustomTokenResponse generateJwtToken(TokenRequest tokenRequest) {
+    public CustomTokenResponse generateJwtToken(String authorizationCode) {
         // 1) Authorization Code를 통해 key cloak에 accessToken, refreshToken 요청 생성
-
+        TokenRequest keycloakTokenRequest = TokenRequest.of(authorizationCode);
 
         // 2) 해당 요청을 keycloak에 보내, accessToken, refreshToken response 생성
-        TokenResponse keycloakTokenResponse = requestAccessToken(tokenRequest);
+        TokenResponse keycloakTokenResponse = requestAccessToken(keycloakTokenRequest);
 
         // 3) response에 들어있는 accessToken을 통해, keycloak에 로그인 한 유저의 user_info 조회
         Map<String, Object> userInfo = requestUserInfo(keycloakTokenResponse.accessToken());
@@ -104,7 +104,7 @@ public class AuthService {
         return new TokenResponse(accessToken, refreshToken);
     }
 
-    public TokenResponse requestAccessToken(TokenRequest tokenRequest) {
+    private TokenResponse requestAccessToken(TokenRequest tokenRequest) {
         log.info("Calling Keycloak token endpoint");
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
@@ -115,8 +115,6 @@ public class AuthService {
         body.add("redirect_uri", "http://127.0.0.1:5500/redirect.html");
         body.add("client_id", clientId);
         body.add("client_secret", clientSecret);
-
-        log.info("redirect uri : {}", redirectUri);
 
         HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(body, headers);
 
