@@ -153,4 +153,11 @@ public class UserService {
 
         return UserProfileUpdateResponse.of(savedUser);
     }
+
+
+    // 로그인 한 유저의 정보
+    public UserInfoResponse getCurrentUserInfo() {
+        User currentUser = userResolver.getCurrentUser();
+        return UserInfoResponse.of(currentUser);
+    }
 }
