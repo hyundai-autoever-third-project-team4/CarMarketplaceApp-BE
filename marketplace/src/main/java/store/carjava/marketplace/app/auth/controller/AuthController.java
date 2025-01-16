@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.view.RedirectView;
 import store.carjava.marketplace.app.auth.dto.CustomTokenResponse;
 import store.carjava.marketplace.app.auth.dto.RefreshTokenRequest;
+import store.carjava.marketplace.app.auth.dto.TokenRequest;
 import store.carjava.marketplace.app.auth.dto.TokenResponse;
 import store.carjava.marketplace.app.auth.service.AuthService;
 
@@ -35,8 +36,8 @@ public class AuthController {
 
     private final AuthService authService;
 
-    @Operation(summary = "사용자 로그인 엔드포인트", description = "키클락 로그인 페이지로 이동한 후, 인증 토큰값을 반환합니다.")
-    @GetMapping("/login")
+    @Hidden
+    @GetMapping("/mock-login")
     public RedirectView redirectToKeycloak() {
         log.info("Redirecting to Keycloak for authentication");
         String url = authService.getAuthorizationUrl();
@@ -67,6 +68,23 @@ public class AuthController {
                 .header(HttpHeaders.SET_COOKIE, accessTokenCookie.toString())
                 .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
                 .body(tokenResponse);
+    }
+
+
+    @Operation(summary = "사용자 로그인 엔드포인트", description = "키클락 로그인 페이지로 이동한 후, 인증 토큰값을 반환합니다.")
+    @PostMapping("/login")
+    public ResponseEntity<?> loginWithAuthorizationCode(@RequestBody TokenRequest tokenRequest) {
+        log.info("Redirecting to Keycloak for authentication");
+
+        CustomTokenResponse response = authService.generateJwtToken(tokenRequest.authorizationCode());
+
+        ResponseCookie accessTokenCookie = createCookie("accessToken", response.accessToken(), (int) accessTokenExpiration);
+        ResponseCookie refreshTokenCookie = createCookie("refreshToken", response.refreshToken(), (int) refreshTokenExpiration);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, accessTokenCookie.toString())
+                .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
+                .body(response);
     }
 
     @Operation(summary = "Access Token 갱신", description = "Refresh Token을 사용하여 새로운 Access Token을 발급합니다.")
