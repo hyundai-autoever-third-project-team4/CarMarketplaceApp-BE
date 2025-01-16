@@ -79,6 +79,8 @@ public class SecurityConfig {
                         .requestMatchers("/admin/**").hasRole("ADMIN") // ROLE_ADMIN만 허용
 
                         .requestMatchers("/payment/**").permitAll()
+                        // socket
+                        .requestMatchers("/ws/**").permitAll()
 
                         .anyRequest().authenticated() // 나머지 요청은 인증 필요
                 )
@@ -93,13 +95,12 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
 
         // 허용할 출처 설정
-        configuration.setAllowedOrigins(List.of(
+        configuration.setAllowedOriginPatterns(List.of(
                 "http://localhost:5173",
                 "http://127.0.0.1:5500",
                 "http://localhost:8081",
                 "https://chajava.store"
         ));
-
         // 허용할 HTTP 메서드 설정
         configuration.setAllowedMethods(
                 Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
@@ -107,6 +108,9 @@ public class SecurityConfig {
         // 허용할 헤더 설정
         configuration.setAllowedHeaders(
                 Arrays.asList("Authorization", "Content-Type", "Accept", "Origin"));
+
+        //인증 정보 허용
+        configuration.setAllowCredentials(true);
 
         // 클라이언트에서 접근 가능한 헤더 설정
         configuration.setExposedHeaders(List.of("Authorization", "Content-Type"));
