@@ -9,6 +9,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
+import store.carjava.marketplace.app.user.dto.UserSummaryDto;
 import store.carjava.marketplace.app.user.entity.User;
 import store.carjava.marketplace.common.util.user.UserResolver;
 import store.carjava.marketplace.web.admin.dto.AdminInfo;
@@ -34,13 +35,18 @@ public class AdminController {
         );
     }
 
+    @ModelAttribute("users")
+    public List<UserSummaryDto> users() {
+        return adminService.getAllUsers()
+                .stream().map(UserSummaryDto::of)
+                .toList();
+    }
+
     @GetMapping
     public String adminPage(Model model) {
-        List<User> users = adminService.getAllUsers();
 
         Long totalSales = adminService.getTotalSalesAmount();
 
-        model.addAttribute("users", users);
         model.addAttribute("totalSales", totalSales);
         return "admin/index";
     }
@@ -56,7 +62,15 @@ public class AdminController {
     }
 
     @GetMapping("/users")
-    public String usersPage() {
+    public String usersPage(Model model) {
+        int totalReviews = users().stream().mapToInt(UserSummaryDto::reviewCount).sum();
+        int totalSales = users().stream().mapToInt(UserSummaryDto::salesCount).sum();
+        int totalPurchases = users().stream().mapToInt(UserSummaryDto::purchaseCount).sum();
+
+        model.addAttribute("totalReviews", totalReviews);
+        model.addAttribute("totalSales", totalSales);
+        model.addAttribute("totalPurchases", totalPurchases);
+
         return "admin/users";
     }
 
