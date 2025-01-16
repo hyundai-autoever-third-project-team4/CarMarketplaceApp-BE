@@ -192,6 +192,10 @@ public class MarketplaceCarCustomRepositoryImpl implements MarketplaceCarCustomR
         return name == null ? null : marketplaceCar.carDetails.name.containsIgnoreCase(name);
     }
 
+
+
+
+
     private OrderSpecifier<?> getOrderSpecifier(String sortOrder, QMarketplaceCar marketplaceCar) {
         switch (sortOrder.toUpperCase()) {
             case "최근 연식순":
