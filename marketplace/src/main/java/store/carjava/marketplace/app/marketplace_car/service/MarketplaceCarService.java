@@ -82,10 +82,12 @@ public class MarketplaceCarService {
             throw new MaxPriceLessThanMinPriceException();
         }
 
-        // 브랜드가 주어졌을 때, 해당 브랜드가 있는지 확인
-        if (brand != null && !brandExists(brand)) {
-            throw new BrandNotFoundException(brand);  // 존재하지 않으면 예외 발생
-        }
+          // 프론트에서 예외처리 하지말고 빈배열로 반환해달라는 요청
+
+//        // 브랜드가 주어졌을 때, 해당 브랜드가 있는지 확인
+//        if (brand != null && !brandExists(brand)) {
+//            throw new BrandNotFoundException(brand);  // 존재하지 않으면 예외 발생
+//        }
 //        // 유효한 연료타입인지 확인
 //        if (fuelTypes != null && !fuelTypes.isEmpty()) {
 //            for (String fuelType : fuelTypes) {
@@ -105,10 +107,10 @@ public class MarketplaceCarService {
                 modelYear, seatingCapacity, maxPrice, minPrice, minMileage,
                 maxMileage, minModelYear, maxModelYear, optionIds, testDriveCenterName,
                 status, minEngineCapacity, maxEngineCapacity, name, sortOrder, pageable);
-
-        if (filteredCars.isEmpty()) {
-            throw new CarNotFoundException(); // 예외 발생
-        }
+//
+//        if (filteredCars.isEmpty()) {
+//            throw new CarNotFoundException(); // 예외 발생
+//        }
 
         return filteredCars.stream()
                 .map(this::buildMarketplaceCarResponse)
