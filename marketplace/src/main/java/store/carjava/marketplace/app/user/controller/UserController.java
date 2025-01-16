@@ -27,6 +27,13 @@ public class UserController {
     private final ReviewService reviewService;
 
 
+    @Operation(summary = "유저정보 조회", description = "로그인한 유저의 정보")
+    @GetMapping("/userInfo")
+    public ResponseEntity<UserInfoResponse> getCurrentUserInfo() {
+        UserInfoResponse response = userService.getCurrentUserInfo();
+        return ResponseEntity.ok(response);
+    }
+
 
     @Operation(summary = "유저정보 추가저장", description = "유저 이름, 주소, 전화번호 저장")
     @PutMapping("/profileUpdate")
