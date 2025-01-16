@@ -37,7 +37,11 @@ public class AdminController {
     @GetMapping
     public String adminPage(Model model) {
         List<User> users = adminService.getAllUsers();
+
+        Long totalSales = adminService.getTotalSalesAmount();
+
         model.addAttribute("users", users);
+        model.addAttribute("totalSales", totalSales);
         return "admin/index";
     }
 

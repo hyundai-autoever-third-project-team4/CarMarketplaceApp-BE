@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{admin/layout}">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/layout}">
 <head>
     <title>차자바 관리자 대시보드</title>
 </head>
@@ -23,7 +24,7 @@
             <div class="card text-white bg-success mb-3">
                 <div class="card-body">
                     <h5 class="card-title">차량 총 판매액</h5>
-                    <p class="card-text" th:text="${totalSales} + '원'">123,400,000원</p>
+                    <p class="card-text" data-th-text="${#numbers.formatInteger(totalSales, 3, 'COMMA') + '원'}"></p>
                 </div>
             </div>
         </div>
