@@ -72,11 +72,6 @@ public class User {
 
     // 추가 정보 입력 여부 확인
     public boolean isProfileComplete() {
-        System.out.println("dldldldldsfsfsfsfsf");
-        System.out.println(!StringUtils.isEmpty(name) &&
-                !StringUtils.isEmpty(phone) &&
-                !StringUtils.isEmpty(address));
-
         return !StringUtils.isEmpty(name) &&
                 !StringUtils.isEmpty(phone) &&
                 !StringUtils.isEmpty(address);

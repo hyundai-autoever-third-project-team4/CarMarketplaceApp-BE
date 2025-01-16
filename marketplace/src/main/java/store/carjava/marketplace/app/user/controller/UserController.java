@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import store.carjava.marketplace.app.like.dto.MyLikeCarListResponse;
 import store.carjava.marketplace.app.like.service.LikeService;
@@ -17,6 +18,7 @@ import store.carjava.marketplace.app.user.service.UserService;
 
 @RestController
 @RequiredArgsConstructor
+@Validated
 @Tag(name = "사용자 마이페이지 API", description = "사용자의 마이페이지 관련 api를 제공합니다.")
 public class UserController {
 
