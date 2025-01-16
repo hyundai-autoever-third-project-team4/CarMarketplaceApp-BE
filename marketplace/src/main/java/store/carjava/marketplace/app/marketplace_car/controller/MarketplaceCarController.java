@@ -15,6 +15,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import store.carjava.marketplace.app.base_car.dto.BaseCarResponse;
+import store.carjava.marketplace.app.base_car.entity.BaseCar;
 import store.carjava.marketplace.app.marketplace_car.dto.*;
 import store.carjava.marketplace.app.marketplace_car.entity.MarketplaceCar;
 
@@ -159,6 +161,23 @@ public class MarketplaceCarController {
             @RequestBody MarketplaceCarRecommandRequest request
     ) {
         MarketplaceCarRecommandListResponse response = marketplaceCarService.getRecommand(request);
+        return ResponseEntity.ok(response);
+    }
+
+
+    @GetMapping("/cars/search/base")
+    public ResponseEntity<BaseCarResponse> getBaseCar(
+            @RequestParam String licensePlate,
+            @RequestParam String ownerName) {
+        BaseCar baseCar = marketplaceCarService.findBaseCar(licensePlate, ownerName);
+
+        BaseCarResponse response = BaseCarResponse.builder()
+                .id(baseCar.getId())
+                .ownerName(baseCar.getOwnerName())
+                .carDetails(baseCar.getCarDetails())
+                .mainImage(baseCar.getMainImage())
+                .build();
+
         return ResponseEntity.ok(response);
     }
 
