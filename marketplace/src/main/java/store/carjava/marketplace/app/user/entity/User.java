@@ -72,9 +72,26 @@ public class User {
 
     // 추가 정보 입력 여부 확인
     public boolean isProfileComplete() {
+        System.out.println("dldldldldsfsfsfsfsf");
+        System.out.println(!StringUtils.isEmpty(name) &&
+                !StringUtils.isEmpty(phone) &&
+                !StringUtils.isEmpty(address));
+
         return !StringUtils.isEmpty(name) &&
                 !StringUtils.isEmpty(phone) &&
                 !StringUtils.isEmpty(address);
+    }
+
+    // 유저 정보 업데이트
+    public User updateProfile(String name, String phone, String address) {
+        return User.builder()
+                .id(this.id)
+                .email(this.email)
+                .role(this.role)
+                .name(name)
+                .phone(phone)
+                .address(address)
+                .build();
     }
 
 }
