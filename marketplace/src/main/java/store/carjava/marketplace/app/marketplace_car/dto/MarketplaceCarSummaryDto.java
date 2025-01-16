@@ -7,6 +7,7 @@ import java.time.LocalDate;
 public record MarketplaceCarSummaryDto(
         String id,
         String mainImage,
+        String name,
         String brand,
         String model,
         String licensePlate,
@@ -18,6 +19,7 @@ public record MarketplaceCarSummaryDto(
         return new MarketplaceCarSummaryDto(
                 marketplaceCar.getId(),
                 marketplaceCar.getMainImage(),
+                marketplaceCar.getCarDetails().getName(),
                 marketplaceCar.getCarDetails().getBrand(),
                 marketplaceCar.getCarDetails().getModel(),
                 marketplaceCar.getCarDetails().getLicensePlate(),
