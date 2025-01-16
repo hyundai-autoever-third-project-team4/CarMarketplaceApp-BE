@@ -165,7 +165,7 @@ public class MarketplaceCarController {
     }
 
 
-    @GetMapping("/car/search/base")
+    @GetMapping("/cars/search/base")
     public ResponseEntity<BaseCarResponse> getBaseCar(
             @RequestParam String licensePlate,
             @RequestParam String ownerName) {
