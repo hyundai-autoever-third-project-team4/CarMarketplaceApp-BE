@@ -57,14 +57,6 @@ public class AuthService {
     @Value("${spring.security.oauth2.client.provider.keycloak.user-info-uri}")
     private String userInfoUri;
 
-    public String getAuthorizationUrl() {
-        return authorizationUri +
-                "?response_type=code" +
-                "&client_id=" + clientId +
-                "&redirect_uri=" + redirectUri +
-                "&scope=openid profile email";
-    }
-
     public CustomTokenResponse generateJwtToken(String authorizationCode) {
         // 1) Authorization Code를 통해 key cloak에 accessToken, refreshToken 요청 생성
         TokenRequest keycloakTokenRequest = TokenRequest.of(authorizationCode);

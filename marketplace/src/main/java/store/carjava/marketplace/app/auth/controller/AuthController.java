@@ -43,33 +43,13 @@ public class AuthController {
 
         CustomTokenResponse response = authService.generateJwtToken(tokenRequest.authorizationCode());
 
-        return ResponseEntity.ok(response);
-    }
-
-    @Hidden
-    @GetMapping("/login/redirect")
-    @ResponseBody
-    public ResponseEntity<CustomTokenResponse> callback(HttpServletRequest request) {
-        log.info("Handling callback from Keycloak");
-
-        // Keycloak으로부터 authorization code를 가져옴
-        String authorizationCode = request.getParameter("code");
-
-        if (authorizationCode == null) {
-            log.error("Authorization code not received");
-            return ResponseEntity.badRequest().build();
-        }
-
-        CustomTokenResponse tokenResponse = authService.generateJwtToken(authorizationCode);
-
-        // Set-Cookie 헤더 추가
-        ResponseCookie accessTokenCookie = createCookie("accessToken", tokenResponse.accessToken(), (int) accessTokenExpiration);
-        ResponseCookie refreshTokenCookie = createCookie("refreshToken", tokenResponse.refreshToken(), (int) refreshTokenExpiration);
+        ResponseCookie accessTokenCookie = createCookie("accessToken", response.accessToken(), (int) accessTokenExpiration);
+        ResponseCookie refreshTokenCookie = createCookie("refreshToken", response.refreshToken(), (int) refreshTokenExpiration);
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, accessTokenCookie.toString())
                 .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
-                .body(tokenResponse);
+                .body(response);
     }
 
     @Operation(summary = "Access Token 갱신", description = "Refresh Token을 사용하여 새로운 Access Token을 발급합니다.")
