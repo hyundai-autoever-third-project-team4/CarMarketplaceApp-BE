@@ -9,28 +9,13 @@
     <hr>
 
     <!-- 총 가입자 수 -->
-    <!-- <div class="alert alert-primary" role="alert">
-        <strong>총 가입자 수:</strong> <span th:text="${totalUsers}"></span>명
-    </div> -->
     <div class="alert alert-primary" role="alert">
-        <strong>총 가입자 수:</strong> 5명
+        <strong>총 가입자 수:</strong> <span th:text="${users.size()}"></span>명
     </div>
 
     <!-- 사용자 검색 -->
-    <!--
     <div class="my-4">
-        <form class="row g-3" action="#" th:action="@{/admin/users/search}" method="get">
-            <div class="col-md-8">
-                <input type="text" class="form-control" id="search" name="query" placeholder="이메일 또는 이름으로 검색" aria-label="Search">
-            </div>
-            <div class="col-md-4">
-                <button class="btn btn-primary w-100" type="submit">검색</button>
-            </div>
-        </form>
-    </div>
-    -->
-    <div class="my-4">
-        <form class="row g-3">
+        <form class="row g-3" th:action="@{/admin/users/search}" method="get">
             <div class="col-md-8">
                 <input type="text" class="form-control" id="search" name="query" placeholder="이메일 또는 이름으로 검색" aria-label="Search">
             </div>
@@ -41,7 +26,6 @@
     </div>
 
     <!-- 사용자 목록 -->
-    <!--
     <div class="table-responsive">
         <table class="table table-striped table-hover">
             <thead class="table-dark">
@@ -50,6 +34,10 @@
                 <th>이메일</th>
                 <th>이름</th>
                 <th>역할</th>
+                <th>리뷰 수</th>
+                <th>판매 기록</th>
+                <th>구매 기록</th>
+                <th>예약 수</th>
                 <th>상세보기</th>
                 <th>삭제</th>
             </tr>
@@ -60,8 +48,12 @@
                 <td th:text="${user.email}"></td>
                 <td th:text="${user.name}"></td>
                 <td>
-                    <span class="badge bg-success" th:text="${user.role}"></span>
+                    <span class="badge" th:classappend="${user.role == 'ROLE_ADMIN' ? 'bg-warning' : 'bg-success'}" th:text="${user.role}"></span>
                 </td>
+                <td th:text="${user.reviewCount}"></td>
+                <td th:text="${user.salesCount}"></td>
+                <td th:text="${user.purchaseCount}"></td>
+                <td th:text="${user.reservationCount}"></td>
                 <td>
                     <a th:href="@{/admin/users/{id}(id=${user.id})}" class="btn btn-info btn-sm text-white">상세보기</a>
                 </td>
@@ -74,63 +66,8 @@
             </tbody>
         </table>
     </div>
-    -->
-    <div class="table-responsive">
-        <table class="table table-striped table-hover">
-            <thead class="table-dark">
-            <tr>
-                <th>ID</th>
-                <th>이메일</th>
-                <th>이름</th>
-                <th>역할</th>
-                <th>상세보기</th>
-                <th>삭제</th>
-            </tr>
-            </thead>
-            <tbody>
-            <!-- 목데이터 -->
-            <tr>
-                <td>1</td>
-                <td>user1@example.com</td>
-                <td>홍길동</td>
-                <td><span class="badge bg-success">ROLE_USER</span></td>
-                <td><a href="/admin/users/1" class="btn btn-info btn-sm text-white">상세보기</a></td>
-                <td>
-                    <form action="/admin/users/1/delete" method="post" onsubmit="return confirm('정말로 삭제하시겠습니까?');">
-                        <button type="submit" class="btn btn-danger btn-sm">삭제</button>
-                    </form>
-                </td>
-            </tr>
-            <tr>
-                <td>2</td>
-                <td>admin@example.com</td>
-                <td>관리자</td>
-                <td><span class="badge bg-warning">ROLE_ADMIN</span></td>
-                <td><a href="/admin/users/2" class="btn btn-info btn-sm text-white">상세보기</a></td>
-                <td>
-                    <form action="/admin/users/2/delete" method="post" onsubmit="return confirm('정말로 삭제하시겠습니까?');">
-                        <button type="submit" class="btn btn-danger btn-sm">삭제</button>
-                    </form>
-                </td>
-            </tr>
-            <tr>
-                <td>3</td>
-                <td>user2@example.com</td>
-                <td>김철수</td>
-                <td><span class="badge bg-success">ROLE_USER</span></td>
-                <td><a href="/admin/users/3" class="btn btn-info btn-sm text-white">상세보기</a></td>
-                <td>
-                    <form action="/admin/users/3/delete" method="post" onsubmit="return confirm('정말로 삭제하시겠습니까?');">
-                        <button type="submit" class="btn btn-danger btn-sm">삭제</button>
-                    </form>
-                </td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
 
     <!-- 사용자 활동 통계 -->
-    <!--
     <div class="mt-5">
         <h2>활동 통계</h2>
         <div class="row">
@@ -142,25 +79,11 @@
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-    -->
-    <div class="mt-5">
-        <h2>활동 통계</h2>
-        <div class="row">
-            <div class="col-md-4">
-                <div class="card bg-primary text-white mb-3">
-                    <div class="card-header">총 리뷰 작성 수</div>
-                    <div class="card-body">
-                        <h5 class="card-title">50개</h5>
-                    </div>
-                </div>
-            </div>
             <div class="col-md-4">
                 <div class="card bg-success text-white mb-3">
                     <div class="card-header">총 판매 기록</div>
                     <div class="card-body">
-                        <h5 class="card-title">30건</h5>
+                        <h5 class="card-title" th:text="${totalSales} + '건'"></h5>
                     </div>
                 </div>
             </div>
@@ -168,7 +91,7 @@
                 <div class="card bg-warning text-white mb-3">
                     <div class="card-header">총 구매 기록</div>
                     <div class="card-body">
-                        <h5 class="card-title">40건</h5>
+                        <h5 class="card-title" th:text="${totalPurchases} + '건'"></h5>
                     </div>
                 </div>
             </div>
