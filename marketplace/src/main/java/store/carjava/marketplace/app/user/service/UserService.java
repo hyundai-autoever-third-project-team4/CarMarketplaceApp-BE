@@ -1,6 +1,7 @@
 package store.carjava.marketplace.app.user.service;
 
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import store.carjava.marketplace.app.car_purchase_history.entity.CarPurchaseHistory;
@@ -134,5 +135,22 @@ public class UserService {
                 .toList();
 
         return new UserPurchaseListResponse(carDtoList);
+    }
+
+    public UserProfileUpdateResponse updateUserProfile(@Valid UserProfileUpdateRequest request) {
+        // 현재 로그인한 사용자 조회
+        User currentUser = userResolver.getCurrentUserWithoutProfileCheck();
+
+        // 프로필 정보 업데이트
+        User updatedUser = currentUser.updateProfile(
+                request.name(),
+                request.phone(),
+                request.address()
+        );
+
+        // 저장 및 응답 생성
+        User savedUser = userRepository.save(updatedUser);
+
+        return UserProfileUpdateResponse.of(savedUser);
     }
 }
