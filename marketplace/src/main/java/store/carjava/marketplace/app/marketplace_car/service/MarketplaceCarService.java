@@ -389,6 +389,7 @@ public class MarketplaceCarService {
     }
 
 
+
     public MarketplaceCarRecommandListResponse getRecommand(MarketplaceCarRecommandRequest request) {
         String carId = request.carId();
         List<String> vehicle = request.vehicleType();
