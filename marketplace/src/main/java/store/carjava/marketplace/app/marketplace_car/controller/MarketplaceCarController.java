@@ -182,7 +182,7 @@ public class MarketplaceCarController {
     }
 
 
-    @GetMapping("/car/{carId}/detail")
+    @GetMapping("/cars/{carId}/detail")
     public ResponseEntity<MarketplaceCarDetailPageResponse> detailCar(
             @PathVariable String carId) {
 
