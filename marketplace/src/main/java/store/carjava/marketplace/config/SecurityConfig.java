@@ -76,9 +76,11 @@ public class SecurityConfig {
                         .requestMatchers("/test-driver-centers/**").permitAll()
 
                         // [ADMIN]
-                        .requestMatchers("/admin/**").hasRole("ADMIN") // ROLE_ADMIN만 허용
+                        //.requestMatchers("/admin/**").hasRole("ADMIN") // ROLE_ADMIN만 허용
+                        .requestMatchers("/admin/**").permitAll()
 
                         .requestMatchers("/payment/**").permitAll()
+
 
                         .anyRequest().authenticated() // 나머지 요청은 인증 필요
                 )
