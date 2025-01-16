@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import org.apache.commons.lang3.StringUtils;
 import store.carjava.marketplace.app.car_purchase_history.entity.CarPurchaseHistory;
 import store.carjava.marketplace.app.car_sales_history.entity.CarSalesHistory;
 import store.carjava.marketplace.app.like.entity.Like;
@@ -67,6 +68,13 @@ public class User {
                 .email(this.email)   // 기존 이메일 유지
                 .role(newRole)       // 새로운 역할로 업데이트
                 .build();
+    }
+
+    // 추가 정보 입력 여부 확인
+    public boolean isProfileComplete() {
+        return !StringUtils.isEmpty(name) &&
+                !StringUtils.isEmpty(phone) &&
+                !StringUtils.isEmpty(address);
     }
 
 }

@@ -33,6 +33,10 @@ public class UserResolver {
         // 4) principal에서 userid 추축
         Long userId = Long.valueOf(((UserDetails) principal).getUsername()); // UserDetails의 username = userId
 
+
+        // 6) 추가 정보 존재 여부 확인
+        UserProfile userProfile = userProfileRepository.findByUserId(String.valueOf(userId))
+                .orElseThrow(UserProfileNotFoundException::new);
         return userRepository.findById(userId)
                 .orElseThrow(UserIdNotFoundException::new);
     }
