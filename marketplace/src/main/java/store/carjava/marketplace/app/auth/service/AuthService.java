@@ -112,7 +112,7 @@ public class AuthService {
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add("grant_type", "authorization_code");
         body.add("code", tokenRequest.authorizationCode());
-        body.add("redirect_uri", "http://127.0.0.1:5500/redirect.html");
+        body.add("redirect_uri", redirectUri);
         body.add("client_id", clientId);
         body.add("client_secret", clientSecret);
 
