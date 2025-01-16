@@ -246,6 +246,12 @@ public class MarketplaceCarService {
                 .build();
     }
 
+    //판매자가 번호판, 이름을 입력해서 baseCar 에서 조회하는 API
+    public BaseCar findBaseCar(String licensePlate, String ownerName) {
+        return baseCarRepository.findByCarDetails_LicensePlateAndOwnerName(licensePlate, ownerName)
+                .orElseThrow(BaseCarNotFoundException::new);
+    }
+
     // 처음 판매자가 판매차량을 등록할때 등록하는 service
     public void sellRegisterCar(MarketplaceCarRegisterRequest request) {
         // BaseCar 조회
