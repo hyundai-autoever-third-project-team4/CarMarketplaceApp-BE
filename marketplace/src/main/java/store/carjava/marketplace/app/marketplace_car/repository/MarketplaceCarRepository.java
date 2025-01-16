@@ -1,6 +1,7 @@
 package store.carjava.marketplace.app.marketplace_car.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import store.carjava.marketplace.app.marketplace_car.entity.MarketplaceCar;
 import store.carjava.marketplace.app.test_drive_center.entity.TestDriveCenter;
@@ -21,4 +22,10 @@ public interface MarketplaceCarRepository extends JpaRepository<MarketplaceCar, 
     List<MarketplaceCar> findTop2ByCarDetails_VehicleTypeInAndPriceLessThanEqualOrderByPriceDesc(List<String> vehicle, Long price);
 
     Optional<MarketplaceCar> findTopByPriceGreaterThanOrderByPrice(Long price);
+
+    @Query("SELECT car FROM MarketplaceCar car " +
+            "LEFT JOIN car.likes likes " +
+            "GROUP BY car.id " +
+            "ORDER BY COUNT(likes) DESC limit 5")
+    List<MarketplaceCar> findTop5ByLikeCount();
 }

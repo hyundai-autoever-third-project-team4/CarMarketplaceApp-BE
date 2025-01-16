@@ -202,4 +202,10 @@ public class MarketplaceCarController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
+
+    @GetMapping("/cars/top-liked")
+    public ResponseEntity<List<MarketplaceCarResponse>> getTopLikedCars(){
+        List<MarketplaceCarResponse> topCars = marketplaceCarService.getTop5CarsByLikes();
+        return ResponseEntity.ok(topCars);
+    }
 }
