@@ -17,6 +17,8 @@ import store.carjava.marketplace.app.payment.exception.PaymentBodyNullException;
 import store.carjava.marketplace.app.payment.exception.PaymentClientErrorException;
 import store.carjava.marketplace.app.payment.exception.PaymentRequestUserMismatchException;
 import store.carjava.marketplace.app.user.entity.User;
+import store.carjava.marketplace.app.user.exception.UserIdNotFoundException;
+import store.carjava.marketplace.app.user.repository.UserRepository;
 import store.carjava.marketplace.common.util.user.UserResolver;
 
 import java.nio.charset.StandardCharsets;
@@ -38,6 +40,7 @@ public class PaymentService {
     private final CarPurchaseHistoryRepository carPurchaseHistoryRepository;
     private final MarketplaceCarRepository marketplaceCarRepository;
     private final UserResolver userResolver;
+    private final UserRepository userRepository;
 
     @Value("${payment.secret}")
     private String widgetSecretKey;
@@ -106,7 +109,9 @@ public class PaymentService {
     }
 
     private void saveCarPurchaseHistory(Map<String, Object> apiResponse) {
-        User currentUser = userResolver.getCurrentUser();
+//        User currentUser = userResolver.getCurrentUser();
+        User currentUser = userRepository.findById(3L)
+                .orElseThrow(UserIdNotFoundException::new);
 
         validateRequestUserSameAsCurrentUser(currentUser, apiResponse);
 
@@ -115,6 +120,10 @@ public class PaymentService {
 
         MarketplaceCar marketplaceCar = marketplaceCarRepository.findById(metadata.get("marketplaceCarId"))
                 .orElseThrow(MarketplaceCarIdNotFoundException::new);
+
+        // MarketplaceCar status 업데이트
+        marketplaceCar.updateStatus("PENDING_PURCHASE_APPROVAL");
+        marketplaceCarRepository.save(marketplaceCar);
 
         CarPurchaseHistory carPurchaseHistory = CarPurchaseHistory.builder()
                 .orderId((String) apiResponse.get("orderId"))

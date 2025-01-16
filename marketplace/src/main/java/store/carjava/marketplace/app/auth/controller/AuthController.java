@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.view.RedirectView;
+import store.carjava.marketplace.app.auth.dto.CustomTokenResponse;
 import store.carjava.marketplace.app.auth.dto.RefreshTokenRequest;
 import store.carjava.marketplace.app.auth.dto.TokenResponse;
 import store.carjava.marketplace.app.auth.service.AuthService;
@@ -45,7 +46,7 @@ public class AuthController {
     @Hidden
     @GetMapping("/login/redirect")
     @ResponseBody
-    public ResponseEntity<TokenResponse> callback(HttpServletRequest request) {
+    public ResponseEntity<CustomTokenResponse> callback(HttpServletRequest request) {
         log.info("Handling callback from Keycloak");
 
         // Keycloak으로부터 authorization code를 가져옴
@@ -56,7 +57,7 @@ public class AuthController {
             return ResponseEntity.badRequest().build();
         }
 
-        TokenResponse tokenResponse = authService.generateJwtToken(authorizationCode);
+        CustomTokenResponse tokenResponse = authService.generateJwtToken(authorizationCode);
 
         // Set-Cookie 헤더 추가
         ResponseCookie accessTokenCookie = createCookie("accessToken", tokenResponse.accessToken(), (int) accessTokenExpiration);

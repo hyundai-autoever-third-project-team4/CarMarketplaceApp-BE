@@ -1,7 +1,9 @@
 package store.carjava.marketplace.app.auth.service;
 
 import io.jsonwebtoken.Claims;
+
 import java.util.List;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+import store.carjava.marketplace.app.auth.dto.CustomTokenResponse;
 import store.carjava.marketplace.app.auth.dto.RefreshTokenRequest;
 import store.carjava.marketplace.app.auth.dto.TokenRequest;
 import store.carjava.marketplace.app.auth.dto.TokenResponse;
@@ -22,6 +25,7 @@ import store.carjava.marketplace.app.user.exception.UserIdNotFoundException;
 import store.carjava.marketplace.app.user.repository.UserRepository;
 
 import java.util.Map;
+
 import store.carjava.marketplace.common.jwt.JwtTokenProvider;
 import store.carjava.marketplace.common.jwt.JwtTokenVerifier;
 
@@ -61,7 +65,7 @@ public class AuthService {
                 "&scope=openid profile email";
     }
 
-    public TokenResponse generateJwtToken(String authorizationCode) {
+    public CustomTokenResponse generateJwtToken(String authorizationCode) {
         // 1) Authorization Code를 통해 key cloak에 accessToken, refreshToken 요청 생성
         TokenRequest keycloakTokenRequest = TokenRequest.of(authorizationCode);
 
@@ -78,7 +82,7 @@ public class AuthService {
         String accessToken = jwtTokenProvider.generateAccessToken(user);
         String refreshToken = jwtTokenProvider.generateRefreshToken(user.getId());
 
-        return new TokenResponse(accessToken, refreshToken);
+        return new CustomTokenResponse(accessToken, refreshToken, user.getId(), user.getEmail());
     }
 
     public TokenResponse reIssueAccessToken(RefreshTokenRequest refreshTokenRequest) {
