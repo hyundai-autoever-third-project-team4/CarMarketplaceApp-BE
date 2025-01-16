@@ -116,6 +116,8 @@ public class AuthService {
         body.add("client_id", clientId);
         body.add("client_secret", clientSecret);
 
+        log.info("redirect uri : {}", redirectUri);
+
         HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(body, headers);
 
         ResponseEntity<TokenResponse> response = restTemplate.exchange(
