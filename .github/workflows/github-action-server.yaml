@@ -31,17 +31,18 @@ jobs:
           echo "${{ secrets.YAML }}" > application.yaml
         shell: bash
 
-      - name: Make firebase json
+      - name: Create Marketplace JSON file
         run: |
-          cd ./marketplace/src/main
-          mkdir -p resources/firebase
-          echo "${{ secrets.FIREBASE_JSON }}" > resources/firebase/chajava-firebase-admin.json
-          if [ -f "resources/firebase/chajava-firebase-admin.json" ]; then
-            echo "Firebase JSON 파일 생성 성공"
-          else
-            echo "Firebase JSON 파일 생성 실패"
-            exit 1
-          fi
+          mkdir -p ./marketplace/src/main/resources/firebase
+        shell: bash
+
+      - name: Create Marketplace Json file
+        id: create-json
+        uses: jsdaniell/create-json@v1.2.3
+        with:
+          name: "chajava-firebase-admin.json"
+          json: ${{ secrets.FIREBASE_JSON }}
+          dir: "./marketplace/src/main/resources/firebase"
 
       - name: Grant execute permission for gradlew
         run: |
