@@ -37,6 +37,7 @@ jobs:
           mkdir -p resources
           cd resources
           mkdir -p firebase
+          cd firebase
           touch chajava-firebase-admin.json
           echo "${{ secrets.FIREBASE_JSON }}" > chajava-firebase-admin.json
 
