@@ -112,73 +112,134 @@
     <!-- 페이징 네비게이션 -->
     <nav th:if="${cars.totalPages > 1}" class="d-flex justify-content-center mt-4">
         <ul class="pagination">
+            <!-- 이전 버튼 -->
             <li class="page-item" th:classappend="${cars.number == 0 ? 'disabled' : ''}">
-                <a class="page-link"
-                   th:href="@{/admin/cars(page=${cars.number - 1}, licensePlate=${param.licensePlate})}">이전</a>
+                <a class="page-link" th:href="@{/admin/cars(page=${cars.number - 1}, licensePlate=${param.licensePlate})}">
+                    이전
+                </a>
             </li>
-            <li class="page-item" th:each="i : ${#numbers.sequence(0, cars.totalPages - 1)}"
+
+            <!-- 첫 두 페이지 -->
+            <li class="page-item" th:each="i : ${#numbers.sequence(0, 1)}" th:if="${cars.totalPages > 2}">
+                <a class="page-link" th:href="@{/admin/cars(page=${i}, licensePlate=${param.licensePlate})}"
+                   th:text="${i + 1}">
+                </a>
+            </li>
+
+            <!-- 생략 표시 -->
+            <li class="page-item" th:if="${cars.number > 2}">
+                <span class="page-link">...</span>
+            </li>
+
+            <!-- 중심 페이지들 -->
+            <li class="page-item" th:each="i : ${#numbers.sequence(cars.number - 2, cars.number + 2)}"
+                th:if="${i >= 2 && i <= cars.totalPages - 3}"
                 th:classappend="${cars.number == i ? 'active' : ''}">
-                <a class="page-link"
-                   th:href="@{/admin/cars(page=${i}, licensePlate=${param.licensePlate})}" th:text="${i + 1}">1</a>
+                <a class="page-link" th:href="@{/admin/cars(page=${i}, licensePlate=${param.licensePlate})}"
+                   th:text="${i + 1}">
+                </a>
             </li>
+
+            <!-- 생략 표시 -->
+            <li class="page-item" th:if="${cars.number < cars.totalPages - 3}">
+                <span class="page-link">...</span>
+            </li>
+
+            <!-- 마지막 두 페이지 -->
+            <li class="page-item" th:each="i : ${#numbers.sequence(cars.totalPages - 2, cars.totalPages - 1)}"
+                th:if="${cars.totalPages > 2}">
+                <a class="page-link" th:href="@{/admin/cars(page=${i}, licensePlate=${param.licensePlate})}"
+                   th:text="${i + 1}">
+                </a>
+            </li>
+
+            <!-- 다음 버튼 -->
             <li class="page-item" th:classappend="${cars.number + 1 == cars.totalPages ? 'disabled' : ''}">
-                <a class="page-link"
-                   th:href="@{/admin/cars(page=${cars.number + 1}, licensePlate=${param.licensePlate})}">다음</a>
+                <a class="page-link" th:href="@{/admin/cars(page=${cars.number + 1}, licensePlate=${param.licensePlate})}">
+                    다음
+                </a>
             </li>
         </ul>
     </nav>
 
     <!-- 차량 상세 모달 -->
     <div th:each="car : ${cars.content}">
-        <div class="modal fade" th:id="'carModal_' + ${car.id}" tabindex="-1" aria-labelledby="carModalLabel"
-             aria-hidden="true">
+        <div class="modal fade" th:id="'carModal_' + ${car.id}" tabindex="-1" aria-labelledby="carModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-lg">
-                <div class="modal-content border-0 shadow-lg">
-                    <div class="modal-header">
-                        <h5 class="modal-title" th:text="'차량 상세정보 - ' + ${car.name}" id="carModalLabel"></h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <div class="modal-content border-0 shadow-lg" style="border-radius: 20px; overflow: hidden;">
+                    <!-- 모달 헤더 -->
+                    <div class="modal-header bg-gradient-to-r from-green-500 to-blue-600 text-white py-4">
+                        <h5 class="modal-title fw-bold ms-2" th:text="'차량 상세정보 - ' + ${car.name}" id="carModalLabel" style="font-size: 1.5rem;"></h5>
+                        <button type="button" class="btn-close btn-close-white me-2" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="col-md-4 text-center">
-                                <img th:src="${car.mainImage}" class="img-fluid rounded mb-3" alt="Car Image">
-                                <h5 class="text-primary" th:text="${car.name}"></h5>
+                    <!-- 모달 본문 -->
+                    <div class="modal-body p-4" style="background: linear-gradient(to bottom, #f8f9fa, #ffffff);">
+                        <div class="row align-items-stretch">
+                            <!-- 차량 이미지 섹션 -->
+                            <div class="col-md-6 d-flex justify-content-center align-items-center">
+                                <div class="position-relative mb-4 w-100">
+                                    <img th:src="${car.mainImage}" class="img-fluid rounded shadow-lg hover:scale-105 transition-transform duration-300"
+                                         style="width: 100%; height: 100%; object-fit: cover; border: 2px solid #38b2ac;" alt="Car Image">
+                                </div>
                             </div>
-                            <div class="col-md-8">
-                                <ul class="list-group">
-                                    <li class="list-group-item">
-                                        <strong>브랜드:</strong> <span th:text="${car.brand}"></span>
-                                    </li>
-                                    <li class="list-group-item">
-                                        <strong>모델:</strong> <span th:text="${car.model}"></span>
-                                    </li>
-                                    <li class="list-group-item">
-                                        <strong>번호판:</strong> <span th:text="${car.licensePlate}"></span>
-                                    </li>
-                                    <li class="list-group-item">
-                                        <strong>등록일자:</strong> <span
-                                            th:text="${T(java.time.format.DateTimeFormatter).ofPattern('yyyy-MM-dd').format(car.registrationDate)}"></span>
-                                    </li>
-                                    <li class="list-group-item">
-                                        <strong>주행거리:</strong> <span th:text="${@thymeleafUtils.formatNumber(car.mileage) + ' km'}"></span>
-                                    </li>
-                                    <li class="list-group-item">
-                                        <strong>가격:</strong> <span th:text="${@thymeleafUtils.formatNumber(car.price) + ' 원'}"></span>
-                                    </li>
-                                    <li class="list-group-item">
-                                        <strong>상태:</strong> <span th:text="${car.status}"></span>
-                                    </li>
-                                </ul>
+                            <!-- 차량 상세 정보 -->
+                            <div class="col-md-6 d-flex align-items-stretch">
+                                <div class="list-group shadow-sm w-100">
+                                    <div class="list-group-item border-0 mb-2 rounded-3 hover:bg-gray-50 transition-all duration-300">
+                                        <div class="d-flex justify-content-between align-items-center p-2">
+                                            <span class="fw-semibold text-gray-700">브랜드</span>
+                                            <span class="text-primary" th:text="${car.brand}"></span>
+                                        </div>
+                                    </div>
+                                    <div class="list-group-item border-0 mb-2 rounded-3 bg-blue-50 hover:bg-blue-100 transition-all duration-300">
+                                        <div class="d-flex justify-content-between align-items-center p-2">
+                                            <span class="fw-semibold text-gray-700">모델</span>
+                                            <span class="text-primary" th:text="${car.model}"></span>
+                                        </div>
+                                    </div>
+                                    <div class="list-group-item border-0 mb-2 rounded-3 bg-yellow-50 hover:bg-yellow-100 transition-all duration-300">
+                                        <div class="d-flex justify-content-between align-items-center p-2">
+                                            <span class="fw-semibold text-gray-700">번호판</span>
+                                            <span class="text-gray-600" th:text="${car.licensePlate}"></span>
+                                        </div>
+                                    </div>
+                                    <div class="list-group-item border-0 mb-2 rounded-3 bg-purple-50 hover:bg-purple-100 transition-all duration-300">
+                                        <div class="d-flex justify-content-between align-items-center p-2">
+                                            <span class="fw-semibold text-gray-700">등록일자</span>
+                                            <span class="text-gray-600" th:text="${T(java.time.format.DateTimeFormatter).ofPattern('yyyy-MM-dd').format(car.registrationDate)}"></span>
+                                        </div>
+                                    </div>
+                                    <div class="list-group-item border-0 mb-2 rounded-3 bg-green-50 hover:bg-green-100 transition-all duration-300">
+                                        <div class="d-flex justify-content-between align-items-center p-2">
+                                            <span class="fw-semibold text-gray-700">주행거리</span>
+                                            <span class="text-purple-600" th:text="${@thymeleafUtils.formatNumber(car.mileage) + ' km'}"></span>
+                                        </div>
+                                    </div>
+                                    <div class="list-group-item border-0 mb-2 rounded-3 bg-teal-50 hover:bg-teal-100 transition-all duration-300">
+                                        <div class="d-flex justify-content-between align-items-center p-2">
+                                            <span class="fw-semibold text-gray-700">가격</span>
+                                            <span class="text-green-600" th:text="${@thymeleafUtils.formatNumber(car.price) + ' 원'}"></span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+
+                    <!-- 모달 푸터 -->
+                    <div class="modal-footer border-0 bg-light">
+                        <button type="button" class="btn btn-primary hover:bg-blue-500 transition-colors duration-300 rounded-pill px-4" data-bs-dismiss="modal">
+                            닫기
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+
+
+
 </div>
 </body>
 </html>
