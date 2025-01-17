@@ -28,6 +28,7 @@ class MarketplaceCarServiceTest {
     }
 
 
+    // 연료 타입 관련한 테스트 코드
     @Test
     void testIsValidFuelType_ShouldReturnTrue_WhenFuelTypeValid() {
         // given
@@ -67,5 +68,47 @@ class MarketplaceCarServiceTest {
         assertThat(marketplaceCarService.isValidFuelType(nullFuelType)).isFalse();
         assertThat(marketplaceCarService.isValidFuelType(emptyFuelType)).isFalse();
 
+    }
+
+    //상태 테스트 코드
+
+    @Test
+    void isValidStatus_ShouldReturnTrue_ForValidStatus(){
+        //given
+        String validStatus1 = "AVAILABLE_FOR_PURCHASE";
+        String validStatus2 = "PENDING_PURCHASE_APPROVAL";
+        String validStatus3 = "NOT_AVAILABLE_FOR_PURCHASE";
+        String validStatus4 = "PENDING_SALE";
+        String validStatus5 = "SALE_APPROVED";
+
+        //when, then
+        assertThat(marketplaceCarService.isValidStatus(validStatus1)).isTrue();
+        assertThat(marketplaceCarService.isValidStatus(validStatus2)).isTrue();
+        assertThat(marketplaceCarService.isValidStatus(validStatus3)).isTrue();
+        assertThat(marketplaceCarService.isValidStatus(validStatus4)).isTrue();
+        assertThat(marketplaceCarService.isValidStatus(validStatus5)).isTrue();
+    }
+
+
+    @Test
+    void isValidStatus_ShouldReturnFalse_ForInvalidStatus(){
+        //given
+        String invalidStatus1 = "INVALID_STATUS";
+        String invalidStatus2 = "UNKNOWN";
+        String invalidStatus3 = "PENDING";
+
+        assertThat(marketplaceCarService.isValidStatus(invalidStatus1)).isFalse();
+        assertThat(marketplaceCarService.isValidStatus(invalidStatus2)).isFalse();
+        assertThat(marketplaceCarService.isValidStatus(invalidStatus3)).isFalse();
+    }
+
+    @Test
+    void isValidStatus_ShouldReturnFalse_ForNullStatus(){
+        //given
+        String nullStatus = null;
+        String emptyStatus = "";
+
+        assertThat(marketplaceCarService.isValidStatus(nullStatus)).isFalse();
+        assertThat(marketplaceCarService.isValidStatus(emptyStatus)).isFalse();
     }
 }
