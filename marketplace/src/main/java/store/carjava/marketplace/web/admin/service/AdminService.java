@@ -3,11 +3,14 @@ package store.carjava.marketplace.web.admin.service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import store.carjava.marketplace.app.car_purchase_history.entity.CarPurchaseHistory;
 import store.carjava.marketplace.app.car_purchase_history.repository.CarPurchaseHistoryRepository;
 import store.carjava.marketplace.app.car_sales_history.entity.CarSalesHistory;
 import store.carjava.marketplace.app.car_sales_history.repository.CarSalesHistoryRepository;
+import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarSummaryDto;
 import store.carjava.marketplace.app.marketplace_car.entity.MarketplaceCar;
 import store.carjava.marketplace.app.marketplace_car.repository.MarketplaceCarRepository;
 import store.carjava.marketplace.app.user.entity.User;
@@ -70,4 +73,15 @@ public class AdminService {
                 .map(CarSellDto::of)
                 .collect(Collectors.toList());
     }
+
+    public Page<MarketplaceCarSummaryDto> getCars(int page, int size) {
+        return marketplaceCarRepository.findAll(PageRequest.of(page, size))
+                .map(MarketplaceCarSummaryDto::of);
+    }
+
+    public Page<MarketplaceCarSummaryDto> searchCarsByLicensePlate(String licensePlate, int page, int size) {
+        return marketplaceCarRepository.findByCarDetailsLicensePlate(licensePlate, PageRequest.of(page, size))
+                .map(MarketplaceCarSummaryDto::of);
+    }
+
 }
