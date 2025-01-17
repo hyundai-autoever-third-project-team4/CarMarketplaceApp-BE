@@ -33,13 +33,15 @@ jobs:
 
       - name: Make firebase json
         run: |
-          cd ./marketplace/src/main
-          mkdir -p resources
-          cd resources
-          mkdir -p firebase
-          cd firebase
-          touch chajava-firebase-admin.json
-          echo "${{ secrets.FIREBASE_JSON }}" > chajava-firebase-admin.json
+          cd ./src/main
+          mkdir -p resources/firebase
+          echo "${{ secrets.FIREBASE_JSON }}" > resources/firebase/chajava-firebase-admin.json
+          if [ -f "resources/firebase/chajava-firebase-admin.json" ]; then
+            echo "Firebase JSON 파일 생성 성공"
+          else
+            echo "Firebase JSON 파일 생성 실패"
+            exit 1
+          fi칟ㅁㄱ
 
       - name: Grant execute permission for gradlew
         run: |
