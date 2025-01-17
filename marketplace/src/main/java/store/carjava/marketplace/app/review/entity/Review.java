@@ -43,7 +43,6 @@ public class Review {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-
     @Column(nullable = false)
     private String model; //car에서 가져와??
 

@@ -123,12 +123,22 @@ public class MarketplaceCarService {
     // 유효한 연료타입을 확인하는 메서드
     public boolean isValidFuelType(String fuelType) {
         List<String> validFuelTypes = List.of("가솔린", "디젤", "전기", "하이브리드");
+
+        if (fuelType == null || fuelType.isEmpty()) {
+            return false;
+        }
+
         return validFuelTypes.contains(fuelType);
     }
 
     // 유효한 상태를 확인하는 메서드
     public boolean isValidStatus(String status) {
         List<String> validStatus = List.of("AVAILABLE_FOR_PURCHASE", "PENDING_PURCHASE_APPROVAL", "NOT_AVAILABLE_FOR_PURCHASE", "PENDING_SALE", "SALE_APPROVED");
+
+        if(status == null || status.isEmpty()) {
+            return false;
+        }
+
         return validStatus.contains(status);
     }
 

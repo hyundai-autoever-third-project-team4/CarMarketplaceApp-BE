@@ -1,6 +1,4 @@
 package store.carjava.marketplace.app.marketplace_car.entity;
-
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
