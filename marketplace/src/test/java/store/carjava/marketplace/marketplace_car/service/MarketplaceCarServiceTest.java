@@ -43,4 +43,29 @@ class MarketplaceCarServiceTest {
         assertThat(marketplaceCarService.isValidFuelType(validFuelType4)).isTrue();
     }
 
+    @Test
+    void testIsValidFuelType_ShouldReturnFalse_WhenFuelTypeInvalid() {
+        //given
+        String vaildFuelType1 = "수소";
+        String vaildFuelType2 = "연료";
+        String vaildFuelType3 = "가스";
+
+        //when, then
+        assertThat(marketplaceCarService.isValidFuelType(vaildFuelType1)).isFalse();
+        assertThat(marketplaceCarService.isValidFuelType(vaildFuelType2)).isFalse();
+        assertThat(marketplaceCarService.isValidFuelType(vaildFuelType3)).isFalse();
+    }
+
+    @Test
+    void testIsValidFuelType_ShouldReturnFalse_WhenFuelTypeIsNullOrEmpty() {
+
+        // given
+        String nullFuelType = null;
+        String emptyFuelType = "";
+
+        // when & then
+        assertThat(marketplaceCarService.isValidFuelType(nullFuelType)).isFalse();
+        assertThat(marketplaceCarService.isValidFuelType(emptyFuelType)).isFalse();
+
+    }
 }
