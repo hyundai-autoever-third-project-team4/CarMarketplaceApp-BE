@@ -94,6 +94,10 @@ dependencies {
 
     //웹 소켓
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
+
+    //firebase admin sdk
+    implementation 'com.google.firebase:firebase-admin:9.4.2'
+
 }
 
 tasks.named('test') {
