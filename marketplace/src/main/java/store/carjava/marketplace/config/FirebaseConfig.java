@@ -10,24 +10,30 @@ import store.carjava.marketplace.firebase.exception.FirebaseInitializeFailed;
 
 import javax.annotation.PostConstruct;
 import java.io.FileInputStream;
+import java.io.InputStream;
 
 @Configuration
 public class FirebaseConfig {
+
     @Value("classpath:firebase/chajava-firebase-admin.json")
     private Resource firebaseAdmin;
 
     @PostConstruct
     public void init() {
-        try{
-            FileInputStream serviceAccount = new FileInputStream(firebaseAdmin.getFile());
+        try {
+            InputStream serviceAccount = firebaseAdmin.getInputStream();
 
-            FirebaseOptions options = new FirebaseOptions.Builder()
+            FirebaseOptions options = FirebaseOptions.builder()
                     .setCredentials(GoogleCredentials.fromStream(serviceAccount))
                     .build();
 
             FirebaseApp.initializeApp(options);
+
+            System.out.println("Firebase Admin SDK 초기화 성공");
         } catch (Exception e) {
+            System.err.println("Firebase Admin SDK 초기화 실패: " + e.getMessage());
             throw new FirebaseInitializeFailed();
         }
     }
 }
+
