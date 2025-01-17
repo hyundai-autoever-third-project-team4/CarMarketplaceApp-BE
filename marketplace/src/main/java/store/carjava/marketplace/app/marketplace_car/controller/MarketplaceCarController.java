@@ -182,7 +182,7 @@ public class MarketplaceCarController {
     }
 
 
-    @GetMapping("/car/{carId}/detail")
+    @GetMapping("/cars/{carId}/detail")
     public ResponseEntity<MarketplaceCarDetailPageResponse> detailCar(
             @PathVariable String carId) {
 
@@ -201,5 +201,11 @@ public class MarketplaceCarController {
             // 기타 예외 발생 시 HTTP 500 Internal Server Error 응답
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
+    }
+
+    @GetMapping("/cars/top-liked")
+    public ResponseEntity<List<MarketplaceCarResponse>> getTopLikedCars(){
+        List<MarketplaceCarResponse> topCars = marketplaceCarService.getTop5CarsByLikes();
+        return ResponseEntity.ok(topCars);
     }
 }

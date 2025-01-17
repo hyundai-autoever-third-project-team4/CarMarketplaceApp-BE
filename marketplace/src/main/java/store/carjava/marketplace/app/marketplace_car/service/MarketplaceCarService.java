@@ -147,6 +147,22 @@ public class MarketplaceCarService {
     }
 
 
+    public List<MarketplaceCarResponse> getTop5CarsByLikes() {
+        // 모든 MarketplaceCar 가져오기
+        List<MarketplaceCar> allCars = marketplaceCarRepository.findAll();
+
+        // 각 MarketplaceCar의 like 개수를 기준으로 정렬
+        List<MarketplaceCar> sortedCars = allCars.stream()
+                .sorted((car1, car2) -> Integer.compare(car2.getLikes().size(), car1.getLikes().size()))
+                .limit(5)
+                .toList();
+
+        // MarketplaceCarResponse로 변환
+        return sortedCars.stream()
+                .map(this::buildMarketplaceCarResponse)
+                .collect(Collectors.toList());
+    }
+
     private MarketplaceCarResponse buildMarketplaceCarResponse(MarketplaceCar car) {
 
         Long likeCount = likeRepository.countByMarketplaceCarId(car.getId());
@@ -387,6 +403,7 @@ public class MarketplaceCarService {
 
 
     }
+
 
 
     public MarketplaceCarRecommandListResponse getRecommand(MarketplaceCarRecommandRequest request) {
