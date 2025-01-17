@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public record CarSellDto(
+        String carId,
         String carName,
         Long price,
         String userName,
@@ -19,6 +20,7 @@ public record CarSellDto(
 ) {
     public static CarSellDto of(CarSalesHistory history) {
         return new CarSellDto(
+                history.getMarketplaceCar().getId(),
                 history.getMarketplaceCar().getCarDetails().getName(),
                 history.getMarketplaceCar().getPrice(),
                 history.getUser().getName(),

@@ -93,14 +93,14 @@
             <!-- 버튼 -->
             <div class="d-flex flex-column gap-2">
               <button class="btn btn-success btn-sm approve-btn"
-                      th:data-sale-id="${sale.saleId()}"
+                      th:data-sale-id="${sale.carId()}"
                       data-bs-toggle="modal"
                       data-bs-target="#sampleModal">승인</button>
               <button class="btn btn-danger btn-sm">취소</button>
             </div>
 
             <!-- 모달 삽입 -->
-            <div th:insert="~{admin/car-registration-modal :: modal}"></div>
+            <div th:replace="~{admin/car-registration-modal :: modal}"></div>
           </div>
         </div>
       </div>
@@ -162,7 +162,9 @@
       </div>
     </div>
 
+
   </div>
+
 </div>
 
 </body>
