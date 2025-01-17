@@ -74,31 +74,31 @@ public class MarketplaceCar {
         return validStatus.contains(status);
     }
 
-    @OneToMany(mappedBy = "marketplaceCar", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "marketplaceCar", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonIgnore
     private List<MarketplaceCarImage> marketplaceCarImages = new ArrayList<>();
 
-    @OneToMany(mappedBy = "marketplaceCar", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "marketplaceCar", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonIgnore
     private List<Reservation> reservations = new ArrayList<>();
 
-    @OneToMany(mappedBy = "marketplaceCar", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "marketplaceCar", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonIgnore
     private List<MarketplaceCarExtraOption> marketplaceCarExtraOptions = new ArrayList<>();
 
-    @OneToMany(mappedBy = "marketplaceCar", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "marketplaceCar", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonIgnore
     private List<CarPurchaseHistory> CarPurchaseHistories = new ArrayList<>();
 
-    @OneToMany(mappedBy = "marketplaceCar", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "marketplaceCar", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonIgnore
     private List<Like> likes = new ArrayList<>();
 
-    @OneToMany(mappedBy = "marketplaceCar", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "marketplaceCar", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonIgnore
     private List<CarSalesHistory> carSalesHistories = new ArrayList<>();
 
-    @OneToMany(mappedBy = "marketplaceCar", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "marketplaceCar", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonIgnore
     private List<MarketplaceCarOption> marketplaceCarOptions = new ArrayList<>();
 

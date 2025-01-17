@@ -41,3 +41,6 @@ application.yaml
 
 ## Q클래스
 generated
+
+## firebase admin sdk
+chajava-firebase-admin.json

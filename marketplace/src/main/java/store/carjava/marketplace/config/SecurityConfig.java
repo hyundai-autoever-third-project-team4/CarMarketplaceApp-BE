@@ -36,8 +36,10 @@ public class SecurityConfig {
             // [Oauth 2.0] 로그인 경로 모두 허용
             "/login-page",
             "/login/**",
-            "/mock-login/**"
+            "/mock-login/**",
 
+            // [firebase] 네이티브에서 fcm 토큰 오는 경로 허용
+            "/firebase/**"
     );
 
     @Bean
@@ -84,6 +86,7 @@ public class SecurityConfig {
                         .requestMatchers("/payment/**").permitAll()
                         // socket
                         .requestMatchers("/ws/**").permitAll()
+                        .requestMatchers("/chat/**").permitAll()
 
 
                         .anyRequest().authenticated() // 나머지 요청은 인증 필요
