@@ -1,14 +1,14 @@
 package store.carjava.marketplace.web.admin.controller;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import store.carjava.marketplace.app.user.dto.UserSummaryDto;
 import store.carjava.marketplace.app.user.entity.User;
 import store.carjava.marketplace.common.util.user.UserResolver;
@@ -17,6 +17,7 @@ import store.carjava.marketplace.web.admin.service.AdminService;
 
 import java.util.List;
 
+@Slf4j
 @Controller
 @RequestMapping("/admin")
 @RequiredArgsConstructor
@@ -75,9 +76,25 @@ public class AdminController {
     }
 
     @GetMapping("/car-purchases")
-    public String carPurchasesPage() {
+    public String carPurchasesPage(Model model) {
+        model.addAttribute("pendingPurchases", adminService.getPendingPurchaseHistory());
+        model.addAttribute("completedPurchases", adminService.getCompletedPurchaseHistory());
         return "admin/car-purchases";
+
     }
+
+    // 차량 구매 승인
+    @PostMapping("/car-purchases/{id}/approve")
+    @ResponseBody
+    public ResponseEntity<String> approvePurchase(@PathVariable Long id) {
+        try {
+            adminService.approvePurchase(id);
+            return ResponseEntity.ok("Success");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
 
     @GetMapping("/car-sales")
     public String carSalesPage() {

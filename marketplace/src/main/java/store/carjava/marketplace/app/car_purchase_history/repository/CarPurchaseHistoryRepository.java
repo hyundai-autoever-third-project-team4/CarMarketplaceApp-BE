@@ -13,4 +13,6 @@ public interface CarPurchaseHistoryRepository extends JpaRepository<CarPurchaseH
 
     @Query("SELECT COALESCE(SUM(c.totalAmount), 0) FROM CarPurchaseHistory c")
     Long findTotalAmountSum();
+
+    List<CarPurchaseHistory> findAllByMarketplaceCarStatus(String marketplaceCarStatus);
 }
