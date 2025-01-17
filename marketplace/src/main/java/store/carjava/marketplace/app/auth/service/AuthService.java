@@ -166,7 +166,6 @@ public class AuthService {
                     log.info("Creating a new user with email: {}", email);
                     User newUser = User.builder()
                             .email(email)
-                            .name(preferredUsername)
                             .role(role) // 추출한 역할 설정
                             .build();
                     return userRepository.save(newUser);
