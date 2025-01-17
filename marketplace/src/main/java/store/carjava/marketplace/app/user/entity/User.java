@@ -12,6 +12,7 @@ import store.carjava.marketplace.app.car_sales_history.entity.CarSalesHistory;
 import store.carjava.marketplace.app.like.entity.Like;
 import store.carjava.marketplace.app.reservation.entity.Reservation;
 import store.carjava.marketplace.app.review.entity.Review;
+import store.carjava.marketplace.firebase.entity.FCMToken;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,6 +59,9 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Reservation> reservations = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<FCMToken> fcmTokens = new ArrayList<>();
 
     /**
      * 업데이트를 수행하면서 새로운 User 객체를 반환

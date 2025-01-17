@@ -31,6 +31,19 @@ jobs:
           echo "${{ secrets.YAML }}" > application.yaml
         shell: bash
 
+      - name: Create Marketplace JSON file
+        run: |
+          mkdir -p ./marketplace/src/main/resources/firebase
+        shell: bash
+
+      - name: Create Marketplace Json file
+        id: create-json
+        uses: jsdaniell/create-json@v1.2.3
+        with:
+          name: "chajava-firebase-admin.json"
+          json: ${{ secrets.FIREBASE_JSON }}
+          dir: "./marketplace/src/main/resources/firebase"
+
       - name: Grant execute permission for gradlew
         run: |
           cd ./marketplace
