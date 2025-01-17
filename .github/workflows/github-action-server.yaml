@@ -38,7 +38,7 @@ jobs:
           cd resources
           mkdir -p firebase
           touch chajava-firebase-admin.json
-          echo "${{ secrets.FIREBASE-JSON }}" > chajava-firebase-admin.json
+          echo "${{ secrets.FIREBASE_JSON }}" > chajava-firebase-admin.json
 
       - name: Grant execute permission for gradlew
         run: |
