@@ -37,6 +37,9 @@ public record MarketplaceCarDetailPageResponse(
         @Schema(description = "좋아요 갯수")
         Long LikeCount,
 
+        @Schema(description = "로그인된 사용자의 찜 유무")
+        Boolean islike,
+
         @Schema(description = "추가 옵션 정보 목록")
         List<MarketplaceCarExtraOptionInfoDto> carMarketplaceCarExtraOptionDtos,
 

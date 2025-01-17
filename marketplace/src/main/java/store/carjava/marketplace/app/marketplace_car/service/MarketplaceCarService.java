@@ -97,6 +97,8 @@ public class MarketplaceCarService {
 //            }
 //        }
 
+
+
         //유효한 상태인지 확인
         if(status != null && !isValidStatus(status)) {
             throw new StatusNotFoundException(status);
@@ -119,20 +121,20 @@ public class MarketplaceCarService {
 
 
     // 유효한 연료타입을 확인하는 메서드
-    private boolean isValidFuelType(String fuelType) {
+    public boolean isValidFuelType(String fuelType) {
         List<String> validFuelTypes = List.of("가솔린", "디젤", "전기", "하이브리드");
         return validFuelTypes.contains(fuelType);
     }
 
     // 유효한 상태를 확인하는 메서드
-    private boolean isValidStatus(String status) {
+    public boolean isValidStatus(String status) {
         List<String> validStatus = List.of("AVAILABLE_FOR_PURCHASE", "PENDING_PURCHASE_APPROVAL", "NOT_AVAILABLE_FOR_PURCHASE", "PENDING_SALE", "SALE_APPROVED");
         return validStatus.contains(status);
     }
 
 
     // 브랜드가 존재하는지 체크하는 메서드
-    private boolean brandExists(String brand) {
+    public boolean brandExists(String brand) {
         // 예시로 단순히 `true` 또는 `false` 반환하도록 할 수 있습니다.
         List<String> validBrands = List.of("현대", "제네시스");  // 실제 브랜드 목록
         return validBrands.contains(brand);
@@ -237,6 +239,17 @@ public class MarketplaceCarService {
         // ReviewCreateResponse 리스트 생성
         List<Review> reviews = reviewRepository.findTop5ByMarketplaceCar_CarDetails_ModelOrderByCreatedAtDesc(car.getCarDetails().getModel());
 
+        // 1. 로그인한 유저 정보 가져오기.
+
+        Boolean isLikedByUser = null;
+        try {
+            User currentUser = userResolver.getCurrentUser();
+            isLikedByUser = likeRepository.existsByMarketplaceCarIdAndUserId(car.getId(), currentUser.getId());
+        }
+        catch (UserNotAuthenticatedException e) {
+            isLikedByUser = false;
+        }
+
         List<ReviewCreateResponse> reviewCreateResponses = reviews.stream()
                 .map(review -> ReviewCreateResponse.builder()
                         .reviewId(review.getId())
@@ -261,6 +274,7 @@ public class MarketplaceCarService {
                 .marketplaceCarImageDtos(carMarketplaceCarImageDtos)
                 .marketplaceCarOptionInfoDtos(marketplaceCarOptionInfoDtos)
                 .reviewCreateResponses(reviewCreateResponses)
+                .islike(isLikedByUser)
                 .build();
     }
 
@@ -400,8 +414,6 @@ public class MarketplaceCarService {
 
         // 변경된 차량 저장
         marketplaceCarRepository.save(car);
-
-
     }
 
 
