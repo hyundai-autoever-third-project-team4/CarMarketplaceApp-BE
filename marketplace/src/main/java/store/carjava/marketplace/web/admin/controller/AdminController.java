@@ -97,7 +97,8 @@ public class AdminController {
 
 
     @GetMapping("/car-sales")
-    public String carSalesPage() {
+    public String carSalesPage(Model model) {
+        model.addAttribute("pendingSales", adminService.getPendingSaleHistory());
         return "admin/car-sales";
     }
 

@@ -1,7 +1,9 @@
 package store.carjava.marketplace.web.admin.dto;
 
 import store.carjava.marketplace.app.car_purchase_history.entity.CarPurchaseHistory;
+import store.carjava.marketplace.app.car_sales_history.entity.CarSalesHistory;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public record CarSellDto(
@@ -10,19 +12,19 @@ public record CarSellDto(
         String userName,
         String licensePlate,
         String mainImage,
-        LocalDateTime paymentDate,
+        LocalDate requestDate,
         String status,
-        Long orderId
+        Long saleId
 
 ) {
-    public static CarPurchaseDto of(CarPurchaseHistory history) {
-        return new CarPurchaseDto(
+    public static CarSellDto of(CarSalesHistory history) {
+        return new CarSellDto(
                 history.getMarketplaceCar().getCarDetails().getName(),
                 history.getMarketplaceCar().getPrice(),
                 history.getUser().getName(),
                 history.getMarketplaceCar().getCarDetails().getLicensePlate(),
                 history.getMarketplaceCar().getMainImage(),
-                history.getApprovedAt(),
+                history.getMarketplaceCar().getMarketplaceRegistrationDate(),
                 history.getMarketplaceCar().getStatus(),
                 history.getId()
         );

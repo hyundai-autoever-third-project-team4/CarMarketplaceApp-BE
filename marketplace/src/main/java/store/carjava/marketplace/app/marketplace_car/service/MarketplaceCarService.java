@@ -10,13 +10,13 @@ import org.springframework.web.multipart.MultipartFile;
 import store.carjava.marketplace.app.base_car.entity.BaseCar;
 import store.carjava.marketplace.app.base_car.repository.BaseCarRepository;
 
+import store.carjava.marketplace.app.car_sales_history.repository.CarSalesHistoryRepository;
 import store.carjava.marketplace.app.like.repository.LikeRepository;
 import store.carjava.marketplace.app.marketplace_car.dto.*;
 
 import store.carjava.marketplace.app.car_purchase_history.dto.CarPurchaseHistoryInfoDto;
 import store.carjava.marketplace.app.car_sales_history.dto.CarSalesHistoryInfoDto;
 import store.carjava.marketplace.app.car_sales_history.entity.CarSalesHistory;
-import store.carjava.marketplace.app.car_sales_history.repository.CarSalseHistoryRepository;
 import store.carjava.marketplace.app.like.dto.LikeInfoDto;
 import store.carjava.marketplace.app.marketplace_car.entity.MarketplaceCar;
 import store.carjava.marketplace.app.marketplace_car.exception.*;
@@ -54,7 +54,7 @@ public class MarketplaceCarService {
     private final MarketplaceCarRepository marketplaceCarRepository;
     private final BaseCarRepository baseCarRepository;
     private final TestDriveCenterRepository testDriveCenterRepository;
-    private final CarSalseHistoryRepository carSalseHistoryRepository;
+    private final CarSalesHistoryRepository carSalesHistoryRepository;
     private final UserResolver userResolver;
     private final ImageUploader imageUploader;
     private final MarketplaceCarImageService marketplaceCarImageService;
@@ -287,7 +287,7 @@ public class MarketplaceCarService {
                 .build();
 
         // 판매 이력 저장
-        carSalseHistoryRepository.save(salesHstory);
+        carSalesHistoryRepository.save(salesHstory);
     }
 
     // 상태별 차량 조회 API Service

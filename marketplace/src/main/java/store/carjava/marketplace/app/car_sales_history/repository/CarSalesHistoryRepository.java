@@ -7,7 +7,9 @@ import store.carjava.marketplace.app.user.entity.User;
 
 import java.util.List;
 
-public interface CarSalseHistoryRepository extends JpaRepository<CarSalesHistory,Long> {
+public interface CarSalesHistoryRepository extends JpaRepository<CarSalesHistory,Long> {
 
     List<CarSalesHistory> findByUserOrderByIdDesc(User user);
+
+    List<CarSalesHistory> findAllByMarketplaceCarStatus(String marketplaceCarStatus);
 }

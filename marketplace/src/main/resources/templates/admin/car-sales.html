@@ -62,32 +62,40 @@
   <!-- 탭 내용 -->
   <div class="tab-content">
     <!-- 판매 승인 대기 -->
-    <div class="tab-pane fade show active" id="waiting" role="tabpanel"
-         aria-labelledby="waiting-tab">
+    <div class="tab-pane fade show active" id="waiting" role="tabpanel" aria-labelledby="waiting-tab">
       <div class="row">
-        <div class="col-12">
+        <div class="col-12" th:each="sale : ${pendingSales}">
           <div class="sale-card d-flex align-items-center">
             <div class="me-4">
-              <img
-                  src="https://certified-static.hyundai.com/contents/goods/shootConts/tobepic/02/exterior/GJK240903008701/PRD602_233.JPG"
-                  class="car-image" alt="Car Image">
+              <img th:src="${sale.mainImage()}" class="car-image" alt="Car Image">
             </div>
             <div class="flex-grow-1">
-              <h5>GV70 3.5 Turbo Edition</h5>
+              <h5 th:text="${sale.carName()}">Car Model</h5>
               <div class="d-flex flex-column">
-                <span><span class="info-label">판매 금액:</span> <span class="info-value">6,500만원</span></span>
-                <span><span class="info-label">차량 번호판:</span> <span
-                    class="info-value">202가3030</span></span>
-                <span><span class="info-label">판매자:</span> <span
-                    class="info-value">홍길동</span></span>
-                <span><span class="info-label">날짜:</span> <span class="info-value">2025-01-12</span></span>
+              <span>
+                <span class="info-label">판매 금액:</span>
+                <span class="info-value" th:text="${#numbers.formatInteger(sale.price(), 0, 'COMMA') + '원'}">금액</span>
+              </span>
+                <span>
+                <span class="info-label">차량 번호판:</span>
+                <span class="info-value" th:text="${sale.licensePlate()}">번호판</span>
+              </span>
+                <span>
+                <span class="info-label">판매자:</span>
+                <span class="info-value" th:text="${sale.userName()}">판매자</span>
+              </span>
+                <span>
+                <span class="info-label">날짜:</span>
+                <span class="info-value" th:text="${#temporals.format(sale.requestDate(), 'yyyy-MM-dd')}">날짜</span>
+              </span>
               </div>
             </div>
             <!-- 버튼 -->
-            <div class="sale-card">
-              <button class="btn btn-success btn-sm" data-bs-toggle="modal"
-                      data-bs-target="#sampleModal">승인
-              </button>
+            <div class="d-flex flex-column gap-2">
+              <button class="btn btn-success btn-sm approve-btn"
+                      th:data-sale-id="${sale.saleId()}"
+                      data-bs-toggle="modal"
+                      data-bs-target="#sampleModal">승인</button>
               <button class="btn btn-danger btn-sm">취소</button>
             </div>
 
@@ -97,6 +105,7 @@
         </div>
       </div>
     </div>
+
 
     <!-- 판매 승인 취소 -->
     <div class="tab-pane fade" id="canceled" role="tabpanel" aria-labelledby="canceled-tab">

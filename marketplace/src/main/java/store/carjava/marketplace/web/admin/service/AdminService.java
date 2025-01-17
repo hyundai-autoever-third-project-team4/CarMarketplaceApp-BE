@@ -6,13 +6,17 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import store.carjava.marketplace.app.car_purchase_history.entity.CarPurchaseHistory;
 import store.carjava.marketplace.app.car_purchase_history.repository.CarPurchaseHistoryRepository;
+import store.carjava.marketplace.app.car_sales_history.entity.CarSalesHistory;
+import store.carjava.marketplace.app.car_sales_history.repository.CarSalesHistoryRepository;
 import store.carjava.marketplace.app.marketplace_car.entity.MarketplaceCar;
 import store.carjava.marketplace.app.marketplace_car.repository.MarketplaceCarRepository;
 import store.carjava.marketplace.app.user.entity.User;
 import store.carjava.marketplace.app.user.repository.UserRepository;
 import store.carjava.marketplace.web.admin.dto.CarPurchaseDto;
+import store.carjava.marketplace.web.admin.dto.CarSellDto;
 
 import java.util.List;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 @Service
@@ -21,6 +25,7 @@ public class AdminService {
     private final UserRepository userRepository;
     private final CarPurchaseHistoryRepository carPurchaseHistoryRepository;
     private final MarketplaceCarRepository marketplaceCarRepository;
+    private final CarSalesHistoryRepository carSalesHistoryRepository;
 
     public List<User> getAllUsers() {
         return userRepository.findAll();
@@ -55,6 +60,14 @@ public class AdminService {
         List<CarPurchaseHistory> purchaseHistories = carPurchaseHistoryRepository.findAllByMarketplaceCarStatus("NOT_AVAILABLE_FOR_PURCHASE");
         return purchaseHistories.stream()
                 .map(CarPurchaseDto::of)
+                .collect(Collectors.toList());
+    }
+
+    // 판매 내역에서 차량 상태가 승인 대기중인 차량 조회.
+    public List<CarSellDto> getPendingSaleHistory() {
+        List<CarSalesHistory> salesHistories = carSalesHistoryRepository.findAllByMarketplaceCarStatus("PENDING_SALE");
+        return salesHistories.stream()
+                .map(CarSellDto::of)
                 .collect(Collectors.toList());
     }
 }
