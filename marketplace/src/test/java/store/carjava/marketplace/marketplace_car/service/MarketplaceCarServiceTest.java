@@ -1,6 +1,7 @@
 package store.carjava.marketplace.marketplace_car.service;
 
 
+import org.antlr.v4.runtime.tree.pattern.ParseTreePattern;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -10,6 +11,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.test.web.client.ExpectedCount;
+import store.carjava.marketplace.app.like.repository.LikeRepository;
 import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarResponse;
 import store.carjava.marketplace.app.marketplace_car.entity.MarketplaceCar;
 import store.carjava.marketplace.app.marketplace_car.exception.MaxPriceLessThanMinPriceException;
@@ -17,10 +20,13 @@ import store.carjava.marketplace.app.marketplace_car.exception.MinPriceExceedsMa
 import store.carjava.marketplace.app.marketplace_car.exception.StatusNotFoundException;
 import store.carjava.marketplace.app.marketplace_car.repository.MarketplaceCarRepository;
 import store.carjava.marketplace.app.marketplace_car.service.MarketplaceCarService;
+import store.carjava.marketplace.common.util.user.UserResolver;
+import store.carjava.marketplace.marketplace_car.builder.MarketplaceCarTestBuilder;
 
 import java.util.Collections;
 import java.util.List;
-
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.times;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -36,6 +42,10 @@ class MarketplaceCarServiceTest {
     @Mock
     private MarketplaceCarRepository marketplaceCarRepository;
 
+    @Mock
+    private LikeRepository likeRepository;
+    @Mock
+    private UserResolver userResolver;
     @BeforeEach
     void setUp() {
         // 초기화 작업 (필요한 경우)
@@ -167,8 +177,8 @@ class MarketplaceCarServiceTest {
         assertThatThrownBy(() -> marketplaceCarService.getFilteredCars(
                 null, null, null, null, null, null, null,
                 null, null, null, null, null, null,
-                null, null, null, null, invalidStatus,
-                null, null, null, null, null, Pageable.unpaged()
+                null, null, null, null, null,
+                invalidStatus, null, null, null, null, Pageable.unpaged()
         )).isInstanceOf(StatusNotFoundException.class);
     }
 
@@ -193,6 +203,7 @@ class MarketplaceCarServiceTest {
         // then
         assertThat(result).isEmpty(); // 결과가 빈 리스트인지 검증
     }
+
 
 
 }
