@@ -4,13 +4,27 @@ package store.carjava.marketplace.marketplace_car.service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
+import org.mockito.*;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarResponse;
+import store.carjava.marketplace.app.marketplace_car.entity.MarketplaceCar;
+import store.carjava.marketplace.app.marketplace_car.exception.MaxPriceLessThanMinPriceException;
+import store.carjava.marketplace.app.marketplace_car.exception.MinPriceExceedsMaxPriceException;
+import store.carjava.marketplace.app.marketplace_car.exception.StatusNotFoundException;
 import store.carjava.marketplace.app.marketplace_car.repository.MarketplaceCarRepository;
 import store.carjava.marketplace.app.marketplace_car.service.MarketplaceCarService;
 
+import java.util.Collections;
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class MarketplaceCarServiceTest {
@@ -107,8 +121,78 @@ class MarketplaceCarServiceTest {
         //given
         String nullStatus = null;
         String emptyStatus = "";
-
+        //when
         assertThat(marketplaceCarService.isValidStatus(nullStatus)).isFalse();
         assertThat(marketplaceCarService.isValidStatus(emptyStatus)).isFalse();
     }
+
+    @Test
+    void getFilteredCars_ShouldThrowException_WhenMinPriceExceedsMaxPrice() {
+        // given
+        Long minPrice = 5000L;
+        Long maxPrice = 3000L;
+
+        // when & then
+        assertThatThrownBy(() -> marketplaceCarService.getFilteredCars(
+                null, null, null, null, null, null, null,
+                null, null, null, maxPrice, minPrice,
+                null, null, null, null, null, null,
+                null, null, null, null, null, Pageable.unpaged()
+        )).isInstanceOf(MinPriceExceedsMaxPriceException.class);
+    }
+
+    // minYear 가 maxYear 넘어갈 수 없다.
+    @Test
+    void getFilteredCars_ShouldThrowException_WhenMinModelYearExceedsMaxModelYear() {
+        // given
+        Integer minModelYear = 2025;
+        Integer maxModelYear = 2020;
+
+        // when & then
+        assertThatThrownBy(() -> marketplaceCarService.getFilteredCars(
+                null, null, null, null, null, null, null,
+                null, null, null, null, null, null,
+                null, minModelYear, maxModelYear, null, null,
+                null, null, null, null, null, Pageable.unpaged()
+        )).isInstanceOf(MaxPriceLessThanMinPriceException.class);
+    }
+
+
+    @Test
+    void getFilteredCars_ShouldThrowException_WhenInvalidStatusProvided() {
+        // given
+        String invalidStatus = "INVALID_STATUS";
+
+        // when & then
+        assertThatThrownBy(() -> marketplaceCarService.getFilteredCars(
+                null, null, null, null, null, null, null,
+                null, null, null, null, null, null,
+                null, null, null, null, invalidStatus,
+                null, null, null, null, null, Pageable.unpaged()
+        )).isInstanceOf(StatusNotFoundException.class);
+    }
+
+    // 차가 모두 비어있을때 아무것도 리턴하지 않는걸 확인하는 test code
+    @Test
+    void getFilteredCars_ShouldReturnEmptyList_WhenNoCarsMatchFilters() {
+        // given
+        Page<MarketplaceCar> emptyPage = new PageImpl<>(Collections.emptyList());
+        when(marketplaceCarRepository.filterCars(any(), any(), any(), any(), any(), any(), any(),
+                any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(),
+                any(), any(), any(), any(), any()))
+                .thenReturn(emptyPage);
+
+        // when
+        List<MarketplaceCarResponse> result = marketplaceCarService.getFilteredCars(
+                null, null, null, null, null, null, null,
+                null, null, null, null, null, null,
+                null, null, null, null, null,
+                null, null, null, null, null, Pageable.unpaged()
+        );
+
+        // then
+        assertThat(result).isEmpty(); // 결과가 빈 리스트인지 검증
+    }
+
+
 }
