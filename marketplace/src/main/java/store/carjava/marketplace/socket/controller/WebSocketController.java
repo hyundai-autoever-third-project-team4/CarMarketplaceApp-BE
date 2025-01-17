@@ -29,8 +29,6 @@ public class WebSocketController {
     public ChatMessage adminToUser(ChatMessage message) {
         return new ChatMessage(message.sender(), message.content(), "ADMIN_MESSAGE");
     }
-
-
 }
 
 

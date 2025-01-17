@@ -73,7 +73,7 @@ public class AuthController {
 
     @Operation(summary = "사용자 로그인 엔드포인트", description = "키클락 로그인 페이지로 이동한 후, 인증 토큰값을 반환합니다.")
     @PostMapping("/login")
-    public ResponseEntity<?> loginWithAuthorizationCode(@RequestBody TokenRequest tokenRequest) {
+    public ResponseEntity<CustomTokenResponse> loginWithAuthorizationCode(@RequestBody TokenRequest tokenRequest) {
         log.info("Redirecting to Keycloak for authentication");
 
         CustomTokenResponse response = authService.generateJwtToken(tokenRequest.authorizationCode());

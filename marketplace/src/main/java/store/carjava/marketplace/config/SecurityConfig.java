@@ -85,6 +85,7 @@ public class SecurityConfig {
                         .requestMatchers("/payment/**").permitAll()
                         // socket
                         .requestMatchers("/ws/**").permitAll()
+                        .requestMatchers("/chat/**").permitAll()
 
                         .anyRequest().authenticated() // 나머지 요청은 인증 필요
                 )
