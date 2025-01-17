@@ -2,6 +2,7 @@ package store.carjava.marketplace.web.admin.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -9,6 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarSummaryDto;
 import store.carjava.marketplace.app.user.dto.UserSummaryDto;
 import store.carjava.marketplace.app.user.entity.User;
 import store.carjava.marketplace.common.util.user.UserResolver;
@@ -41,6 +43,19 @@ public class AdminController {
         return adminService.getAllUsers()
                 .stream().map(UserSummaryDto::of)
                 .toList();
+    }
+
+    @ModelAttribute("cars")
+    public Page<MarketplaceCarSummaryDto> cars(
+            @RequestParam(value = "licensePlate", required = false) String licensePlate,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size) {
+        // 검색 조건이 없으면 전체 차량 반환
+        if (licensePlate != null && !licensePlate.isBlank()) {
+            return adminService.searchCarsByLicensePlate(licensePlate, page, size);
+        }
+        // 검색 조건이 없으면 전체 차량 반환
+        return adminService.getCars(page, size);
     }
 
     @GetMapping
