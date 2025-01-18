@@ -64,28 +64,6 @@
         margin-left: 0;
       }
     }
-
-    /* 커스텀 배지 스타일 (이미 Bootstrap 배지를 수정했으므로 필요 없음) */
-    /* .badge-primary {
-      background-color: #0d6efd;
-    }
-
-    .badge-secondary {
-      background-color: #6c757d;
-    }
-
-    .badge-success {
-      background-color: #198754;
-    }
-
-    .badge-danger {
-      background-color: #dc3545;
-    }
-
-    .badge-warning {
-      background-color: #ffc107;
-      color: #212529;
-    } */
   </style>
 </head>
 <body>
@@ -102,10 +80,9 @@
         <!-- 사용자 정보 표시 -->
         <li class="nav-item text-white me-3">
           <span th:text="'로그인 사용자: ' + ${adminInfo.email}"></span>
-          <small class="text-muted ms-2" th:text="'(' + ${adminInfo.role} + ')'"></small>
+          <small class="text-primary ms-2" th:text="'(' + ${adminInfo.role} + ')'"></small>
         </li>
         <!-- 기존 메뉴 -->
-        <li class="nav-item"><a class="nav-link" href="#">설정</a></li>
         <li class="nav-item"><a class="nav-link" href="#">로그아웃</a></li>
       </ul>
     </div>
