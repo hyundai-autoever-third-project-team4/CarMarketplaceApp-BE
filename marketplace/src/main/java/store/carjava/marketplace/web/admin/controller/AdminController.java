@@ -10,11 +10,14 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import store.carjava.marketplace.app.car_sales_history.dto.CarSalesHistoryInfoDto;
 import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarSummaryDto;
 import store.carjava.marketplace.app.user.dto.UserSummaryDto;
 import store.carjava.marketplace.app.user.entity.User;
 import store.carjava.marketplace.common.util.user.UserResolver;
 import store.carjava.marketplace.web.admin.dto.AdminInfo;
+import store.carjava.marketplace.web.admin.dto.CarPurchaseDto;
+import store.carjava.marketplace.web.admin.dto.CarSellDto;
 import store.carjava.marketplace.web.admin.service.AdminService;
 
 import java.util.List;
@@ -65,8 +68,19 @@ public class AdminController {
         return adminService.getCars(page, size);
     }
 
+    @ModelAttribute("purchaseTasks")
+    public List<CarPurchaseDto> carPurchaseDtos() {
+        return adminService.getCarPurchases();
+    }
+
+    @ModelAttribute("salesTasks")
+    public List<CarSellDto> carSalesHistoryInfoDtos() {
+        return adminService.getCarSales();
+    }
+
     @GetMapping
     public String adminPage(Model model) {
+
         Long totalSales = adminService.getTotalSalesAmount();
 
         model.addAttribute("totalSales", totalSales);

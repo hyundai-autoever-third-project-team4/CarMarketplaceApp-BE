@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import store.carjava.marketplace.app.car_purchase_history.entity.CarPurchaseHistory;
 import store.carjava.marketplace.app.car_purchase_history.repository.CarPurchaseHistoryRepository;
+import store.carjava.marketplace.app.car_sales_history.dto.CarSalesHistoryInfoDto;
 import store.carjava.marketplace.app.car_sales_history.entity.CarSalesHistory;
 import store.carjava.marketplace.app.car_sales_history.repository.CarSalesHistoryRepository;
 import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarSummaryDto;
@@ -61,6 +62,19 @@ public class AdminService {
 
     public Long getTotalPurchases() {
         return carPurchaseHistoryRepository.count();
+    }
+
+    public List<CarPurchaseDto> getCarPurchases() {
+        return carPurchaseHistoryRepository.findAllByMarketplaceCarStatus(
+                        "PENDING_PURCHASE_APPROVAL")
+                .stream().map(CarPurchaseDto::of)
+                .collect(Collectors.toList());
+    }
+
+    public List<CarSellDto> getCarSales() {
+        return carSalesHistoryRepository.findAllByMarketplaceCarStatus("PENDING_SALE")
+                .stream().map(CarSellDto::of)
+                .collect(Collectors.toList());
     }
 
     // 구매 내역에서 차량 상태가 대기중인 차 조회.
