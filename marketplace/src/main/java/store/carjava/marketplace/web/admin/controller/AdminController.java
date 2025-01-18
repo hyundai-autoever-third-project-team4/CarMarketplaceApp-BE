@@ -108,7 +108,6 @@ public class AdminController {
         model.addAttribute("pendingPurchases", adminService.getPendingPurchaseHistory());
         model.addAttribute("completedPurchases", adminService.getCompletedPurchaseHistory());
         return "admin/car-purchases";
-
     }
 
     // 차량 구매 승인
