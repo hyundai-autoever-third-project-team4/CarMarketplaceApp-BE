@@ -126,6 +126,7 @@ public class AdminController {
     @GetMapping("/car-sales")
     public String carSalesPage(Model model) {
         model.addAttribute("pendingSales", adminService.getPendingSaleHistory());
+        model.addAttribute("approvedSales", adminService.getApprovedSaleHistory());
         return "admin/car-sales";
     }
 

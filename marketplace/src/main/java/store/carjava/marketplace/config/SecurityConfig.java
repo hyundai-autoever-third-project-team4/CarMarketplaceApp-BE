@@ -73,6 +73,7 @@ public class SecurityConfig {
                         .requestMatchers("/mypage/**").authenticated()
 
                         // [Review]
+                        .requestMatchers(HttpMethod.GET,"/review/**").permitAll()
                         .requestMatchers("/reviews/**").permitAll()
                         .requestMatchers("/review/**").authenticated()
 

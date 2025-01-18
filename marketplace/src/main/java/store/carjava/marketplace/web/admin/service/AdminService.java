@@ -101,6 +101,15 @@ public class AdminService {
                 .collect(Collectors.toList());
     }
 
+    // 판매 내역에서 차량 상태가 승인 완료된 차량 조회
+    public List<CarSellDto> getApprovedSaleHistory() {
+        List<CarSalesHistory> salesHistories = carSalesHistoryRepository.findAllByMarketplaceCarStatus(
+                "SALE_APPROVED");
+        return salesHistories.stream()
+                .map(CarSellDto::of)
+                .collect(Collectors.toList());
+    }
+
     public Page<MarketplaceCarSummaryDto> getCars(int page, int size) {
         return marketplaceCarRepository.findAll(PageRequest.of(page, size))
                 .map(MarketplaceCarSummaryDto::of);

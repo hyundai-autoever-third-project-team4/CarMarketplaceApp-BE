@@ -139,22 +139,30 @@
     <!-- 판매 승인 완료 -->
     <div class="tab-pane fade" id="completed" role="tabpanel" aria-labelledby="completed-tab">
       <div class="row">
-        <div class="col-12">
+        <div class="col-12" th:each="sale : ${approvedSales}">
           <div class="sale-card d-flex align-items-center">
             <div class="me-4">
-              <img
-                  src="https://certified-static.hyundai.com/contents/goods/shootConts/tobepic/02/exterior/HDN241014009627/PRD602_233.JPG"
-                  class="car-image" alt="Car Image">
+              <img th:src="${sale.mainImage()}" class="car-image" alt="Car Image">
             </div>
             <div class="flex-grow-1">
-              <h5>Hyundai Tucson</h5>
+              <h5 th:text="${sale.carName()}">Car Model</h5>
               <div class="d-flex flex-column">
-                <span><span class="info-label">판매 금액:</span> <span class="info-value">3,200만원</span></span>
-                <span><span class="info-label">차량 번호판:</span> <span
-                    class="info-value">405가1212</span></span>
-                <span><span class="info-label">판매자:</span> <span
-                    class="info-value">이철수</span></span>
-                <span><span class="info-label">날짜:</span> <span class="info-value">2025-01-09</span></span>
+                <span>
+              <span class="info-label">판매 금액:</span>
+              <span class="info-value" th:text="${#numbers.formatInteger(sale.price(), 0, 'COMMA') + '원'}">금액</span>
+            </span>
+                <span>
+              <span class="info-label">차량 번호판:</span>
+              <span class="info-value" th:text="${sale.licensePlate()}">번호판</span>
+            </span>
+                <span>
+              <span class="info-label">판매자:</span>
+              <span class="info-value" th:text="${sale.userName()}">판매자</span>
+            </span>
+                <span>
+              <span class="info-label">판매 완료 날짜:</span>
+              <span class="info-value" th:text="${#temporals.format(sale.requestDate(), 'yyyy-MM-dd')}">날짜</span>
+            </span>
               </div>
             </div>
           </div>
