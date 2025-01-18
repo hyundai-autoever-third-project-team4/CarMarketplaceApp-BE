@@ -288,6 +288,21 @@ public class MarketplaceCarService {
                 .build();
     }
 
+    // 판매자가 마음에 들지 않는 경우 delete 하는 Serivce
+    public void deleteCar(String id){
+
+        //id로 차량을 조회
+        Optional<MarketplaceCar> car = marketplaceCarRepository.findById(id);
+
+            if (car.isPresent()) {
+                // 차량이 존재하면 삭제
+                marketplaceCarRepository.delete(car.get());
+            } else {
+                // 차량이 존재하지 않으면 예외 처리
+                throw new CarNotFoundException();
+            }
+    }
+
     //판매자가 번호판, 이름을 입력해서 baseCar 에서 조회하는 API
     public BaseCar findBaseCar(String licensePlate, String ownerName) {
         return baseCarRepository.findByCarDetails_LicensePlateAndOwnerName(licensePlate, ownerName)
