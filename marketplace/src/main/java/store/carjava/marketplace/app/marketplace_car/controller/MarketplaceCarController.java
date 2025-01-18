@@ -118,7 +118,7 @@ public class MarketplaceCarController {
     @PutMapping("/car/sale/approve")
     public ResponseEntity<String> approveCar(
             @RequestParam(name = "carId") String carId,
-            @RequestParam(name = "testDriveCenterName") String testDriveCenterName,
+            @RequestParam(name = "testDriveCenterId") Long testDriveCenterId,
             @RequestParam(name = "price") Long price,
             @RequestParam(name = "exteriorImages", required = false) List<MultipartFile> exteriorImages,
             @RequestParam(name = "interiorImages", required = false) List<MultipartFile> interiorImages,
@@ -135,7 +135,7 @@ public class MarketplaceCarController {
 
 
 
-            marketplaceCarService.approveCar(carId, testDriveCenterName, price, allImages);
+            marketplaceCarService.approveCar(carId, testDriveCenterId, price, allImages);
             return ResponseEntity.ok("차량 판매가 승인되었습니다.");
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());

@@ -121,11 +121,9 @@
           img.setAttribute('title', file.name);
           container.appendChild(img);
 
-          // Update progress bar
           const progress = ((index + 1) / input.files.length) * 100;
           progressBar.querySelector('.progress-bar').style.width = `${progress}%`;
 
-          // Remove progress bar when complete
           if (index === input.files.length - 1) {
             setTimeout(() => progressBar.remove(), 500);
           }
@@ -134,8 +132,62 @@
       });
     }
 
-    // Initialize tooltips
+    // 폼 제출 처리
     document.addEventListener('DOMContentLoaded', function() {
+      const form = document.getElementById('carDetailForm');
+
+      form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const formData = new FormData();
+        formData.append('carId', document.getElementById('carId').value);
+        formData.append('testDriveCenterId', document.getElementById('testDriveCenter').value);
+        formData.append('price', document.getElementById('price').value);
+
+        // 이미지 파일들 추가
+        const exteriorFiles = document.getElementById('exteriorImages').files;
+        const interiorFiles = document.getElementById('interiorImages').files;
+        const wheelFiles = document.getElementById('wheelImages').files;
+        const additionalFiles = document.getElementById('additionalImages').files;
+
+        Array.from(exteriorFiles).forEach(file => {
+          formData.append('exteriorImages', file);
+        });
+        Array.from(interiorFiles).forEach(file => {
+          formData.append('interiorImages', file);
+        });
+        Array.from(wheelFiles).forEach(file => {
+          formData.append('wheelImages', file);
+        });
+        Array.from(additionalFiles).forEach(file => {
+          formData.append('additionalImages', file);
+        });
+
+        try {
+          const response = await fetch('/car/sale/approve', {
+            method: 'PUT',
+            body: formData
+          });
+
+          const result = await response.text();
+
+          if (response.ok) {
+            alert('차량 판매가 승인되었습니다.');
+            // 모달 닫기
+            const modal = bootstrap.Modal.getInstance(document.getElementById('sampleModal'));
+            modal.hide();
+            // 필요한 경우 페이지 새로고침
+            window.location.reload();
+          } else {
+            alert(result || '오류가 발생했습니다. 다시 시도해주세요.');
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          alert('서버 오류가 발생했습니다. 나중에 다시 시도해주세요.');
+        }
+      });
+
+      // Initialize tooltips
       var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
       var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
         return new bootstrap.Tooltip(tooltipTriggerEl);
@@ -166,11 +218,11 @@
                     </h6>
                     <div class="input-group">
                       <input type="number" class="form-control form-control-lg" id="price" name="price"
-                             placeholder="0" min="0" step="1">
+                             placeholder="0" min="0" max="9999" step="1" required>
                       <span class="input-group-text">만원</span>
                     </div>
                     <small class="form-text text-muted mt-2">
-                      <i class="bi bi-info-circle me-1"></i>판매 가격을 만원 단위로 입력하세요.
+                      <i class="bi bi-info-circle me-1"></i>판매 가격을 만원 단위로 입력하세요. (최대 9,999만원)
                     </small>
                   </div>
                 </div>
