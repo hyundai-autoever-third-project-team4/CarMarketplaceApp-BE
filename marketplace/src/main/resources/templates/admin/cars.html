@@ -122,7 +122,7 @@
       display: inline-block;
       max-width: 70%;
       text-align: right;
-      color: #0d6efd;
+      color: #212529;
     }
 
     /* 반응형 디자인 */
@@ -191,19 +191,25 @@
             <img th:src="${car.mainImage}" alt="Car Image" class="img-thumbnail car-image">
           </td>
           <td th:text="${car.name}">이름</td>
-          <td th:text="${car.licensePlate}">번호판</td>
+          <td>
+            <span class="badge bg-secondary text-white" th:text="${car.licensePlate}"></span>
+          </td>
+
           <td th:text="${T(java.time.format.DateTimeFormatter).ofPattern('yyyy-MM-dd').format(car.registrationDate)}">
             등록일자
           </td>
           <td th:text="${@thymeleafUtils.formatNumber(car.mileage)}">주행거리</td>
-          <td th:text="${@thymeleafUtils.formatNumber(car.price / 10000)}">가격</td>
+          <td>
+            <span class="badge text-primary" th:text="${@thymeleafUtils.formatNumber(car.price / 10000)}"></span>
+          </td>
+
           <td>
                         <span th:classappend="'badge ' +
-                            (car.status == '구매 가능' ? 'bg-success' :
-                            (car.status == '구매 승인 대기' ? 'bg-warning' :
-                            (car.status == '구매 불가' ? 'bg-danger' :
-                            (car.status == '판매 승인 대기' ? 'bg-info' :
-                            (car.status == '판매 승인' ? 'bg-primary' : 'bg-secondary')))))"
+                            (${car.status} == '구매 가능' ? 'bg-success' :
+                            (${car.status} == '구매 승인 대기' ? 'bg-warning' :
+                            (${car.status} == '구매 불가' ? 'bg-danger' :
+                            (${car.status} == '판매 승인 대기' ? 'bg-info' :
+                            (${car.status} == '판매 승인' ? 'bg-primary' : 'bg-secondary')))))"
                               th:text="${car.status}">
                         </span>
           </td>
@@ -280,22 +286,21 @@
         <div class="modal-dialog modal-lg modal-dialog-centered">
           <div class="modal-content">
             <!-- 모달 헤더 -->
-            <div class="modal-header-gradient">
-              <h5 class="modal-title fw-bold ms-2" th:text="'차량 상세정보 - ' + ${car.name}"
-                  id="carModalLabel" style="font-size: 1.5rem;"></h5>
-              <button type="button" class="btn-close btn-close-white me-2" data-bs-dismiss="modal"
-                      aria-label="Close"></button>
+            <div class="modal-header-gradient d-flex justify-content-between align-items-center px-4 py-3">
+              <div class="d-flex align-items-center">
+                <i class="fas fa-car text-white me-3" style="font-size: 1.8rem;"></i>
+                <h5 class="modal-title fw-bold text-white" th:text="'차량 상세정보 - ' + ${car.name}" id="carModalLabel" style="font-size: 1.5rem;"></h5>
+              </div>
             </div>
+
             <!-- 모달 본문 -->
             <div class="modal-body">
               <div class="row align-items-stretch">
                 <!-- 차량 이미지 섹션 -->
                 <div class="col-md-6 d-flex justify-content-center align-items-center mb-4">
-                  <div class="position-relative w-100">
                     <img th:src="${car.mainImage}"
-                         class="img-fluid rounded shadow-lg car-image mb-3"
+                         class="rounded shadow-lg mb-3"
                          alt="Car Image">
-                  </div>
                 </div>
                 <!-- 차량 상세 정보 -->
                 <div class="col-md-6 d-flex align-items-stretch">
@@ -310,7 +315,7 @@
                     </div>
                     <div class="list-group-item d-flex justify-content-between align-items-center">
                       <strong>번호판:</strong>
-                      <span th:text="${car.licensePlate}"></span>
+                      <span class="badge bg-secondary text-white" th:text="${car.licensePlate}"></span>
                     </div>
                     <div class="list-group-item d-flex justify-content-between align-items-center">
                       <strong>등록일자:</strong>
@@ -322,16 +327,16 @@
                     </div>
                     <div class="list-group-item d-flex justify-content-between align-items-center">
                       <strong>가격:</strong>
-                      <span th:text="${@thymeleafUtils.formatNumber(car.price / 10000)}"></span>
+                      <span class="badge text-primary" th:text="${@thymeleafUtils.formatNumber(car.price / 10000)} + '만원'"></span>
                     </div>
                     <div class="list-group-item d-flex justify-content-between align-items-center">
                       <strong>상태:</strong>
-                      <span th:classappend="'badge ' +
-                                                  (car.status == '구매 가능' ? 'bg-success' :
-                                                  (car.status == '구매 승인 대기' ? 'bg-warning' :
-                                                  (car.status == '구매 불가' ? 'bg-danger' :
-                                                  (car.status == '판매 승인 대기' ? 'bg-info' :
-                                                  (car.status == '판매 승인' ? 'bg-primary' : 'bg-secondary')))))"
+                      <span th:classappend="'badge text-white ' +
+                                                  (${car.status} == '구매 가능' ? 'bg-success' :
+                                                  (${car.status} == '구매 승인 대기' ? 'bg-warning' :
+                                                  (${car.status} == '구매 불가' ? 'bg-danger' :
+                                                  (${car.status} == '판매 승인 대기' ? 'bg-info' :
+                                                  (${car.status} == '판매 승인' ? 'bg-primary' : 'bg-secondary')))))"
                             th:text="${car.status}"></span>
                     </div>
                   </div>
@@ -345,15 +350,7 @@
                       class="btn btn-secondary"
                       data-bs-dismiss="modal">닫기
               </button>
-              <!-- 필요 시 추가 버튼 (예: 수정, 삭제 등) -->
-              <button type="button" class="btn btn-warning btn-sm" th:if="${car.status == '구매 가능'}"
-                      th:onclick="'window.location.href=\'/admin/cars/edit/' + ${car.id} + '\';'">
-                <i class="fas fa-edit me-1"></i> 수정
-              </button>
-              <button type="button" class="btn btn-danger btn-sm" th:if="${car.status != '판매 승인'}"
-                      th:onclick="'window.location.href=\'/admin/cars/delete/' + ${car.id} + '\';'">
-                <i class="fas fa-trash me-1"></i> 삭제
-              </button>
+
             </div>
           </div>
         </div>
