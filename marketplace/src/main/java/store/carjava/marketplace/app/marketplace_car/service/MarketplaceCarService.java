@@ -134,14 +134,14 @@ public class MarketplaceCarService {
     // 유효한 상태를 확인하는 메서드
     public boolean isValidStatus(String status) {
         List<String> validStatus = List.of("AVAILABLE_FOR_PURCHASE", "PENDING_PURCHASE_APPROVAL", "NOT_AVAILABLE_FOR_PURCHASE", "PENDING_SALE", "SALE_APPROVED");
-
         if(status == null || status.isEmpty()) {
             return false;
         }
-
         return validStatus.contains(status);
-    }
 
+
+
+    }
 
 
     // 브랜드가 존재하는지 체크하는 메서드

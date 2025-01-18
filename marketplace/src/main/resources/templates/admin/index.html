@@ -75,13 +75,13 @@
 <body>
 <div layout:fragment="content">
     <div class="container-fluid p-4">
-        <h1 class="mb-4 text-primary">차자바 관리자 대시보드</h1>
+        <h1 class="mb-4 text-primary"><i class="fa-solid fa-user-tie me-2"></i>차자바 관리자 대시보드</h1>
 
         <!-- 통계 카드 -->
         <div class="row g-4">
             <!-- 가입한 전체 유저 -->
             <div class="col-lg-4 col-md-6">
-                <div class="card stats-card bg-primary text-white h-100">
+                <div class="card stats-card bg-primary text-white h-100" onclick="location.href='/admin/users'" style="cursor: pointer;">
                     <div class="card-body d-flex align-items-center">
                         <div class="me-3">
                             <i class="fas fa-users fa-2x"></i>
@@ -102,26 +102,27 @@
                         </div>
                         <div>
                             <h5 class="card-title">차량 총 판매액</h5>
-                            <p class="card-text h4" th:text="${totalSales != null ? @thymeleafUtils.formatNumber(totalSales) + ' 원' : '0 원'}">0 원</p>
+                            <p class="card-text h4" th:text="${totalSales != null ? @thymeleafUtils.formatNumber(totalSales / 10000) + ' 만원' : '0 만원'}">0 만원</p>
                         </div>
                     </div>
                 </div>
             </div>
             <!-- 처리해야 할 작업 -->
             <div class="col-lg-4 col-md-12">
-                <div class="card stats-card bg-warning text-dark h-100">
+                <div class="card stats-card bg-warning text-dark h-100" onclick="location.href='/admin/tasks'" style="cursor: pointer;">
                     <div class="card-body d-flex align-items-center">
                         <div class="me-3">
                             <i class="fas fa-tasks fa-2x"></i>
                         </div>
                         <div>
                             <h5 class="card-title">처리해야 할 작업</h5>
-                            <p class="card-text h4" th:text="${pendingTasks != null ? @thymeleafUtils.formatNumber(pendingTasks) : '0'}">0</p>
+                            <p class="card-text h4" th:text="${purchaseTasks.size() + salesTasks.size()}">0</p>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+
 
         <!-- 차트 섹션 -->
         <div class="row mt-5 charts-row">
@@ -160,7 +161,7 @@
                 <!-- 예약 그래프 -->
                 <div class="card">
                     <div class="card-header">
-                        <i class="fas fa-calendar-alt me-2"></i> 날짜별 예약 현황
+                        <i class="fas fa-calendar-alt me-2"></i> 월별 예약 현황
                     </div>
                     <div class="card-body chart-container">
                         <canvas id="reservationChart"></canvas>
@@ -245,8 +246,8 @@
             data: {
                 labels: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
                 datasets: [{
-                    label: '수익 (원)',
-                    data: [5000000, 6000000, 7000000, 8000000, 6500000, 7500000, 8500000, 9000000, 9500000, 10000000, 11000000, 12000000], // Mock 데이터
+                    label: '수익 (만원)',
+                    data: [500, 600, 700, 800, 650, 750, 850, 900, 950, 1000, 1100, 1200], // Mock 데이터 (원 → 만원)
                     backgroundColor: 'rgba(255, 159, 64, 0.2)',
                     borderColor: 'rgba(255, 159, 64, 1)',
                     borderWidth: 2,
@@ -266,6 +267,18 @@
                         display: false
                     },
                     tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed.y !== null) {
+                                    label += context.parsed.y.toLocaleString() + ' 만원';
+                                }
+                                return label;
+                            }
+                        },
                         backgroundColor: '#ffffff',
                         titleColor: '#000',
                         bodyColor: '#000',
@@ -281,12 +294,13 @@
                         beginAtZero: true,
                         title: {
                             display: true,
-                            text: '수익 (원)'
+                            text: '수익 (만원)'
                         },
                         ticks: {
                             color: '#6c757d',
+                            // y축 눈금 표시를 만원 단위로 변경
                             callback: function(value) {
-                                return value.toLocaleString() + ' 원';
+                                return value + ' 만원';
                             }
                         },
                         grid: {
@@ -309,28 +323,26 @@
             }
         });
 
-        // 차종별 판매 비율 파이 차트 (Mock Data)
+        // 차종별 판매 비율 파이 차트 (수정됨)
         const ctxPie = document.getElementById('carTypePieChart').getContext('2d');
         const carTypePieChart = new Chart(ctxPie, {
             type: 'pie',
             data: {
-                labels: ['세단', 'SUV', '트럭', '해치백', '컨버터블'],
+                labels: ['승용', 'SUV', '승합', 'EV'],
                 datasets: [{
                     label: '차종 비율',
-                    data: [40, 25, 15, 10, 10], // Mock 데이터
+                    data: [40, 30, 20, 10], // Mock 데이터 (승용, SUV, 승합, EV)
                     backgroundColor: [
-                        'rgba(255, 99, 132, 0.6)',
-                        'rgba(54, 162, 235, 0.6)',
-                        'rgba(255, 206, 86, 0.6)',
-                        'rgba(75, 192, 192, 0.6)',
-                        'rgba(153, 102, 255, 0.6)'
+                        'rgba(255, 99, 132, 0.6)',   // 승용
+                        'rgba(54, 162, 235, 0.6)',   // SUV
+                        'rgba(255, 206, 86, 0.6)',   // 승합
+                        'rgba(75, 192, 192, 0.6)'    // EV
                     ],
                     borderColor: [
-                        'rgba(255, 99, 132, 1)',
-                        'rgba(54, 162, 235, 1)',
-                        'rgba(255, 206, 86, 1)',
-                        'rgba(75, 192, 192, 1)',
-                        'rgba(153, 102, 255, 1)'
+                        'rgba(255, 99, 132, 1)',     // 승용
+                        'rgba(54, 162, 235, 1)',     // SUV
+                        'rgba(255, 206, 86, 1)',     // 승합
+                        'rgba(75, 192, 192, 1)'      // EV
                     ],
                     borderWidth: 1,
                     hoverOffset: 10
@@ -352,7 +364,19 @@
                         titleColor: '#000',
                         bodyColor: '#000',
                         borderColor: '#ddd',
-                        borderWidth: 1
+                        borderWidth: 1,
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed !== null) {
+                                    label += context.parsed + ' %';
+                                }
+                                return label;
+                            }
+                        }
                     },
                     title: {
                         display: false,

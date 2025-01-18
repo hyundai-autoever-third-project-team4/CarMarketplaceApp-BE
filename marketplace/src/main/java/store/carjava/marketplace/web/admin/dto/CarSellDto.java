@@ -1,5 +1,6 @@
 package store.carjava.marketplace.web.admin.dto;
 
+import java.util.Map;
 import store.carjava.marketplace.app.car_purchase_history.entity.CarPurchaseHistory;
 import store.carjava.marketplace.app.car_sales_history.entity.CarSalesHistory;
 
@@ -18,6 +19,21 @@ public record CarSellDto(
         Long saleId
 
 ) {
+
+    // 상태 설명 매핑
+    private static final Map<String, String> STATUS_DESCRIPTIONS = Map.of(
+            "AVAILABLE_FOR_PURCHASE", "구매 가능",
+            "PENDING_PURCHASE_APPROVAL", "구매 승인 대기",
+            "NOT_AVAILABLE_FOR_PURCHASE", "구매 불가",
+            "PENDING_SALE", "판매 승인 대기",
+            "SALE_APPROVED", "판매 승인"
+    );
+
+    // 상태 설명 반환
+    private static String getStatusDescription(String status) {
+        return STATUS_DESCRIPTIONS.getOrDefault(status, "알 수 없는 상태");
+    }
+
     public static CarSellDto of(CarSalesHistory history) {
         return new CarSellDto(
                 history.getMarketplaceCar().getId(),
@@ -27,7 +43,7 @@ public record CarSellDto(
                 history.getMarketplaceCar().getCarDetails().getLicensePlate(),
                 history.getMarketplaceCar().getMainImage(),
                 history.getMarketplaceCar().getMarketplaceRegistrationDate(),
-                history.getMarketplaceCar().getStatus(),
+                getStatusDescription(history.getMarketplaceCar().getStatus()),
                 history.getId()
         );
     }

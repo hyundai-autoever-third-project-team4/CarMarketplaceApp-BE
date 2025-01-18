@@ -1,8 +1,6 @@
 package store.carjava.marketplace.app.marketplace_car.repository;
 
-import com.querydsl.core.group.GroupBy;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -34,8 +32,8 @@ public interface MarketplaceCarRepository extends JpaRepository<MarketplaceCar, 
             "ORDER BY COUNT(likes) DESC limit 5")
     List<MarketplaceCar> findTop5ByLikeCount();
 
-
-    Page<MarketplaceCar> findByCarDetailsLicensePlate(String licensePlate, Pageable pageable);
+    @Query("SELECT m FROM MarketplaceCar m WHERE m.carDetails.licensePlate LIKE CONCAT(:licensePlate, '%')")
+    Page<MarketplaceCar> findByLicensePlateStartingWith(@Param("licensePlate") String licensePlate, Pageable pageable);
 
     Page<MarketplaceCar> findByCarDetailsModel(String model, Pageable pageable);
 

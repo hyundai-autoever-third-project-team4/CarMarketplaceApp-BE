@@ -9,11 +9,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import store.carjava.marketplace.app.car_purchase_history.entity.CarPurchaseHistory;
 import store.carjava.marketplace.app.car_purchase_history.repository.CarPurchaseHistoryRepository;
+import store.carjava.marketplace.app.car_sales_history.dto.CarSalesHistoryInfoDto;
 import store.carjava.marketplace.app.car_sales_history.entity.CarSalesHistory;
 import store.carjava.marketplace.app.car_sales_history.repository.CarSalesHistoryRepository;
 import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarSummaryDto;
 import store.carjava.marketplace.app.marketplace_car.entity.MarketplaceCar;
 import store.carjava.marketplace.app.marketplace_car.repository.MarketplaceCarRepository;
+import store.carjava.marketplace.app.reservation.dto.ReservationDetailDto;
+import store.carjava.marketplace.app.reservation.entity.Reservation;
+import store.carjava.marketplace.app.reservation.repository.ReservationRepository;
 import store.carjava.marketplace.app.review.repository.ReviewRepository;
 import store.carjava.marketplace.app.user.dto.UserSummaryDto;
 import store.carjava.marketplace.app.user.entity.User;
@@ -34,6 +38,7 @@ public class AdminService {
     private final MarketplaceCarRepository marketplaceCarRepository;
     private final CarSalesHistoryRepository carSalesHistoryRepository;
     private final ReviewRepository reviewRepository;
+    private final ReservationRepository reservationRepository;
 
     // 전체 사용자 목록을 페이지네이션으로 가져오는 메서드
     public Page<UserSummaryDto> getUsers(int page, int size) {
@@ -61,6 +66,19 @@ public class AdminService {
 
     public Long getTotalPurchases() {
         return carPurchaseHistoryRepository.count();
+    }
+
+    public List<CarPurchaseDto> getCarPurchases() {
+        return carPurchaseHistoryRepository.findAllByMarketplaceCarStatus(
+                        "PENDING_PURCHASE_APPROVAL")
+                .stream().map(CarPurchaseDto::of)
+                .collect(Collectors.toList());
+    }
+
+    public List<CarSellDto> getCarSales() {
+        return carSalesHistoryRepository.findAllByMarketplaceCarStatus("PENDING_SALE")
+                .stream().map(CarSellDto::of)
+                .collect(Collectors.toList());
     }
 
     // 구매 내역에서 차량 상태가 대기중인 차 조회.
@@ -122,6 +140,13 @@ public class AdminService {
                 .map(MarketplaceCarSummaryDto::of);
     }
 
+    public Page<ReservationDetailDto> getReservationDetails(String reservationName,
+            String licensePlate, String status, String reservationDate, Pageable pageable) {
+        Page<Reservation> reservationsPage = reservationRepository.findAllWithFilters(
+                reservationName, licensePlate, status, reservationDate, pageable);
+        Page<ReservationDetailDto> dtoPage = reservationsPage.map(ReservationDetailDto::fromEntity);
+        return dtoPage;
+    }
     public Page<MarketplaceCarSummaryDto> searchCarsByModel(String model, int page, int size) {
         return marketplaceCarRepository.findByCarDetailsModel(model, PageRequest.of(page, size))
                 .map(MarketplaceCarSummaryDto::of);

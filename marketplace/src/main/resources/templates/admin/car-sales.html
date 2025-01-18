@@ -3,6 +3,8 @@
       layout:decorate="~{admin/layout}">
 <head>
   <title>차자바 차량 판매 관리</title>
+  <!-- Font Awesome for Icons -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <style>
     .sale-card {
       background: #f8f9fa;
@@ -41,136 +43,148 @@
 </head>
 <body>
 <div layout:fragment="content">
-  <h1 class="mb-4">차량 판매 관리</h1>
+  <div class="container-fluid p-4">
+    <h1 class="mb-4 text-primary d-flex align-items-center">
+      <i class="fa-solid fa-dollar-sign me-2"></i>차량 판매 관리
+    </h1>
 
-  <!-- 탭 네비게이션 -->
-  <ul class="nav nav-tabs">
-    <li class="nav-item">
-      <a class="nav-link active" id="waiting-tab" data-bs-toggle="tab" href="#waiting" role="tab"
-         aria-controls="waiting" aria-selected="true">판매 승인 대기</a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" id="canceled-tab" data-bs-toggle="tab" href="#canceled" role="tab"
-         aria-controls="canceled" aria-selected="false">판매 승인 취소</a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" id="completed-tab" data-bs-toggle="tab" href="#completed" role="tab"
-         aria-controls="completed" aria-selected="false">판매 승인 완료</a>
-    </li>
-  </ul>
+    <!-- 탭 네비게이션 -->
+    <ul class="nav nav-tabs">
+      <li class="nav-item">
+        <a class="nav-link active" id="waiting-tab" data-bs-toggle="tab" href="#waiting" role="tab"
+           aria-controls="waiting" aria-selected="true">판매 승인 대기</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" id="canceled-tab" data-bs-toggle="tab" href="#canceled" role="tab"
+           aria-controls="canceled" aria-selected="false">판매 승인 취소</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" id="completed-tab" data-bs-toggle="tab" href="#completed" role="tab"
+           aria-controls="completed" aria-selected="false">판매 승인 완료</a>
+      </li>
+    </ul>
 
-  <!-- 탭 내용 -->
-  <div class="tab-content">
-    <!-- 판매 승인 대기 -->
-    <div class="tab-pane fade show active" id="waiting" role="tabpanel" aria-labelledby="waiting-tab">
-      <div class="row">
-        <div class="col-12" th:each="sale : ${pendingSales}">
-          <div class="sale-card d-flex align-items-center">
-            <div class="me-4">
-              <img th:src="${sale.mainImage()}" class="car-image" alt="Car Image">
-            </div>
-            <div class="flex-grow-1">
-              <h5 th:text="${sale.carName()}">Car Model</h5>
-              <div class="d-flex flex-column">
+    <!-- 탭 내용 -->
+    <div class="tab-content">
+      <!-- 판매 승인 대기 -->
+      <div class="tab-pane fade show active" id="waiting" role="tabpanel"
+           aria-labelledby="waiting-tab">
+        <div class="row">
+          <div class="col-12" th:each="sale : ${pendingSales}">
+            <div class="sale-card d-flex align-items-center">
+              <div class="me-4">
+                <img th:src="${sale.mainImage()}" class="car-image" alt="Car Image">
+              </div>
+              <div class="flex-grow-1">
+                <h5 th:text="${sale.carName()}">Car Model</h5>
+                <div class="d-flex flex-column">
               <span>
                 <span class="info-label">판매 금액:</span>
-                <span class="info-value" th:text="${#numbers.formatInteger(sale.price(), 0, 'COMMA') + '원'}">금액</span>
+                <span class="info-value"
+                      th:text="${#numbers.formatInteger(sale.price(), 0, 'COMMA') + '원'}">금액</span>
               </span>
-                <span>
+                  <span>
                 <span class="info-label">차량 번호판:</span>
                 <span class="info-value" th:text="${sale.licensePlate()}">번호판</span>
               </span>
-                <span>
+                  <span>
                 <span class="info-label">판매자:</span>
                 <span class="info-value" th:text="${sale.userName()}">판매자</span>
               </span>
-                <span>
+                  <span>
                 <span class="info-label">판매 요청 날짜:</span>
-                <span class="info-value" th:text="${#temporals.format(sale.requestDate(), 'yyyy-MM-dd')}">날짜</span>
+                <span class="info-value"
+                      th:text="${#temporals.format(sale.requestDate(), 'yyyy-MM-dd')}">날짜</span>
               </span>
+                </div>
               </div>
-            </div>
-            <!-- 버튼 -->
-            <div class="d-flex flex-row gap-2">
-              <button class="btn btn-success btn-sm approve-btn"
-                      th:data-sale-id="${sale.carId()}"
-                      data-bs-toggle="modal"
-                      data-bs-target="#sampleModal">승인</button>
-              <button class="btn btn-danger btn-sm">취소</button>
-            </div>
-
-            <!-- 모달 삽입 -->
-            <div th:replace="~{admin/car-registration-modal :: modal}"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-
-    <!-- 판매 승인 취소 -->
-    <div class="tab-pane fade" id="canceled" role="tabpanel" aria-labelledby="canceled-tab">
-      <div class="row">
-        <div class="col-12">
-          <div class="sale-card d-flex align-items-center">
-            <div class="me-4">
-              <img
-                  src="https://certified-static.hyundai.com/contents/goods/shootConts/tobepic/02/exterior/GJK240903008702/PRD602_234.JPG"
-                  class="car-image" alt="Car Image">
-            </div>
-            <div class="flex-grow-1">
-              <h5>Kia K5 GT-Line</h5>
-              <div class="d-flex flex-column">
-                <span><span class="info-label">판매 금액:</span> <span class="info-value">4,200만원</span></span>
-                <span><span class="info-label">차량 번호판:</span> <span
-                    class="info-value">101다3030</span></span>
-                <span><span class="info-label">판매자:</span> <span
-                    class="info-value">김영희</span></span>
-                <span><span class="info-label">날짜:</span> <span class="info-value">2025-01-10</span></span>
+              <!-- 버튼 -->
+              <div class="d-flex flex-row gap-2">
+                <button class="btn btn-success btn-sm approve-btn"
+                        th:data-sale-id="${sale.carId()}"
+                        data-bs-toggle="modal"
+                        data-bs-target="#sampleModal">승인
+                </button>
+                <button class="btn btn-danger btn-sm">취소</button>
               </div>
-            </div>
-            <div>
-              <button class="btn btn-danger btn-sm">삭제</button>
+
+              <!-- 모달 삽입 -->
+              <div th:replace="~{admin/car-registration-modal :: modal}"></div>
             </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- 판매 승인 완료 -->
-    <div class="tab-pane fade" id="completed" role="tabpanel" aria-labelledby="completed-tab">
-      <div class="row">
-        <div class="col-12" th:each="sale : ${approvedSales}">
-          <div class="sale-card d-flex align-items-center">
-            <div class="me-4">
-              <img th:src="${sale.mainImage()}" class="car-image" alt="Car Image">
+
+      <!-- 판매 승인 취소 -->
+      <div class="tab-pane fade" id="canceled" role="tabpanel" aria-labelledby="canceled-tab">
+        <div class="row">
+          <div class="col-12">
+            <div class="sale-card d-flex align-items-center">
+              <div class="me-4">
+                <img
+                    src="https://certified-static.hyundai.com/contents/goods/shootConts/tobepic/02/exterior/GJK240903008702/PRD602_234.JPG"
+                    class="car-image" alt="Car Image">
+              </div>
+              <div class="flex-grow-1">
+                <h5>Kia K5 GT-Line</h5>
+                <div class="d-flex flex-column">
+                  <span><span class="info-label">판매 금액:</span> <span
+                      class="info-value">4,200만원</span></span>
+                  <span><span class="info-label">차량 번호판:</span> <span
+                      class="info-value">101다3030</span></span>
+                  <span><span class="info-label">판매자:</span> <span
+                      class="info-value">김영희</span></span>
+                  <span><span class="info-label">날짜:</span> <span
+                      class="info-value">2025-01-10</span></span>
+                </div>
+              </div>
+              <div>
+                <button class="btn btn-danger btn-sm">삭제</button>
+              </div>
             </div>
-            <div class="flex-grow-1">
-              <h5 th:text="${sale.carName()}">Car Model</h5>
-              <div class="d-flex flex-column">
+          </div>
+        </div>
+      </div>
+
+      <!-- 판매 승인 완료 -->
+      <div class="tab-pane fade" id="completed" role="tabpanel" aria-labelledby="completed-tab">
+        <div class="row">
+          <div class="col-12" th:each="sale : ${approvedSales}">
+            <div class="sale-card d-flex align-items-center">
+              <div class="me-4">
+                <img th:src="${sale.mainImage()}" class="car-image" alt="Car Image">
+              </div>
+              <div class="flex-grow-1">
+                <h5 th:text="${sale.carName()}">Car Model</h5>
+                <div class="d-flex flex-column">
                 <span>
               <span class="info-label">판매 금액:</span>
-              <span class="info-value" th:text="${#numbers.formatInteger(sale.price(), 0, 'COMMA') + '원'}">금액</span>
+              <span class="info-value"
+                    th:text="${#numbers.formatInteger(sale.price(), 0, 'COMMA') + '원'}">금액</span>
             </span>
-                <span>
+                  <span>
               <span class="info-label">차량 번호판:</span>
               <span class="info-value" th:text="${sale.licensePlate()}">번호판</span>
             </span>
-                <span>
+                  <span>
               <span class="info-label">판매자:</span>
               <span class="info-value" th:text="${sale.userName()}">판매자</span>
             </span>
-                <span>
+                  <span>
               <span class="info-label">판매 완료 날짜:</span>
-              <span class="info-value" th:text="${#temporals.format(sale.requestDate(), 'yyyy-MM-dd')}">날짜</span>
+              <span class="info-value"
+                    th:text="${#temporals.format(sale.requestDate(), 'yyyy-MM-dd')}">날짜</span>
             </span>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+
+
     </div>
-
-
   </div>
 
 </div>

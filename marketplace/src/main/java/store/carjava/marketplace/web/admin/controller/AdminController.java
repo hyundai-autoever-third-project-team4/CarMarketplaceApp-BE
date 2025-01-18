@@ -3,18 +3,20 @@ package store.carjava.marketplace.web.admin.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarSummaryDto;
+import store.carjava.marketplace.app.reservation.dto.ReservationDetailDto;
 import store.carjava.marketplace.app.user.dto.UserSummaryDto;
 import store.carjava.marketplace.app.user.entity.User;
 import store.carjava.marketplace.common.util.user.UserResolver;
 import store.carjava.marketplace.web.admin.dto.AdminInfo;
+import store.carjava.marketplace.web.admin.dto.CarPurchaseDto;
+import store.carjava.marketplace.web.admin.dto.CarSellDto;
 import store.carjava.marketplace.web.admin.service.AdminService;
 
 import java.util.List;
@@ -75,6 +77,29 @@ public class AdminController {
         }
         // 검색 조건이 없으면 전체 차량 반환
         return adminService.getCars(page, size);
+    }
+
+    @ModelAttribute("purchaseTasks")
+    public List<CarPurchaseDto> carPurchaseDtos() {
+        return adminService.getCarPurchases();
+    }
+
+    @ModelAttribute("salesTasks")
+    public List<CarSellDto> carSalesHistoryInfoDtos() {
+        return adminService.getCarSales();
+    }
+
+    @ModelAttribute("reservations")
+    public Page<ReservationDetailDto> populateReservations(
+            @RequestParam(value = "reservationName", required = false) String reservationName,
+            @RequestParam(value = "licensePlate", required = false) String licensePlate,
+            @RequestParam(value = "status", required = false) String status,
+            @RequestParam(value = "reservationDate", required = false) String reservationDate,
+            @RequestParam(value = "page", required = false) Integer page
+    ) {
+        int pageNumber = (page != null && page >= 0) ? page : 0;
+        Pageable pageable = PageRequest.of(pageNumber, 10); // 페이지당 10개 항목
+        return adminService.getReservationDetails(reservationName, licensePlate, status, reservationDate, pageable);
     }
 
     @ModelAttribute("carModels")
@@ -148,9 +173,9 @@ public class AdminController {
         return "admin/car-sales";
     }
 
-    @GetMapping("/test-drives")
+    @GetMapping("/reservations")
     public String testDrivesPage() {
-        return "admin/test-drives";
+        return "admin/reservations";
     }
 
 }

@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/layout}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>시승 예약 현황</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+        rel="stylesheet">
+  <!-- Font Awesome for Icons -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        rel="stylesheet">
+  <!-- Custom CSS -->
+  <style>
+    .car-image {
+      width: 150px;
+      height: auto;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+
+    .reservation-status {
+      font-weight: bold;
+    }
+
+    /* 추가 스타일 */
+    .filter-section {
+      background-color: #ffffff;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+    }
+
+    .filter-section .form-control, .filter-section .form-select {
+      border-radius: 5px;
+    }
+
+    .table-responsive {
+      background-color: #ffffff;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .badge-primary {
+      background-color: #0d6efd;
+    }
+
+    .badge-secondary {
+      background-color: #6c757d;
+    }
+
+    .badge-success {
+      background-color: #198754;
+    }
+
+    .badge-danger {
+      background-color: #dc3545;
+    }
+
+    .badge-warning {
+      background-color: #ffc107;
+      color: #212529;
+    }
+  </style>
+</head>
+
+<body>
+<div layout:fragment="content" class="content">
+  <div class="container-fluid p-4">
+    <h1 class="mb-4 text-primary"><i class="fa-solid fa-car-on me-2"></i></i>시승 예약 현황</h1>
+
+    <!-- 검색 및 필터 영역 -->
+    <div class="filter-section">
+      <form class="row g-3" method="GET" th:action="@{/admin/reservations}">
+        <!-- 예약자명 검색 -->
+        <div class="col-md-3">
+          <input type="text" class="form-control" placeholder="예약자명으로 검색"
+                 aria-label="예약자명 검색" name="reservationName" id="reservationName"
+                 th:value="${reservationName}">
+        </div>
+        <!-- 차량 번호 검색 -->
+        <div class="col-md-3">
+          <input type="text" class="form-control" placeholder="차량 번호로 검색"
+                 aria-label="차량 번호 검색" name="licensePlate" id="licensePlate"
+                 th:value="${licensePlate}">
+        </div>
+        <!-- 날짜 필터 -->
+        <div class="col-md-3">
+          <input type="date" class="form-control" name="reservationDate" id="reservationDate"
+                 th:value="${reservationDate}">
+        </div>
+        <!-- 검색 버튼 및 초기화 버튼 -->
+        <div class="col-md-12 d-flex justify-content-end">
+          <button type="submit" class="btn btn-primary me-2"><i class="fas fa-search me-1"></i>검색
+          </button>
+          <a href="/admin/reservations" class="btn btn-secondary"><i class="fas fa-undo me-1"></i>초기화</a>
+        </div>
+      </form>
+    </div>
+
+    <!-- 예약 현황 테이블 -->
+    <div class="table-responsive">
+      <table class="table table-striped table-hover align-middle">
+        <thead class="table-dark">
+        <tr>
+          <th>예약 번호</th>
+          <th>차량 정보</th>
+          <th>예약자 정보</th>
+          <th>방문 예정일</th>
+          <th>방문 시각</th>
+          <th>상태</th>
+          <th>상세 정보</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="reservation : ${reservations.content}">
+          <td th:text="${reservation.reservationNumber}">예약번호</td>
+          <td>
+            <div class="d-flex align-items-center">
+              <img th:src="${reservation.carImageUrl}" alt="Car Image"
+                   class="img-thumbnail car-image me-3">
+              <div>
+                <div th:text="${reservation.carBrand + ' ' + reservation.carModel}">차량명</div>
+                <small class="text-muted" th:text="${reservation.carLicensePlate}">번호판</small>
+              </div>
+            </div>
+          </td>
+          <td>
+            <div th:text="${reservation.customerName}">예약자명</div>
+            <small class="text-muted"
+                   th:text="${@thymeleafUtils.formatPhone(reservation.customerPhone)}">연락처</small>
+          </td>
+          <td th:text="${#temporals.format(reservation.reservationDate, 'yyyy-MM-dd')}">방문 예정일</td>
+          <td th:text="${reservation.reservationTime}">방문 시각</td>
+          <td>
+                        <span th:class="'badge bg-primary ' +
+                            (${reservation.status} == '예약 확정' ? 'bg-primary' :
+                            (${reservation.status} == '시승 완료' ? 'bg-success' :
+                            (${reservation.status} == '취소' ? 'bg-danger' : 'bg-secondary')))"
+                              th:text="${reservation.status}">상태</span>
+          </td>
+          <td>
+            <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal"
+                    th:attr="data-bs-target='#reservationModal_' + ${reservation.id}"
+                    aria-label="상세 정보 보기">
+              <i class="fas fa-eye me-1"></i> 보기
+            </button>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+
+      <!-- 타임리프 반복문을 활용한 모달 -->
+      <div th:each="reservation : ${reservations.content}">
+        <div class="modal fade" th:id="'reservationModal_' + ${reservation.id}" tabindex="-1"
+             aria-labelledby="reservationModalLabel" aria-hidden="true">
+          <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+              <!-- 모달 헤더 -->
+              <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" th:text="'예약 상세 정보 - ' + ${reservation.reservationNumber}"
+                    id="reservationModalLabel">예약 상세 정보</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="닫기"></button>
+              </div>
+              <!-- 모달 본문 -->
+              <div class="modal-body">
+                <div class="row">
+                  <!-- 차량 정보 -->
+                  <div class="col-md-6">
+                    <div>
+                      <img th:src="${reservation.carImageUrl}" alt="Car Image">
+                      <div class="mt-2 p-1">
+                        <h5 class="text-primary">차량 정보</h5>
+                        <p class="card-title mb-1"
+                           th:text="${reservation.carBrand + ' ' + reservation.carModel}">
+                          차량명</p>
+                        <hr>
+                        <h5 class="text-success">번호판</h5>
+                        <p class="card-text text-muted" th:text="${reservation.carLicensePlate}">
+                          번호판</p>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- 예약자 정보 및 예약 정보 -->
+                  <div class="col-md-6 mb-4">
+                    <div class="mb-3">
+                      <h5 class="text-primary">예약자 정보</h5>
+                      <p><strong>이름:</strong> <span
+                          th:text="${reservation.customerName}">예약자명</span></p>
+                      <p><strong>연락처:</strong> <span
+                          th:text="${reservation.customerPhone}">연락처</span></p>
+                    </div>
+                    <hr>
+                    <div class="mb-3">
+                      <h5 class="text-primary">예약 정보</h5>
+                      <p><strong>방문 예정일:</strong>
+                        <span class="badge bg-primary"
+                              th:text="${#temporals.format(reservation.reservationDate, 'yyyy-MM-dd')}">방문 예정일</span>
+                      </p>
+                      <p><strong>예약 확정일:</strong>
+                        <span class="badge bg-success"
+                              th:text="${#temporals.format(reservation.createdAt, 'yyyy-MM-dd')}">예약 확정일</span>
+                      </p>
+                      <p><strong>방문 시각:</strong> <span class="badge bg-warning"
+                                                       th:text="${reservation.reservationTime}">방문 시각</span>
+                      </p>
+                      <p><strong>상태:</strong>
+                        <span th:class="'badge ' +
+                              (${reservation.status} == '예약 확정' ? 'bg-primary' :
+                              (${reservation.status} == '시승 완료' ? 'bg-success' :
+                              (${reservation.status}== '취소' ? 'bg-danger' : 'bg-secondary')))"
+                              th:text="${reservation.status}">상태</span>
+                      </p>
+                    </div>
+                    <hr>
+                    <div>
+                      <h5 class="text-primary">시승소 정보</h5>
+                      <p><strong>시승소:</strong> <span
+                          th:text="${reservation.testDriverCenterName}">서울 시승소</span></p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- 모달 푸터 -->
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+                <!-- 필요 시 추가 버튼 (예: 수정, 취소 등) -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 페이지네이션 -->
+      <nav aria-label="Page navigation" class="mt-4">
+        <ul class="pagination justify-content-center">
+          <!-- 이전 버튼 -->
+          <li class="page-item" th:classappend="${reservations.number == 0} ? 'disabled' : ''">
+            <a class="page-link"
+               th:href="@{/admin/reservations(page=${reservations.number - 1}, reservationName=${reservationName}, licensePlate=${licensePlate}, status=${status}, reservationDate=${reservationDate})}"
+               aria-label="Previous">
+              <span aria-hidden="true">&laquo;</span>
+            </a>
+          </li>
+          <!-- 페이지 번호 -->
+          <li class="page-item" th:each="i : ${#numbers.sequence(0, reservations.totalPages - 1)}"
+              th:classappend="${i == reservations.number} ? 'active' : ''">
+            <a class="page-link"
+               th:href="@{/admin/reservations(page=${i}, reservationName=${reservationName}, licensePlate=${licensePlate}, status=${status}, reservationDate=${reservationDate})}"
+               th:text="${i + 1}">1</a>
+          </li>
+          <!-- 다음 버튼 -->
+          <li class="page-item"
+              th:classappend="${reservations.number + 1 >= reservations.totalPages} ? 'disabled' : ''">
+            <a class="page-link"
+               th:href="@{/admin/reservations(page=${reservations.number + 1}, reservationName=${reservationName}, licensePlate=${licensePlate}, status=${status}, reservationDate=${reservationDate})}"
+               aria-label="Next">
+              <span aria-hidden="true">&raquo;</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS Bundle (includes Popper) -->
+  <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</div>
+</body>
+</html>
