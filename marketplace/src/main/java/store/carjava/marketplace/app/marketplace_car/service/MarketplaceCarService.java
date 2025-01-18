@@ -392,6 +392,7 @@ public class MarketplaceCarService {
                 .marketplaceRegistrationDate(LocalDate.now())
                 .testDriveCenter(testDriveCenter) // 연관된 TestDriveCenter 설정
                 .mainImage(car.getMainImage())
+                .carSalesHistories(car.getCarSalesHistories())
                 .build();
 
         // 차량 저장
