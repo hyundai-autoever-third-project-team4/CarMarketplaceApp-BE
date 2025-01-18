@@ -47,9 +47,7 @@
 
     <!-- 검색 영역 -->
     <div class="row mb-4">
-
-
-        <div class="col-md-4">
+        <div class="col-md-6">
             <form class="input-group" method="GET" th:action="@{/admin/cars}">
                 <input type="text" class="form-control" placeholder="차량 번호판으로 검색 (예: 303누7499)"
                        aria-label="Search" name="licensePlate" id="licensePlate"
@@ -57,8 +55,8 @@
                 <button class="btn btn-primary" type="submit">검색</button>
             </form>
         </div>
-
-        <div class="col-md-4">
+<!--        모델 선택 필터-->
+        <div class="col-md-3">
             <form class="input-group" method="GET" th:action="@{/admin/cars}">
                 <select class="form-select" name="model" id="model" onchange="this.form.submit()">
                     <option value="">모델 선택</option>
@@ -67,6 +65,20 @@
                             th:text="${model}"
                             th:selected="${param.model == model}">
                     </option>
+                </select>
+            </form>
+        </div>
+
+        <!-- 상태 선택 필터 -->
+        <div class="col-md-3">
+            <form class="input-group" method="GET" th:action="@{/admin/cars}">
+                <select class="form-select" name="status" id="status" onchange="this.form.submit()">
+                    <option value="">상태 선택</option>
+                    <option value="AVAILABLE_FOR_PURCHASE" th:selected="${param.status == 'AVAILABLE_FOR_PURCHASE'}">구매가능</option>
+                    <option value="PENDING_PURCHASE_APPROVAL" th:selected="${param.status == 'PENDING_PURCHASE_APPROVAL'}">구매 승인 대기</option>
+                    <option value="NOT_AVAILABLE_FOR_PURCHASE" th:selected="${param.status == 'NOT_AVAILABLE_FOR_PURCHASE'}">구매 불가</option>
+                    <option value="PENDING_SALE" th:selected="${param.status == 'PENDING_SALE'}">판매 승인 대기</option>
+                    <option value="SALE_APPROVED" th:selected="${param.status == 'SALE_APPROVED'}">판매 승인</option>
                 </select>
             </form>
         </div>
@@ -107,17 +119,18 @@
                 <td th:text="${@thymeleafUtils.formatNumber(car.mileage) + ' km'}">주행거리</td>
                 <td th:text="${@thymeleafUtils.formatNumber(car.price) + ' 원'}">가격</td>
                 <td>
-                    <span th:classappend="'badge ' +
-                        (car.status == 'AVAILABLE_FOR_PURCHASE' ? 'bg-success' :
-                        (car.status == 'PENDING_PURCHASE_APPROVAL' ? 'bg-warning' :
-                        (car.status == 'NOT_AVAILABLE_FOR_PURCHASE' ? 'bg-danger' :
-                        (car.status == 'PENDING_SALE' ? 'bg-info' :
-                        (car.status == 'SALE_APPROVED' ? 'bg-primary' : 'bg-secondary')))))"
-                          th:text="${car.status}">
+                    <span class="badge"
+                          th:class="${'badge ' +
+                          (car.status == '구매 가능' ? 'bg-success' :
+                          (car.status == '구매 승인 대기' ? 'bg-warning' :
+                          (car.status == '구매 불가' ? 'bg-danger' :
+                          (car.status == '판매 승인 대기' ? 'bg-info' :
+                          (car.status == '판매 승인' ? 'bg-primary' : 'bg-secondary')))))} "
+                          th:text="${car.status}">상태
                     </span>
                 </td>
                 <td>
-                    <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal"
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-toggle="modal"
                             th:attr="data-bs-target='#carModal_' + ${car.id}">보기
                     </button>
                 </td>

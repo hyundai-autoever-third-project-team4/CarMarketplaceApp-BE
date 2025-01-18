@@ -130,4 +130,9 @@ public class AdminService {
     public List<String> getDistinctCarModels() {
         return marketplaceCarRepository.findDistinctModels();
     }
+
+    public Page<MarketplaceCarSummaryDto> searchCarsByStatus(String status, int page, int size) {
+        return marketplaceCarRepository.findByStatus(status, PageRequest.of(page, size))
+                .map(MarketplaceCarSummaryDto::of);
+    }
 }

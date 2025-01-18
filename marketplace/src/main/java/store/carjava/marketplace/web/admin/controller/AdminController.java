@@ -56,6 +56,7 @@ public class AdminController {
     public Page<MarketplaceCarSummaryDto> cars(
             @RequestParam(value = "licensePlate", required = false) String licensePlate,
             @RequestParam(value = "model", required = false) String model,
+            @RequestParam(value = "status", required = false) String status,
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size) {
         // 검색 조건이 없으면 전체 차량 반환
@@ -66,6 +67,11 @@ public class AdminController {
         // 모델 검색 조건이 있는 경우
         if (model != null && !model.isBlank()) {
             return adminService.searchCarsByModel(model, page, size);
+        }
+
+        // 상태 검색 조건
+        if (status != null && !status.isBlank()) {
+            return adminService.searchCarsByStatus(status, page, size);
         }
         // 검색 조건이 없으면 전체 차량 반환
         return adminService.getCars(page, size);

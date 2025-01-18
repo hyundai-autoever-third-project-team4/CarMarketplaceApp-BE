@@ -34,10 +34,13 @@ public interface MarketplaceCarRepository extends JpaRepository<MarketplaceCar, 
             "ORDER BY COUNT(likes) DESC limit 5")
     List<MarketplaceCar> findTop5ByLikeCount();
 
+
     Page<MarketplaceCar> findByCarDetailsLicensePlate(String licensePlate, Pageable pageable);
 
     Page<MarketplaceCar> findByCarDetailsModel(String model, Pageable pageable);
 
     @Query("SELECT DISTINCT c.carDetails.model FROM MarketplaceCar c ORDER BY c.carDetails.model")
     List<String> findDistinctModels();
+
+    Page<MarketplaceCar> findByStatus(String status, Pageable pageable);
 }
