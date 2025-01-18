@@ -1,132 +1,273 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{admin/layout}">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/layout}">
 <head>
-    <title>차자바 차량 구매 관리</title>
-    <style>
-        .purchase-card {
-            background: #f8f9fa;
-            border: 1px solid #e9ecef;
-            border-radius: 8px;
-            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-        .purchase-card .car-image {
-            height: 120px;
-            object-fit: cover;
-            border-radius: 8px;
-        }
-        .purchase-card h5 {
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-        .purchase-card .info-label {
-            font-weight: bold;
-            color: #495057;
-        }
-        .purchase-card .info-value {
-            font-size: 0.9rem;
-            color: #6c757d;
-        }
-        .tab-content {
-            margin-top: 20px;
-        }
-    </style>
+  <title>차자바 차량 구매 관리</title>
+  <!-- Font Awesome for Icons -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    .purchase-card {
+      background: #f8f9fa;
+      border: 1px solid #e9ecef;
+      border-radius: 8px;
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .purchase-card .car-image {
+      height: 120px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+
+    .purchase-card h5 {
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .purchase-card .info-label {
+      font-weight: bold;
+      color: #495057;
+    }
+
+    .purchase-card .info-value {
+      font-size: 0.9rem;
+      color: #6c757d;
+    }
+
+    .tab-content {
+      margin-top: 20px;
+    }
+
+    /* 로딩 모달 스피너 스타일 */
+    .loading-spinner-modal .modal-content {
+      background: rgba(255, 255, 255, 0.8);
+      border: none;
+      box-shadow: none;
+    }
+
+    .loading-spinner-modal .spinner-border {
+      width: 3rem;
+      height: 3rem;
+    }
+
+    .loading-spinner-modal .modal-body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100px;
+    }
+
+    /* 필요시 z-index 조정 (Bootstrap 기본값: 모달 1050) */
+    #loadingModal {
+      z-index: 1060;
+    }
+  </style>
 </head>
 <body>
 <div layout:fragment="content">
-    <h1 class="mb-4">차량 구매 관리</h1>
+  <div class="container-fluid p-4">
+    <h1 class="mb-4 text-primary d-flex align-items-center">
+      <i class="fa-solid fa-cart-shopping me-2"></i>차량 구매 관리
+    </h1>
 
     <!-- 탭 네비게이션 -->
     <ul class="nav nav-tabs">
-        <li class="nav-item">
-            <a class="nav-link active" id="waiting-tab" data-bs-toggle="tab" href="#waiting" role="tab" aria-controls="waiting" aria-selected="true">구매 승인 대기</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" id="canceled-tab" data-bs-toggle="tab" href="#canceled" role="tab" aria-controls="canceled" aria-selected="false">구매 승인 취소</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" id="completed-tab" data-bs-toggle="tab" href="#completed" role="tab" aria-controls="completed" aria-selected="false">구매 승인 완료</a>
-        </li>
+      <li class="nav-item">
+        <a class="nav-link active" id="waiting-tab" data-bs-toggle="tab" href="#waiting" role="tab"
+           aria-controls="waiting" aria-selected="true">구매 승인 대기</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" id="canceled-tab" data-bs-toggle="tab" href="#canceled" role="tab"
+           aria-controls="canceled" aria-selected="false">구매 승인 취소</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" id="completed-tab" data-bs-toggle="tab" href="#completed" role="tab"
+           aria-controls="completed" aria-selected="false">구매 승인 완료</a>
+      </li>
     </ul>
 
     <!-- 탭 내용 -->
     <div class="tab-content">
-        <!-- 구매 승인 대기 -->
-        <div class="tab-pane fade show active" id="waiting" role="tabpanel" aria-labelledby="waiting-tab">
-            <div class="row">
-                <!-- Mock Data Example -->
-                <div class="col-12">
-                    <div class="purchase-card d-flex align-items-center">
-                        <div class="me-4">
-                            <img src="https://certified-static.hyundai.com/contents/goods/shootConts/tobepic/02/exterior/GJK240903008701/PRD602_233.JPG" class="car-image" alt="Car Image">
-                        </div>
-                        <div class="flex-grow-1">
-                            <h5>GV70 2.5 Turbo Edition</h5>
-                            <div class="d-flex flex-column">
-                                <span><span class="info-label">구매 금액:</span> <span class="info-value">5,800만원</span></span>
-                                <span><span class="info-label">차량 번호판:</span> <span class="info-value">303누7499</span></span>
-                                <span><span class="info-label">구매자:</span> <span class="info-value">박철수</span></span>
-                                <span><span class="info-label">날짜:</span> <span class="info-value">2025-01-11</span></span>
-                            </div>
-                        </div>
-                        <div>
-                            <button class="btn btn-success btn-sm">승인</button>
-                        </div>
-                    </div>
+      <!-- 구매 승인 대기 탭 -->
+      <div class="tab-pane fade show active" id="waiting" role="tabpanel"
+           aria-labelledby="waiting-tab">
+        <div class="row">
+          <div class="col-12" th:each="purchase : ${pendingPurchases}">
+            <div class="purchase-card d-flex align-items-center">
+              <div class="me-4">
+                <img th:src="${purchase.mainImage}" class="car-image" alt="Car Image">
+              </div>
+              <div class="flex-grow-1">
+                <h5 th:text="${purchase.carName()}">Car Model</h5>
+                <div class="d-flex flex-column">
+                <span><span class="info-label">구매 금액:</span> <span class="info-value"
+                                                                   th:text="${#numbers.formatInteger(purchase.price, 0, 'COMMA') + '원'}">금액</span></span>
+                  <span><span class="info-label">차량 번호판:</span> <span class="info-value"
+                                                                      th:text="${purchase.licensePlate}">번호판</span></span>
+                  <span><span class="info-label">구매자:</span> <span class="info-value"
+                                                                   th:text="${purchase.userName}">구매자</span></span>
+                  <span><span class="info-label">날짜:</span> <span class="info-value"
+                                                                  th:text="${#temporals.format(purchase.paymentDate, 'yyyy-MM-dd')}">날짜</span></span>
                 </div>
+              </div>
+              <div class="d-flex flex-row gap-2">
+                <button class="btn btn-success btn-sm approve-btn"
+                        th:data-purchase-id="${purchase.orderId()}">승인
+                </button>
+                <button class="btn btn-danger btn-sm">취소</button>
+              </div>
             </div>
+          </div>
         </div>
+      </div>
 
-        <!-- 구매 승인 취소 -->
-        <div class="tab-pane fade" id="canceled" role="tabpanel" aria-labelledby="canceled-tab">
-            <div class="row">
-                <!-- Mock Data Example -->
-                <div class="col-12">
-                    <div class="purchase-card d-flex align-items-center">
-                        <div class="me-4">
-                            <img src="https://certified-static.hyundai.com/contents/goods/shootConts/tobepic/02/exterior/GJK240903008702/PRD602_234.JPG" class="car-image" alt="Car Image">
-                        </div>
-                        <div class="flex-grow-1">
-                            <h5>GV80 Prestige</h5>
-                            <div class="d-flex flex-column">
-                                <span><span class="info-label">구매 금액:</span> <span class="info-value">7,200만원</span></span>
-                                <span><span class="info-label">차량 번호판:</span> <span class="info-value">504다6321</span></span>
-                                <span><span class="info-label">구매자:</span> <span class="info-value">김영희</span></span>
-                                <span><span class="info-label">날짜:</span> <span class="info-value">2025-01-10</span></span>
-                            </div>
-                        </div>
-                        <div>
-                            <button class="btn btn-danger btn-sm">삭제</button>
-                        </div>
-                    </div>
+      <!-- 구매 승인 취소 탭 -->
+      <div class="tab-pane fade" id="canceled" role="tabpanel" aria-labelledby="canceled-tab">
+        <div class="row">
+          <!-- Mock Data Example -->
+          <div class="col-12">
+            <div class="purchase-card d-flex align-items-center">
+              <div class="me-4">
+                <img
+                    src="https://certified-static.hyundai.com/contents/goods/shootConts/tobepic/02/exterior/GJK240903008702/PRD602_234.JPG"
+                    class="car-image" alt="Car Image">
+              </div>
+              <div class="flex-grow-1">
+                <h5>GV80 Prestige</h5>
+                <div class="d-flex flex-column">
+                  <span><span class="info-label">구매 금액:</span> <span
+                      class="info-value">7,200만원</span></span>
+                  <span><span class="info-label">차량 번호판:</span> <span
+                      class="info-value">504다6321</span></span>
+                  <span><span class="info-label">구매자:</span> <span
+                      class="info-value">김영희</span></span>
+                  <span><span class="info-label">날짜:</span> <span
+                      class="info-value">2025-01-10</span></span>
                 </div>
+              </div>
+              <div>
+                <button class="btn btn-danger btn-sm">삭제</button>
+              </div>
             </div>
+          </div>
         </div>
+      </div>
 
-        <!-- 구매 승인 완료 -->
-        <div class="tab-pane fade" id="completed" role="tabpanel" aria-labelledby="completed-tab">
-            <div class="row">
-                <!-- Mock Data Example -->
-                <div class="col-12">
-                    <div class="purchase-card d-flex align-items-center">
-                        <div class="me-4">
-                            <img src="https://certified-static.hyundai.com/contents/goods/shootConts/tobepic/02/exterior/HDN241014009627/PRD602_233.JPG/dims/crop/2304x1536+600+770/resize/380x253/optimize" class="car-image" alt="Car Image">
-                        </div>
-                        <div class="flex-grow-1">
-                            <h5>Sonata N Line</h5>
-                            <div class="d-flex flex-column">
-                                <span><span class="info-label">구매 금액:</span> <span class="info-value">4,000만원</span></span>
-                                <span><span class="info-label">차량 번호판:</span> <span class="info-value">105가1234</span></span>
-                                <span><span class="info-label">구매자:</span> <span class="info-value">이민호</span></span>
-                                <span><span class="info-label">날짜:</span> <span class="info-value">2025-01-09</span></span>
-                            </div>
-                        </div>
-                    </div>
+      <!-- 구매 승인 완료 탭 -->
+      <div class="tab-pane fade" id="completed" role="tabpanel" aria-labelledby="completed-tab">
+        <div class="row">
+          <div class="col-12" th:each="purchase : ${completedPurchases}">
+            <div class="purchase-card d-flex align-items-center">
+              <div class="me-4">
+                <img th:src="${purchase.mainImage}" class="car-image" alt="Car Image">
+              </div>
+              <div class="flex-grow-1 p-3 border rounded shadow-sm bg-light">
+                <h5 class="text-primary fw-bold mb-3" th:text="${purchase.carName()}">Car Model</h5>
+                <div class="d-flex flex-column">
+                <span class="mb-2">
+                  <span class="badge bg-secondary text-white me-2">구매 금액</span>
+                  <span class="info-value fw-bold"
+                        th:text="${#numbers.formatInteger(purchase.price, 0, 'COMMA') + ' 원'}">금액</span>
+                </span>
+                  <span class="mb-2">
+                  <span class="badge bg-info text-dark me-2">차량 번호판</span>
+                  <span class="info-value fw-bold" th:text="${purchase.licensePlate}">번호판</span>
+                </span>
+                  <span class="mb-2">
+                  <span class="badge bg-success text-white me-2">구매자</span>
+                  <span class="info-value fw-bold" th:text="${purchase.userName}">구매자</span>
+                </span>
+                  <span class="mb-2">
+                  <span class="badge bg-warning text-dark me-2">결제 날짜</span>
+                  <span class="info-value fw-bold"
+                        th:text="${#temporals.format(purchase.paymentDate, 'yyyy-MM-dd')}">날짜</span>
+                </span>
+                  <span>
+                  <span class="badge bg-danger text-dark me-2">승인 날짜</span>
+                  <span class="info-value fw-bold"
+                        th:text="${#temporals.format(purchase.approvedDate, 'yyyy-MM-dd')}">날짜</span>
+                </span>
                 </div>
+              </div>
             </div>
+          </div>
         </div>
+      </div>
     </div>
+
+    <!-- 로딩 스피너 모달 -->
+    <div class="modal" id="loadingModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static"
+         data-bs-keyboard="false">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content loading-spinner-modal">
+          <div class="modal-body text-center">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+            <div class="mt-3">처리 중입니다...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script th:inline="javascript">
+    // 함수를 전역 스코프로 이동
+    function approvePurchase(purchaseId) {
+      // 로딩 모달 표시
+      var loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
+      loadingModal.show();
+
+      fetch(`/admin/car-purchases/${purchaseId}/approve`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      })
+      .then(response => {
+        // 로딩 모달 숨기기
+        loadingModal.hide();
+
+        if (response.ok) {
+          alert('구매가 승인되었습니다.');
+          location.reload();
+        } else {
+          alert('구매 승인 처리 중 오류가 발생했습니다.');
+        }
+      })
+      .catch(error => {
+        // 로딩 모달 숨기기
+        loadingModal.hide();
+        console.error('Error:', error);
+        alert('구매 승인 처리 중 오류가 발생했습니다.');
+      });
+    }
+
+    // DOM 로드 후 실행되는 코드
+    document.addEventListener('DOMContentLoaded', function () {
+      // 승인 버튼 클릭 이벤트
+      document.querySelectorAll('.approve-btn').forEach(button => {
+        button.addEventListener('click', function () {
+          const purchaseId = this.getAttribute('data-purchase-id');
+          if (confirm('구매를 승인하시겠습니까?')) {
+            approvePurchase(purchaseId);
+          }
+        });
+      });
+    });
+  </script>
 </div>
+
+<!-- Bootstrap JS 및 의존성 추가 -->
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"
+        integrity="sha384-oBqDVmMzP1j2X5rXQ4O+gtvY6VR2VQFLt1XEcJR7rP7VJ7p2jrH6k7edCBlgTfG7"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"
+        integrity="sha384-QJHtvGhmr9bInh7dO7PU6b6mdVAdkjW18jRhE5GkppG1w3M0B6T9ULrFQbRZT3l9"
+        crossorigin="anonymous"></script>
 </body>
 </html>

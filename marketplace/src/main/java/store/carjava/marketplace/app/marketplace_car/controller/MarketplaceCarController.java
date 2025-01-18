@@ -28,6 +28,7 @@ import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarResponse;
 
 import store.carjava.marketplace.app.marketplace_car.service.MarketplaceCarService;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -117,12 +118,24 @@ public class MarketplaceCarController {
     @PutMapping("/car/sale/approve")
     public ResponseEntity<String> approveCar(
             @RequestParam(name = "carId") String carId,
-            @RequestParam(name = "testDriveCenterName") String testDriveCenterName,
+            @RequestParam(name = "testDriveCenterId") Long testDriveCenterId,
             @RequestParam(name = "price") Long price,
-            @RequestParam(name = "files") List<MultipartFile> files
-        ) {
+            @RequestParam(name = "exteriorImages", required = false) List<MultipartFile> exteriorImages,
+            @RequestParam(name = "interiorImages", required = false) List<MultipartFile> interiorImages,
+            @RequestParam(name = "wheelImages", required = false) List<MultipartFile> wheelImages,
+            @RequestParam(name = "additionalImages", required = false) List<MultipartFile> additionalImages
+    ) {
         try {
-            marketplaceCarService.approveCar(carId, testDriveCenterName, price, files);
+            // 모든 이미지 파일들을 하나의 리스트로 통합
+            List<MultipartFile> allImages = new ArrayList<>();
+            if (exteriorImages != null) allImages.addAll(exteriorImages);
+            if (interiorImages != null) allImages.addAll(interiorImages);
+            if (wheelImages != null) allImages.addAll(wheelImages);
+            if (additionalImages != null) allImages.addAll(additionalImages);
+
+
+
+            marketplaceCarService.approveCar(carId, testDriveCenterId, price, allImages);
             return ResponseEntity.ok("차량 판매가 승인되었습니다.");
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());

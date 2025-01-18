@@ -10,13 +10,13 @@ import org.springframework.web.multipart.MultipartFile;
 import store.carjava.marketplace.app.base_car.entity.BaseCar;
 import store.carjava.marketplace.app.base_car.repository.BaseCarRepository;
 
+import store.carjava.marketplace.app.car_sales_history.repository.CarSalesHistoryRepository;
 import store.carjava.marketplace.app.like.repository.LikeRepository;
 import store.carjava.marketplace.app.marketplace_car.dto.*;
 
 import store.carjava.marketplace.app.car_purchase_history.dto.CarPurchaseHistoryInfoDto;
 import store.carjava.marketplace.app.car_sales_history.dto.CarSalesHistoryInfoDto;
 import store.carjava.marketplace.app.car_sales_history.entity.CarSalesHistory;
-import store.carjava.marketplace.app.car_sales_history.repository.CarSalseHistoryRepository;
 import store.carjava.marketplace.app.like.dto.LikeInfoDto;
 import store.carjava.marketplace.app.marketplace_car.entity.MarketplaceCar;
 import store.carjava.marketplace.app.marketplace_car.exception.*;
@@ -32,6 +32,7 @@ import store.carjava.marketplace.app.review.entity.Review;
 import store.carjava.marketplace.app.review.repository.ReviewRepository;
 import store.carjava.marketplace.app.test_drive_center.dto.TestDriveCenterChangeDto;
 import store.carjava.marketplace.app.test_drive_center.entity.TestDriveCenter;
+import store.carjava.marketplace.app.test_drive_center.exception.TestDriverCenterIdNotFoundException;
 import store.carjava.marketplace.app.test_drive_center.repository.TestDriveCenterRepository;
 import store.carjava.marketplace.app.user.entity.User;
 import store.carjava.marketplace.common.security.UserNotAuthenticatedException;
@@ -54,21 +55,22 @@ public class MarketplaceCarService {
     private final MarketplaceCarRepository marketplaceCarRepository;
     private final BaseCarRepository baseCarRepository;
     private final TestDriveCenterRepository testDriveCenterRepository;
-    private final CarSalseHistoryRepository carSalseHistoryRepository;
+    private final CarSalesHistoryRepository carSalesHistoryRepository;
     private final UserResolver userResolver;
     private final ImageUploader imageUploader;
     private final MarketplaceCarImageService marketplaceCarImageService;
     private final LikeRepository likeRepository;
     private final ReviewRepository reviewRepository;
 
-    public List<MarketplaceCarResponse> getFilteredCars(List<String> models, List<String> fuelTypes, String brand, List<String> colorTypes,
-                                                        String driveType, String licensePlate, String transmission,
-                                                        List<String> vehicleTypes, Integer modelYear, Integer seatingCapacity,
-                                                        Long maxPrice, Long minPrice, Integer minMileage,
-                                                        Integer maxMileage, Integer minModelYear, Integer maxModelYear,
-                                                        List<Long> optionIds, String testDriveCenterName, String status,
-                                                        Integer minEngineCapacity, Integer maxEngineCapacity, String name,
-                                                        String sortOrder, Pageable pageable
+    public List<MarketplaceCarResponse> getFilteredCars(List<String> models, List<String> fuelTypes,
+            String brand, List<String> colorTypes,
+            String driveType, String licensePlate, String transmission,
+            List<String> vehicleTypes, Integer modelYear, Integer seatingCapacity,
+            Long maxPrice, Long minPrice, Integer minMileage,
+            Integer maxMileage, Integer minModelYear, Integer maxModelYear,
+            List<Long> optionIds, String testDriveCenterName, String status,
+            Integer minEngineCapacity, Integer maxEngineCapacity, String name,
+            String sortOrder, Pageable pageable
     ) {
 
         // 비즈니스 로직 검증
@@ -82,7 +84,7 @@ public class MarketplaceCarService {
             throw new MaxPriceLessThanMinPriceException();
         }
 
-          // 프론트에서 예외처리 하지말고 빈배열로 반환해달라는 요청
+        // 프론트에서 예외처리 하지말고 빈배열로 반환해달라는 요청
 
 //        // 브랜드가 주어졌을 때, 해당 브랜드가 있는지 확인
 //        if (brand != null && !brandExists(brand)) {
@@ -97,10 +99,8 @@ public class MarketplaceCarService {
 //            }
 //        }
 
-
-
         //유효한 상태인지 확인
-        if(status != null && !isValidStatus(status)) {
+        if (status != null && !isValidStatus(status)) {
             throw new StatusNotFoundException(status);
         }
 
@@ -134,11 +134,9 @@ public class MarketplaceCarService {
     // 유효한 상태를 확인하는 메서드
     public boolean isValidStatus(String status) {
         List<String> validStatus = List.of("AVAILABLE_FOR_PURCHASE", "PENDING_PURCHASE_APPROVAL", "NOT_AVAILABLE_FOR_PURCHASE", "PENDING_SALE", "SALE_APPROVED");
-
         if(status == null || status.isEmpty()) {
             return false;
         }
-
         return validStatus.contains(status);
     }
 
@@ -165,7 +163,8 @@ public class MarketplaceCarService {
 
         // 각 MarketplaceCar의 like 개수를 기준으로 정렬
         List<MarketplaceCar> sortedCars = allCars.stream()
-                .sorted((car1, car2) -> Integer.compare(car2.getLikes().size(), car1.getLikes().size()))
+                .sorted((car1, car2) -> Integer.compare(car2.getLikes().size(),
+                        car1.getLikes().size()))
                 .limit(5)
                 .toList();
 
@@ -184,12 +183,11 @@ public class MarketplaceCarService {
         Boolean isLikedByUser = null;
         try {
             User currentUser = userResolver.getCurrentUser();
-            isLikedByUser = likeRepository.existsByMarketplaceCarIdAndUserId(car.getId(), currentUser.getId());
-        }
-        catch (UserNotAuthenticatedException e) {
+            isLikedByUser = likeRepository.existsByMarketplaceCarIdAndUserId(car.getId(),
+                    currentUser.getId());
+        } catch (UserNotAuthenticatedException e) {
             isLikedByUser = false;
         }
-
 
         // MarketplaceCarResponse 생성
         return MarketplaceCarResponse.builder()
@@ -206,7 +204,7 @@ public class MarketplaceCarService {
 
     // 상세 페이지에 전달해줄 데이터 Service
 
-    public MarketplaceCarDetailPageResponse getCarDetailPageResponse(String carId){
+    public MarketplaceCarDetailPageResponse getCarDetailPageResponse(String carId) {
 
         MarketplaceCar car = marketplaceCarRepository.findById(carId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 차량을 찾을 수 없습니다."));
@@ -214,7 +212,8 @@ public class MarketplaceCarService {
         Long likeCount = likeRepository.countByMarketplaceCarId(carId);
 
         // CarMarketplaceCarExtraOptionDto 리스트 생성
-        List<MarketplaceCarExtraOptionInfoDto> carMarketplaceCarExtraOptionDtos = car.getMarketplaceCarExtraOptions().stream()
+        List<MarketplaceCarExtraOptionInfoDto> carMarketplaceCarExtraOptionDtos = car.getMarketplaceCarExtraOptions()
+                .stream()
                 .map(extraOption -> MarketplaceCarExtraOptionInfoDto.builder()
                         .id(extraOption.getId())                   // ExtraOption의 ID
                         .marketplaceCarId(car.getId())             // MarketplaceCar의 ID
@@ -223,9 +222,9 @@ public class MarketplaceCarService {
                         .build())
                 .collect(Collectors.toList());
 
-
         // CarMarketplaceCarImageDto 리스트 생성
-        List<MarketplaceCarImageInfoDto> carMarketplaceCarImageDtos = car.getMarketplaceCarImages().stream()
+        List<MarketplaceCarImageInfoDto> carMarketplaceCarImageDtos = car.getMarketplaceCarImages()
+                .stream()
                 .map(marketplaceCarImage -> MarketplaceCarImageInfoDto.builder()
                         .id(marketplaceCarImage.getId())
                         .marketplaceCarId(car.getId())
@@ -234,7 +233,8 @@ public class MarketplaceCarService {
                 .collect(Collectors.toList());
 
         // marketplaceCarOptionInfoDto 리스트 생성
-        List<marketplaceCarOptionInfoDto> marketplaceCarOptionInfoDtos = car.getMarketplaceCarOptions().stream()
+        List<marketplaceCarOptionInfoDto> marketplaceCarOptionInfoDtos = car.getMarketplaceCarOptions()
+                .stream()
                 .map(marketplaceCarOption -> marketplaceCarOptionInfoDto.builder()
                         .id(marketplaceCarOption.getId())
                         .marketplaceCarId(marketplaceCarOption.getMarketplaceCar().getId())
@@ -247,16 +247,17 @@ public class MarketplaceCarService {
                 .collect(Collectors.toList());
 
         // ReviewCreateResponse 리스트 생성
-        List<Review> reviews = reviewRepository.findTop5ByMarketplaceCar_CarDetails_ModelOrderByCreatedAtDesc(car.getCarDetails().getModel());
+        List<Review> reviews = reviewRepository.findTop5ByMarketplaceCar_CarDetails_ModelOrderByCreatedAtDesc(
+                car.getCarDetails().getModel());
 
         // 1. 로그인한 유저 정보 가져오기.
 
         Boolean isLikedByUser = null;
         try {
             User currentUser = userResolver.getCurrentUser();
-            isLikedByUser = likeRepository.existsByMarketplaceCarIdAndUserId(car.getId(), currentUser.getId());
-        }
-        catch (UserNotAuthenticatedException e) {
+            isLikedByUser = likeRepository.existsByMarketplaceCarIdAndUserId(car.getId(),
+                    currentUser.getId());
+        } catch (UserNotAuthenticatedException e) {
             isLikedByUser = false;
         }
 
@@ -274,7 +275,9 @@ public class MarketplaceCarService {
         return MarketplaceCarDetailPageResponse.builder()
                 .id(car.getId())
                 .carDetails(car.getCarDetails())
-                .testDriveCenterName(car.getTestDriveCenter() != null ? car.getTestDriveCenter().getName() : null)
+                .testDriveCenterName(
+                        car.getTestDriveCenter() != null ? car.getTestDriveCenter().getName()
+                                : null)
                 .price(car.getPrice())
                 .marketplaceRegistrationDate(car.getMarketplaceRegistrationDate())
                 .status(car.getStatus())
@@ -342,7 +345,7 @@ public class MarketplaceCarService {
                 .build();
 
         // 판매 이력 저장
-        carSalseHistoryRepository.save(salesHstory);
+        carSalesHistoryRepository.save(salesHstory);
     }
 
     // 상태별 차량 조회 API Service
@@ -360,16 +363,21 @@ public class MarketplaceCarService {
                                     .brand(marketplaceCar.getCarDetails().getBrand())
                                     .name(marketplaceCar.getCarDetails().getName())
                                     .driveType(marketplaceCar.getCarDetails().getDriveType())
-                                    .engineCapacity(marketplaceCar.getCarDetails().getEngineCapacity())
-                                    .exteriorColor(marketplaceCar.getCarDetails().getExteriorColor())
-                                    .interiorColor(marketplaceCar.getCarDetails().getInteriorColor())
-                                    .registrationDate(marketplaceCar.getCarDetails().getRegistrationDate())
+                                    .engineCapacity(
+                                            marketplaceCar.getCarDetails().getEngineCapacity())
+                                    .exteriorColor(
+                                            marketplaceCar.getCarDetails().getExteriorColor())
+                                    .interiorColor(
+                                            marketplaceCar.getCarDetails().getInteriorColor())
+                                    .registrationDate(
+                                            marketplaceCar.getCarDetails().getRegistrationDate())
                                     .model(marketplaceCar.getCarDetails().getModel())
                                     .colorType(marketplaceCar.getCarDetails().getColorType())
                                     .fuelType(marketplaceCar.getCarDetails().getFuelType())
                                     .mileage(marketplaceCar.getCarDetails().getMileage())
                                     .modelYear(marketplaceCar.getCarDetails().getModelYear())
-                                    .seatingCapacity(marketplaceCar.getCarDetails().getSeatingCapacity())
+                                    .seatingCapacity(
+                                            marketplaceCar.getCarDetails().getSeatingCapacity())
                                     .transmission(marketplaceCar.getCarDetails().getTransmission())
                                     .vehicleType(marketplaceCar.getCarDetails().getVehicleType())
                                     .build()
@@ -387,14 +395,15 @@ public class MarketplaceCarService {
 
     // 관리자가 판매 승인했을 때 가격
     @Transactional
-    public void approveCar(String id, String testDriveCenterName, Long price, List<MultipartFile> files) throws IOException {
+    public void approveCar(String id, Long testDriveCenterId, Long price, List<MultipartFile> files)
+            throws IOException {
         // 차량 조회
         MarketplaceCar car = marketplaceCarRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("해당 차량을 찾을 수 없습니다."));
+                .orElseThrow(MarketplaceCarIdNotFoundException::new);
 
         // TestDriveCenter 조회
-        TestDriveCenter testDriveCenter = testDriveCenterRepository.findByName(testDriveCenterName)
-                .orElseThrow(() -> new IllegalArgumentException("해당 이름의 시승 센터를 찾을 수 없습니다."));
+        TestDriveCenter testDriveCenter = testDriveCenterRepository.findById(testDriveCenterId)
+                .orElseThrow(TestDriverCenterIdNotFoundException::new);
 
         // 차량 상태 업데이트 및 TestDriveCenter 연관 관계 설정
         car = MarketplaceCar.builder()
@@ -405,6 +414,7 @@ public class MarketplaceCarService {
                 .marketplaceRegistrationDate(LocalDate.now())
                 .testDriveCenter(testDriveCenter) // 연관된 TestDriveCenter 설정
                 .mainImage(car.getMainImage())
+                .carSalesHistories(car.getCarSalesHistories())
                 .build();
 
         // 차량 저장
@@ -413,7 +423,8 @@ public class MarketplaceCarService {
         // 이미지 파일 처리 및 저장
         if (files != null && !files.isEmpty()) {
             // S3에 파일 업로드 및 URL 생성
-            List<String> imageUrls = imageUploader.uploadMultiFiles(files, "marketplace-car-images");
+            List<String> imageUrls = imageUploader.uploadMultiFiles(files,
+                    "marketplace-car-images");
 
             // 서비스 호출로 DB 저장
             marketplaceCarImageService.saveImages(id, imageUrls);
@@ -442,8 +453,8 @@ public class MarketplaceCarService {
     }
 
 
-
-    public MarketplaceCarRecommandListResponse getRecommand(MarketplaceCarRecommandRequest request) {
+    public MarketplaceCarRecommandListResponse getRecommand(
+            MarketplaceCarRecommandRequest request) {
         String carId = request.carId();
         List<String> vehicle = request.vehicleType();
         long budget;
@@ -452,86 +463,108 @@ public class MarketplaceCarService {
         boolean isFirstRecommand = true;
 
         vehicle.forEach(vehicleType -> {
-            if(!vehicleType.equals("승용") && !vehicleType.equals("SUV") && !vehicleType.equals("승합") && !vehicleType.equals("EV")){
+            if (!vehicleType.equals("승용") && !vehicleType.equals("SUV") && !vehicleType.equals("승합")
+                    && !vehicleType.equals("EV")) {
                 throw new VehicleTypeNotFoundException();
             }
         });
 
         // 첫 추천인 경우
-        if (carId.equals("null")){
+        if (carId.equals("null")) {
             budget = request.budget() * 10000;
         }
         // 재추천인 경우
-        else{
-            normal = marketplaceCarRepository.findById(carId).orElseThrow(MarketplaceCarIdNotFoundException::new);
+        else {
+            normal = marketplaceCarRepository.findById(carId)
+                    .orElseThrow(MarketplaceCarIdNotFoundException::new);
             budget = normal.getPrice() - 1;
             isFirstRecommand = false;
         }
 
-
         // 적정, 저렴 추천
-        List<MarketplaceCar> carExist = marketplaceCarRepository.findTop2ByCarDetails_VehicleTypeInAndPriceLessThanEqualOrderByPriceDesc(vehicle, budget);
+        List<MarketplaceCar> carExist = marketplaceCarRepository.findTop2ByCarDetails_VehicleTypeInAndPriceLessThanEqualOrderByPriceDesc(
+                vehicle, budget);
         // 예산 내 차가 0대
-        if(carExist.isEmpty()){
+        if (carExist.isEmpty()) {
 
         }
         // 예산 내 차가 1대
         else if (carExist.size() == 1) {
-            if(isFirstRecommand) normal = carExist.get(0);
-            else less = carExist.get(0);
-        } else{
+            if (isFirstRecommand) {
+                normal = carExist.get(0);
+            } else {
+                less = carExist.get(0);
+            }
+        } else {
             List<MarketplaceCar> carList = marketplaceCarRepository
-                    .findMarketplaceCarProperList((long) (budget * 0.92), (long) (budget * 0.96), vehicle);
+                    .findMarketplaceCarProperList((long) (budget * 0.92), (long) (budget * 0.96),
+                            vehicle);
 
             // 적정 가격 범위 내에 차가 없는 경우
             Optional<MarketplaceCar> lessCarExist;
-            if (carList.isEmpty()){
-                if(isFirstRecommand) {
+            if (carList.isEmpty()) {
+                if (isFirstRecommand) {
                     normal = carExist.get(0);
                     lessCarExist = marketplaceCarRepository
-                            .findTopByCarDetails_VehicleTypeInAndPriceLessThanEqualOrderByPriceDesc(vehicle, normal.getPrice() -1);
+                            .findTopByCarDetails_VehicleTypeInAndPriceLessThanEqualOrderByPriceDesc(
+                                    vehicle, normal.getPrice() - 1);
                     less = lessCarExist.orElse(null);
+                } else {
+                    less = carExist.get(0);
                 }
-                else less = carExist.get(0);
             }
             // 적정 가격 범위 내 차가 1대 있는 경우
             else if (carList.size() == 1) {
-                if(isFirstRecommand) {
+                if (isFirstRecommand) {
                     normal = carList.get(0);
                     lessCarExist = marketplaceCarRepository
-                            .findTopByCarDetails_VehicleTypeInAndPriceLessThanEqualOrderByPriceDesc(vehicle, normal.getPrice() -1);
+                            .findTopByCarDetails_VehicleTypeInAndPriceLessThanEqualOrderByPriceDesc(
+                                    vehicle, normal.getPrice() - 1);
                     less = lessCarExist.orElse(null);
+                } else {
+                    less = carList.get(0);
                 }
-                else less = carList.get(0);
-            } else{
-                if(isFirstRecommand){
+            } else {
+                if (isFirstRecommand) {
                     normal = carList.get(0);
                     less = carList.get(carList.size() - 1);
+                } else {
+                    less = carList.get(0);
                 }
-                else less = carList.get(0);
             }
         }
 
         // 초과 추천
-        if(!isFirstRecommand) budget = budget+1;
-        Optional<MarketplaceCar> overExist = marketplaceCarRepository.findTopByPriceGreaterThanOrderByPrice(budget);
+        if (!isFirstRecommand) {
+            budget = budget + 1;
+        }
+        Optional<MarketplaceCar> overExist = marketplaceCarRepository.findTopByPriceGreaterThanOrderByPrice(
+                budget);
         if (overExist.isEmpty()) {
             over = null;
         } else if (normal == null) {
             over = overExist.get();
-        } else{
+        } else {
             // 고급 모델 차량
-            MarketplaceCar upgrade1 = marketplaceCarRepository.findUpgradeModelCarOverPrice(budget, vehicle, normal);
+            MarketplaceCar upgrade1 = marketplaceCarRepository.findUpgradeModelCarOverPrice(budget,
+                    vehicle, normal);
             // 동일 모델 차량, 짧은 주행거리 + 최신 연식
-            MarketplaceCar upgrade2 = marketplaceCarRepository.findCarMoreOptionOverPrice(budget, normal);
+            MarketplaceCar upgrade2 = marketplaceCarRepository.findCarMoreOptionOverPrice(budget,
+                    normal);
 
             if (upgrade1 != null && upgrade2 != null) {
-                if (upgrade1.getPrice() < upgrade2.getPrice()) { over = upgrade1; }
-                else { over = upgrade2; }
+                if (upgrade1.getPrice() < upgrade2.getPrice()) {
+                    over = upgrade1;
+                } else {
+                    over = upgrade2;
+                }
+            } else if (upgrade1 != null) {
+                over = upgrade1;
+            } else if (upgrade2 != null) {
+                over = upgrade2;
+            } else {
+                over = overExist.get();
             }
-            else if (upgrade1 != null) { over = upgrade1; }
-            else if (upgrade2 != null) { over = upgrade2; }
-            else { over = overExist.get(); }
         }
 
         return MarketplaceCarRecommandListResponse.of(
