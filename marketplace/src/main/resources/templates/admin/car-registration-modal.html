@@ -173,7 +173,7 @@
         const formData = new FormData();
         formData.append('carId', document.getElementById('carId').value);
         formData.append('testDriveCenterId', document.getElementById('testDriveCenter').value);
-        formData.append('price', document.getElementById('price').value);
+        formData.append('price', document.getElementById('price').value + '0000');
 
         // 이미지 파일들 추가
         const exteriorFiles = document.getElementById('exteriorImages').files;
