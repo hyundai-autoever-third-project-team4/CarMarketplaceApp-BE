@@ -221,4 +221,16 @@ public class MarketplaceCarController {
         List<MarketplaceCarResponse> topCars = marketplaceCarService.getTop5CarsByLikes();
         return ResponseEntity.ok(topCars);
     }
-}
+
+    @DeleteMapping("/cars/{carId}")
+    public ResponseEntity<String> deleteCar(@PathVariable String carId) {
+            try {
+                marketplaceCarService.deleteCar(carId);
+                return ResponseEntity.ok("차량이 성공적으로 삭제되었습니다. ID: " + carId);
+            } catch (IllegalArgumentException e) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            } catch (Exception e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("차량 삭제 중 문제가 발생했습니다.");
+            }
+        }
+    }

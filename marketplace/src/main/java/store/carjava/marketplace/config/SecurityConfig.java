@@ -72,10 +72,12 @@ public class SecurityConfig {
                         // [My page]
                         .requestMatchers("/mypage/**").authenticated()
 
+
                         // [Review]
                         .requestMatchers(HttpMethod.GET,"/review/**").permitAll()
                         .requestMatchers("/reviews/**").permitAll()
                         .requestMatchers("/review/**").authenticated()
+
 
                         // [Test Driver Center]
                         .requestMatchers("/test-driver-centers/**").permitAll()
