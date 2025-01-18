@@ -134,8 +134,8 @@ public class AdminService {
     }
 
     public Page<MarketplaceCarSummaryDto> searchCarsByLicensePlate(String licensePlate, int page,
-            int size) {
-        return marketplaceCarRepository.findByCarDetailsLicensePlate(licensePlate,
+                                                                   int size) {
+        return marketplaceCarRepository.findByLicensePlateStartingWith(licensePlate,
                         PageRequest.of(page, size))
                 .map(MarketplaceCarSummaryDto::of);
     }
