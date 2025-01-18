@@ -62,26 +62,25 @@
 
   <!-- 총 가입자 수 -->
   <div class="alert alert-primary shadow-sm" role="alert">
-    <strong>총 가입자 수:</strong> <span id="totalUsers" th:text="${users.size()}"></span>명
-    <span class="ms-3">(검색결과: <span id="searchCount" th:text="${users.size()}"></span>명)</span>
+    <strong>총 가입자 수:</strong> <span id="totalUsers" th:text="${users.totalElements}"></span>명
+    <span class="ms-3">(검색결과: <span id="searchCount"
+                                    th:text="${users.numberOfElements}"></span>명)</span>
   </div>
 
   <!-- 사용자 검색 -->
-  <div class="my-4">
-    <div class="row g-3">
-      <div class="col-md-8">
-        <div class="input-group">
-          <span class="input-group-text"><i class="fas fa-search"></i></span>
-          <input type="text" class="form-control" id="searchInput"
-                 placeholder="이메일 또는 이름으로 검색"
-                 aria-label="Search">
-        </div>
-      </div>
-      <div class="col-md-4">
-        <button class="btn btn-primary w-100 shadow-sm" id="searchButton">
+  <div class="row mb-4">
+    <div class="col-md-8">
+      <form class="input-group" method="GET" th:action="@{/admin/users}">
+            <span class="input-group-text">
+                <i class="fas fa-search"></i>
+            </span>
+        <input type="text" class="form-control" placeholder="이메일로 검색"
+               aria-label="Search" name="email" id="email"
+               th:value="${param.email}">
+        <button class="btn btn-primary" type="submit">
           <i class="fas fa-search me-2"></i>검색
         </button>
-      </div>
+      </form>
     </div>
   </div>
 
@@ -103,20 +102,19 @@
       </tr>
       </thead>
       <tbody>
-      <tr th:each="user : ${users}">
+      <tr th:each="user : ${users.content}">
         <td th:text="${user.id}"></td>
         <td th:text="${user.email}"></td>
         <td>
-    <span class="badge"
-          th:classappend="${user.name == null ? 'bg-danger text-white' : 'bg-primary text-white'}"
-          th:text="${user.name ?: '미설정'}"></span>
+          <span class="badge"
+                th:classappend="${user.name == null ? 'bg-danger text-white' : 'bg-primary text-white'}"
+                th:text="${user.name ?: '미설정'}"></span>
         </td>
         <td>
-    <span class="badge"
-          th:classappend="${user.role == 'ROLE_ADMIN' ? 'bg-warning text-dark' : 'bg-success text-white'}"
-          th:text="${user.role}"></span>
+          <span class="badge"
+                th:classappend="${user.role == 'ROLE_ADMIN' ? 'bg-warning text-dark' : 'bg-success text-white'}"
+                th:text="${user.role}"></span>
         </td>
-
         <td th:text="${user.reviewCount}"></td>
         <td th:text="${user.salesCount}"></td>
         <td th:text="${user.purchaseCount}"></td>
@@ -139,9 +137,48 @@
           </form>
         </td>
       </tr>
+      <tr th:if="${users.totalElements == 0}">
+        <td colspan="10" class="text-center">검색 결과가 없습니다.</td>
+      </tr>
       </tbody>
     </table>
   </div>
+
+  <nav th:if="${users.totalPages > 0}" class="d-flex justify-content-center mt-4">
+    <ul class="pagination">
+      <!-- 이전 버튼 -->
+      <li class="page-item" th:classappend="${users.number == 0 ? 'disabled' : ''}">
+        <a class="page-link"
+           th:href="@{/admin/users(page=${users.number - 1}, email=${param.email})}">
+          이전
+        </a>
+      </li>
+
+      <!-- 페이지 번호 -->
+      <li class="page-item" th:each="i : ${#numbers.sequence(0, users.totalPages - 1)}"
+          th:if="${users.totalPages > 1}"
+          th:classappend="${users.number == i ? 'active' : ''}">
+        <a class="page-link" th:href="@{/admin/users(page=${i}, email=${param.email})}"
+           th:text="${i + 1}">
+        </a>
+      </li>
+
+      <!-- 단일 페이지 (1개만 있을 경우) -->
+      <li class="page-item active" th:if="${users.totalPages == 1}">
+        <a class="page-link">1</a>
+      </li>
+
+      <!-- 다음 버튼 -->
+      <li class="page-item"
+          th:classappend="${users.number + 1 == users.totalPages ? 'disabled' : ''}">
+        <a class="page-link"
+           th:href="@{/admin/users(page=${users.number + 1}, email=${param.email})}">
+          다음
+        </a>
+      </li>
+    </ul>
+  </nav>
+
 
   <!-- 모달 -->
   <div th:each="user : ${users}">
@@ -186,14 +223,16 @@
               <div class="col-md-8">
                 <div class="list-group shadow-sm">
                   <!-- ID -->
-                  <div class="list-group-item border-0 mb-2 rounded-3 hover:bg-gray-50 transition-all duration-300">
+                  <div
+                      class="list-group-item border-0 mb-2 rounded-3 hover:bg-gray-50 transition-all duration-300">
                     <div class="d-flex justify-content-between align-items-center p-2">
                       <span class="fw-semibold text-gray-700">ID</span>
                       <span class="badge bg-primary text-white" th:text="${user.id}"></span>
                     </div>
                   </div>
                   <!-- 전화번호 -->
-                  <div class="list-group-item border-0 mb-2 rounded-3 hover:bg-gray-50 transition-all duration-300">
+                  <div
+                      class="list-group-item border-0 mb-2 rounded-3 hover:bg-gray-50 transition-all duration-300">
                     <div class="d-flex justify-content-between align-items-center p-2">
                       <span class="fw-semibold text-gray-700">전화번호</span>
                       <span class="badge"
@@ -202,7 +241,8 @@
                     </div>
                   </div>
                   <!-- 주소 -->
-                  <div class="list-group-item border-0 mb-2 rounded-3 hover:bg-gray-50 transition-all duration-300">
+                  <div
+                      class="list-group-item border-0 mb-2 rounded-3 hover:bg-gray-50 transition-all duration-300">
                     <div class="d-flex justify-content-between align-items-center p-2">
                       <span class="fw-semibold text-gray-700">주소</span>
                       <span class="badge"
@@ -211,31 +251,39 @@
                     </div>
                   </div>
                   <!-- 리뷰 수 -->
-                  <div class="list-group-item border-0 mb-2 rounded-3 hover:bg-gray-50 transition-all duration-300">
+                  <div
+                      class="list-group-item border-0 mb-2 rounded-3 hover:bg-gray-50 transition-all duration-300">
                     <div class="d-flex justify-content-between align-items-center p-2">
                       <span class="fw-semibold text-gray-700">리뷰 수</span>
-                      <span class="badge bg-secondary text-white" th:text="${user.reviewCount}"></span>
+                      <span class="badge bg-secondary text-white"
+                            th:text="${user.reviewCount}"></span>
                     </div>
                   </div>
                   <!-- 판매 기록 -->
-                  <div class="list-group-item border-0 mb-2 rounded-3 hover:bg-gray-50 transition-all duration-300">
+                  <div
+                      class="list-group-item border-0 mb-2 rounded-3 hover:bg-gray-50 transition-all duration-300">
                     <div class="d-flex justify-content-between align-items-center p-2">
                       <span class="fw-semibold text-gray-700">판매 기록</span>
-                      <span class="badge bg-secondary text-white" th:text="${user.salesCount}"></span>
+                      <span class="badge bg-secondary text-white"
+                            th:text="${user.salesCount}"></span>
                     </div>
                   </div>
                   <!-- 구매 기록 -->
-                  <div class="list-group-item border-0 mb-2 rounded-3 hover:bg-gray-50 transition-all duration-300">
+                  <div
+                      class="list-group-item border-0 mb-2 rounded-3 hover:bg-gray-50 transition-all duration-300">
                     <div class="d-flex justify-content-between align-items-center p-2">
                       <span class="fw-semibold text-gray-700">구매 기록</span>
-                      <span class="badge bg-secondary text-white" th:text="${user.purchaseCount}"></span>
+                      <span class="badge bg-secondary text-white"
+                            th:text="${user.purchaseCount}"></span>
                     </div>
                   </div>
                   <!-- 예약 수 -->
-                  <div class="list-group-item border-0 rounded-3 hover:bg-gray-50 transition-all duration-300">
+                  <div
+                      class="list-group-item border-0 rounded-3 hover:bg-gray-50 transition-all duration-300">
                     <div class="d-flex justify-content-between align-items-center p-2">
                       <span class="fw-semibold text-gray-700">예약 수</span>
-                      <span class="badge bg-secondary text-white" th:text="${user.reservationCount}"></span>
+                      <span class="badge bg-secondary text-white"
+                            th:text="${user.reservationCount}"></span>
                     </div>
                   </div>
                 </div>

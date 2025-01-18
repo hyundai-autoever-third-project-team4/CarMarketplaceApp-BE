@@ -12,31 +12,35 @@
 
     <!-- 통계 카드 -->
     <div class="row mt-4">
+        <!-- 가입한 전체 유저 -->
         <div class="col-md-4">
             <div class="card text-white bg-primary mb-3">
                 <div class="card-body">
                     <h5 class="card-title">가입한 전체 유저</h5>
-                    <p class="card-text" th:text="${users.size()} + ' 명'">0 명</p>
+                    <p class="card-text" th:text="${users.totalElements != null ? @thymeleafUtils.formatNumber(users.totalElements) : '0'} + ' 명'">0 명</p>
                 </div>
             </div>
         </div>
+        <!-- 차량 총 판매액 -->
         <div class="col-md-4">
             <div class="card text-white bg-success mb-3">
                 <div class="card-body">
                     <h5 class="card-title">차량 총 판매액</h5>
-                    <p class="card-text" data-th-text="${#numbers.formatInteger(totalSales, 3, 'COMMA') + '원'}"></p>
+                    <p class="card-text" th:text="${totalSales != null ? @thymeleafUtils.formatNumber(totalSales) : '0'} + ' 원'">0 원</p>
                 </div>
             </div>
         </div>
+        <!-- 처리해야 할 작업 -->
         <div class="col-md-4">
             <div class="card text-white bg-warning mb-3">
                 <div class="card-body">
                     <h5 class="card-title">처리해야 할 작업</h5>
-                    <p class="card-text" th:text="${pendingTasks}">8</p>
+                    <p class="card-text" th:text="${pendingTasks != null ? @thymeleafUtils.formatNumber(pendingTasks) : '0'}">0</p>
                 </div>
             </div>
         </div>
     </div>
+
 
     <!-- 유저 목록 표 -->
     <div class="table-responsive mt-4">

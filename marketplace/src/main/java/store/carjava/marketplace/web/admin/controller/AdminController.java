@@ -39,11 +39,18 @@ public class AdminController {
     }
 
     @ModelAttribute("users")
-    public List<UserSummaryDto> users() {
-        return adminService.getAllUsers()
-                .stream().map(UserSummaryDto::of)
-                .toList();
+    public Page<UserSummaryDto> users(
+            @RequestParam(value = "email", required = false) String email,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size) {
+        // 검색 조건이 있을 경우 이메일로 검색
+        if (email != null && !email.isBlank()) {
+            return adminService.searchUsersByEmail(email, page, size);
+        }
+        // 검색 조건이 없을 경우 전체 사용자 반환
+        return adminService.getUsers(page, size);
     }
+
 
     @ModelAttribute("cars")
     public Page<MarketplaceCarSummaryDto> cars(
@@ -60,7 +67,6 @@ public class AdminController {
 
     @GetMapping
     public String adminPage(Model model) {
-
         Long totalSales = adminService.getTotalSalesAmount();
 
         model.addAttribute("totalSales", totalSales);
@@ -79,9 +85,9 @@ public class AdminController {
 
     @GetMapping("/users")
     public String usersPage(Model model) {
-        int totalReviews = users().stream().mapToInt(UserSummaryDto::reviewCount).sum();
-        int totalSales = users().stream().mapToInt(UserSummaryDto::salesCount).sum();
-        int totalPurchases = users().stream().mapToInt(UserSummaryDto::purchaseCount).sum();
+        Long totalReviews = adminService.getTotalReviews();
+        Long totalSales = adminService.getTotalSales();
+        Long totalPurchases = adminService.getTotalPurchases();
 
         model.addAttribute("totalReviews", totalReviews);
         model.addAttribute("totalSales", totalSales);

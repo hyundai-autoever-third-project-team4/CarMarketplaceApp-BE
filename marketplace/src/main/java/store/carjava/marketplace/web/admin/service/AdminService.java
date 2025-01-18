@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import store.carjava.marketplace.app.car_purchase_history.entity.CarPurchaseHistory;
 import store.carjava.marketplace.app.car_purchase_history.repository.CarPurchaseHistoryRepository;
@@ -13,6 +14,8 @@ import store.carjava.marketplace.app.car_sales_history.repository.CarSalesHistor
 import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarSummaryDto;
 import store.carjava.marketplace.app.marketplace_car.entity.MarketplaceCar;
 import store.carjava.marketplace.app.marketplace_car.repository.MarketplaceCarRepository;
+import store.carjava.marketplace.app.review.repository.ReviewRepository;
+import store.carjava.marketplace.app.user.dto.UserSummaryDto;
 import store.carjava.marketplace.app.user.entity.User;
 import store.carjava.marketplace.app.user.repository.UserRepository;
 import store.carjava.marketplace.web.admin.dto.CarPurchaseDto;
@@ -25,23 +28,45 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class AdminService {
+
     private final UserRepository userRepository;
     private final CarPurchaseHistoryRepository carPurchaseHistoryRepository;
     private final MarketplaceCarRepository marketplaceCarRepository;
     private final CarSalesHistoryRepository carSalesHistoryRepository;
+    private final ReviewRepository reviewRepository;
 
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    // 전체 사용자 목록을 페이지네이션으로 가져오는 메서드
+    public Page<UserSummaryDto> getUsers(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return userRepository.findAll(pageable).map(UserSummaryDto::of);
+    }
+
+    // 이메일로 사용자 검색 (페이지네이션 포함)
+    public Page<UserSummaryDto> searchUsersByEmail(String email, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return userRepository.findByEmailContaining(email, pageable).map(UserSummaryDto::of);
     }
 
     public Long getTotalSalesAmount() {
         return carPurchaseHistoryRepository.findTotalAmountSum();
     }
 
+    public Long getTotalReviews() {
+        return reviewRepository.count();
+    }
+
+    public Long getTotalSales() {
+        return carSalesHistoryRepository.count();
+    }
+
+    public Long getTotalPurchases() {
+        return carPurchaseHistoryRepository.count();
+    }
 
     // 구매 내역에서 차량 상태가 대기중인 차 조회.
     public List<CarPurchaseDto> getPendingPurchaseHistory() {
-        List<CarPurchaseHistory> purchaseHistories = carPurchaseHistoryRepository.findAllByMarketplaceCarStatus("PENDING_PURCHASE_APPROVAL");
+        List<CarPurchaseHistory> purchaseHistories = carPurchaseHistoryRepository.findAllByMarketplaceCarStatus(
+                "PENDING_PURCHASE_APPROVAL");
         return purchaseHistories.stream()
                 .map(CarPurchaseDto::of)
                 .collect(Collectors.toList());
@@ -60,7 +85,8 @@ public class AdminService {
 
     // 구매 내역에서 구매가 완료된 차량 조회.
     public List<CarPurchaseDto> getCompletedPurchaseHistory() {
-        List<CarPurchaseHistory> purchaseHistories = carPurchaseHistoryRepository.findAllByMarketplaceCarStatus("NOT_AVAILABLE_FOR_PURCHASE");
+        List<CarPurchaseHistory> purchaseHistories = carPurchaseHistoryRepository.findAllByMarketplaceCarStatus(
+                "NOT_AVAILABLE_FOR_PURCHASE");
         return purchaseHistories.stream()
                 .map(CarPurchaseDto::of)
                 .collect(Collectors.toList());
@@ -68,7 +94,8 @@ public class AdminService {
 
     // 판매 내역에서 차량 상태가 승인 대기중인 차량 조회.
     public List<CarSellDto> getPendingSaleHistory() {
-        List<CarSalesHistory> salesHistories = carSalesHistoryRepository.findAllByMarketplaceCarStatus("PENDING_SALE");
+        List<CarSalesHistory> salesHistories = carSalesHistoryRepository.findAllByMarketplaceCarStatus(
+                "PENDING_SALE");
         return salesHistories.stream()
                 .map(CarSellDto::of)
                 .collect(Collectors.toList());
@@ -79,8 +106,10 @@ public class AdminService {
                 .map(MarketplaceCarSummaryDto::of);
     }
 
-    public Page<MarketplaceCarSummaryDto> searchCarsByLicensePlate(String licensePlate, int page, int size) {
-        return marketplaceCarRepository.findByCarDetailsLicensePlate(licensePlate, PageRequest.of(page, size))
+    public Page<MarketplaceCarSummaryDto> searchCarsByLicensePlate(String licensePlate, int page,
+            int size) {
+        return marketplaceCarRepository.findByCarDetailsLicensePlate(licensePlate,
+                        PageRequest.of(page, size))
                 .map(MarketplaceCarSummaryDto::of);
     }
 
