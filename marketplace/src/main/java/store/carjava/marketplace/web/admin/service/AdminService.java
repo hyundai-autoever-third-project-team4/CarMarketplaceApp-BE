@@ -122,4 +122,12 @@ public class AdminService {
                 .map(MarketplaceCarSummaryDto::of);
     }
 
+    public Page<MarketplaceCarSummaryDto> searchCarsByModel(String model, int page, int size) {
+        return marketplaceCarRepository.findByCarDetailsModel(model, PageRequest.of(page, size))
+                .map(MarketplaceCarSummaryDto::of);
+    }
+
+    public List<String> getDistinctCarModels() {
+        return marketplaceCarRepository.findDistinctModels();
+    }
 }

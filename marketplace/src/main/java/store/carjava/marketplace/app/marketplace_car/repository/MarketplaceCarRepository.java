@@ -1,6 +1,8 @@
 package store.carjava.marketplace.app.marketplace_car.repository;
 
+import com.querydsl.core.group.GroupBy;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -34,4 +36,8 @@ public interface MarketplaceCarRepository extends JpaRepository<MarketplaceCar, 
 
     Page<MarketplaceCar> findByCarDetailsLicensePlate(String licensePlate, Pageable pageable);
 
+    Page<MarketplaceCar> findByCarDetailsModel(String model, Pageable pageable);
+
+    @Query("SELECT DISTINCT c.carDetails.model FROM MarketplaceCar c ORDER BY c.carDetails.model")
+    List<String> findDistinctModels();
 }

@@ -47,7 +47,9 @@
 
     <!-- 검색 영역 -->
     <div class="row mb-4">
-        <div class="col-md-6">
+
+
+        <div class="col-md-4">
             <form class="input-group" method="GET" th:action="@{/admin/cars}">
                 <input type="text" class="form-control" placeholder="차량 번호판으로 검색 (예: 303누7499)"
                        aria-label="Search" name="licensePlate" id="licensePlate"
@@ -55,7 +57,22 @@
                 <button class="btn btn-primary" type="submit">검색</button>
             </form>
         </div>
+
+        <div class="col-md-4">
+            <form class="input-group" method="GET" th:action="@{/admin/cars}">
+                <select class="form-select" name="model" id="model" onchange="this.form.submit()">
+                    <option value="">모델 선택</option>
+                    <option th:each="model : ${carModels}"
+                            th:value="${model}"
+                            th:text="${model}"
+                            th:selected="${param.model == model}">
+                    </option>
+                </select>
+            </form>
+        </div>
     </div>
+
+
 
     <!-- 차량 목록 테이블 -->
     <div class="table-responsive">

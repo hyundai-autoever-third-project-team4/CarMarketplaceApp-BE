@@ -55,14 +55,26 @@ public class AdminController {
     @ModelAttribute("cars")
     public Page<MarketplaceCarSummaryDto> cars(
             @RequestParam(value = "licensePlate", required = false) String licensePlate,
+            @RequestParam(value = "model", required = false) String model,
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size) {
         // 검색 조건이 없으면 전체 차량 반환
         if (licensePlate != null && !licensePlate.isBlank()) {
             return adminService.searchCarsByLicensePlate(licensePlate, page, size);
         }
+
+        // 모델 검색 조건이 있는 경우
+        if (model != null && !model.isBlank()) {
+            return adminService.searchCarsByModel(model, page, size);
+        }
         // 검색 조건이 없으면 전체 차량 반환
         return adminService.getCars(page, size);
+    }
+
+    @ModelAttribute("carModels")
+    public List<String> carModels() {
+        // 모든 차량 모델 목록을 중복 없이 가져옵니다
+        return adminService.getDistinctCarModels();
     }
 
     @GetMapping
