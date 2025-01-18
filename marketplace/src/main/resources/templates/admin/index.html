@@ -81,14 +81,13 @@
         <div class="row g-4">
             <!-- 가입한 전체 유저 -->
             <div class="col-lg-4 col-md-6">
-                <div class="card stats-card bg-primary text-white h-100">
+                <div class="card stats-card bg-primary text-white h-100" onclick="location.href='/admin/users'" style="cursor: pointer;">
                     <div class="card-body d-flex align-items-center">
                         <div class="me-3">
                             <i class="fas fa-users fa-2x"></i>
                         </div>
                         <div>
                             <h5 class="card-title">전체 유저</h5>
-                            <!-- 통계 카드의 텍스트를 만원 단위로 표시 -->
                             <p class="card-text h4" th:text="${users.totalElements != null ? @thymeleafUtils.formatNumber(users.totalElements) + ' 명' : '0 명'}">0 명</p>
                         </div>
                     </div>
@@ -96,14 +95,13 @@
             </div>
             <!-- 차량 총 판매액 -->
             <div class="col-lg-4 col-md-6">
-                <div class="card stats-card bg-success text-white h-100">
+                <div class="card stats-card bg-success text-white h-100" onclick="location.href='/admin/car-sales'" style="cursor: pointer;">
                     <div class="card-body d-flex align-items-center">
                         <div class="me-3">
                             <i class="fas fa-dollar-sign fa-2x"></i>
                         </div>
                         <div>
                             <h5 class="card-title">차량 총 판매액</h5>
-                            <!-- 차량 총 판매액을 만원 단위로 표시 -->
                             <p class="card-text h4" th:text="${totalSales != null ? @thymeleafUtils.formatNumber(totalSales / 10000) + ' 만원' : '0 만원'}">0 만원</p>
                         </div>
                     </div>
@@ -111,19 +109,20 @@
             </div>
             <!-- 처리해야 할 작업 -->
             <div class="col-lg-4 col-md-12">
-                <div class="card stats-card bg-warning text-dark h-100">
+                <div class="card stats-card bg-warning text-dark h-100" onclick="location.href='/admin/tasks'" style="cursor: pointer;">
                     <div class="card-body d-flex align-items-center">
                         <div class="me-3">
                             <i class="fas fa-tasks fa-2x"></i>
                         </div>
                         <div>
                             <h5 class="card-title">처리해야 할 작업</h5>
-                            <p class="card-text h4" th:text="${pendingTasks != null ? @thymeleafUtils.formatNumber(pendingTasks) : '0'}">0</p>
+                            <p class="card-text h4" th:text="${purchaseTasks.size() + salesTasks.size()}">0</p>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+
 
         <!-- 차트 섹션 -->
         <div class="row mt-5 charts-row">
