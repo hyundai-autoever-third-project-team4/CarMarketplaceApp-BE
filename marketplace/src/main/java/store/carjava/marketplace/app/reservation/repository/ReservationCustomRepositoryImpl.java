@@ -1,7 +1,10 @@
 package store.carjava.marketplace.app.reservation.repository;
 
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import store.carjava.marketplace.app.marketplace_car.entity.MarketplaceCar;
@@ -96,6 +99,41 @@ public class ReservationCustomRepositoryImpl implements ReservationCustomReposit
                 // 가장 가까운 예약 하나만 가져옵니다
                 .limit(1)
                 .fetchOne());
+    }
+    @Override
+    public Page<Reservation> findAllWithFilters(String reservationName, String licensePlate, String status, String reservationDate, Pageable pageable) {
+        QReservation reservation = QReservation.reservation;
+
+        BooleanExpression predicate = reservation.isNotNull();
+
+        if (reservationName != null && !reservationName.trim().isEmpty()) {
+            predicate = predicate.and(reservation.user.name.containsIgnoreCase(reservationName));
+        }
+
+        if (licensePlate != null && !licensePlate.trim().isEmpty()) {
+            predicate = predicate.and(reservation.marketplaceCar.carDetails.licensePlate.containsIgnoreCase(licensePlate));
+        }
+
+        if (status != null && !status.trim().isEmpty()) {
+//            predicate = predicate.and(reservation.status.eq(status));
+        }
+
+        if (reservationDate != null && !reservationDate.trim().isEmpty()) {
+            LocalDate date = LocalDate.parse(reservationDate);
+            predicate = predicate.and(reservation.reservationDate.eq(date));
+        }
+
+        long total = queryFactory.selectFrom(reservation)
+                .where(predicate)
+                .fetchCount();
+
+        var content = queryFactory.selectFrom(reservation)
+                .where(predicate)
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        return new org.springframework.data.domain.PageImpl<>(content, pageable, total);
     }
 
 }

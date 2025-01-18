@@ -15,6 +15,9 @@ import store.carjava.marketplace.app.car_sales_history.repository.CarSalesHistor
 import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarSummaryDto;
 import store.carjava.marketplace.app.marketplace_car.entity.MarketplaceCar;
 import store.carjava.marketplace.app.marketplace_car.repository.MarketplaceCarRepository;
+import store.carjava.marketplace.app.reservation.dto.ReservationDetailDto;
+import store.carjava.marketplace.app.reservation.entity.Reservation;
+import store.carjava.marketplace.app.reservation.repository.ReservationRepository;
 import store.carjava.marketplace.app.review.repository.ReviewRepository;
 import store.carjava.marketplace.app.user.dto.UserSummaryDto;
 import store.carjava.marketplace.app.user.entity.User;
@@ -35,6 +38,7 @@ public class AdminService {
     private final MarketplaceCarRepository marketplaceCarRepository;
     private final CarSalesHistoryRepository carSalesHistoryRepository;
     private final ReviewRepository reviewRepository;
+    private final ReservationRepository reservationRepository;
 
     // 전체 사용자 목록을 페이지네이션으로 가져오는 메서드
     public Page<UserSummaryDto> getUsers(int page, int size) {
@@ -136,4 +140,11 @@ public class AdminService {
                 .map(MarketplaceCarSummaryDto::of);
     }
 
+    public Page<ReservationDetailDto> getReservationDetails(String reservationName,
+            String licensePlate, String status, String reservationDate, Pageable pageable) {
+        Page<Reservation> reservationsPage = reservationRepository.findAllWithFilters(
+                reservationName, licensePlate, status, reservationDate, pageable);
+        Page<ReservationDetailDto> dtoPage = reservationsPage.map(ReservationDetailDto::fromEntity);
+        return dtoPage;
+    }
 }
