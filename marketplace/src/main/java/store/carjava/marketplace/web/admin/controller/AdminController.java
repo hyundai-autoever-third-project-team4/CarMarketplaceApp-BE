@@ -79,7 +79,14 @@ public class AdminController {
     }
 
     @GetMapping("/tasks")
-    public String tasksPage() {
+    public String tasksPage(Model model) {
+        Long purchaseRequests = adminService.getTotalPurchases();
+        Long salesRequests = adminService.getTotalSales();
+
+        // 모델에 데이터 추가
+        model.addAttribute("purchaseRequests", purchaseRequests);
+        model.addAttribute("salesRequests", salesRequests);
+
         return "admin/tasks";
     }
 
