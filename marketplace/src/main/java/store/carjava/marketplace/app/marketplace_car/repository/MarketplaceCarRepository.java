@@ -1,5 +1,7 @@
 package store.carjava.marketplace.app.marketplace_car.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -23,9 +25,13 @@ public interface MarketplaceCarRepository extends JpaRepository<MarketplaceCar, 
 
     Optional<MarketplaceCar> findTopByPriceGreaterThanOrderByPrice(Long price);
 
+
     @Query("SELECT car FROM MarketplaceCar car " +
             "LEFT JOIN car.likes likes " +
             "GROUP BY car.id " +
             "ORDER BY COUNT(likes) DESC limit 5")
     List<MarketplaceCar> findTop5ByLikeCount();
+
+    Page<MarketplaceCar> findByCarDetailsLicensePlate(String licensePlate, Pageable pageable);
+
 }

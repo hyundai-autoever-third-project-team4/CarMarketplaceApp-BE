@@ -1,10 +1,151 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{admin/layout}">
 <head>
-    <title>차자바 시승소 예약 관리</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>시승 예약 현황</title>
+    <style>
+        .car-image {
+            width: 150px;
+            height: auto;
+        }
+        .reservation-status {
+            font-weight: bold;
+        }
+    </style>
 </head>
+
 <body>
-<div layout:fragment="content">
+<div layout:fragment="content" class="content">
+    <h1 class="mb-4">시승 예약 현황</h1>
+
+    <!-- 검색 및 필터 영역 -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <form class="input-group" method="GET" action="/admin/test-drive/search">
+                <input type="text" class="form-control" placeholder="예약자명 또는 차량번호로 검색"
+                       aria-label="Search" name="searchKeyword" id="searchKeyword"
+                       th:value="${searchKeyword}">
+                <button class="btn btn-primary" type="submit">검색</button>
+            </form>
+        </div>
+        <div class="col-md-6">
+            <div class="d-flex justify-content-end">
+                <select class="form-select me-2" style="width: auto;">
+                    <option value="all">전체 예약</option>
+                    <option value="confirmed">예약 확정</option>
+                    <option value="completed">시승 완료</option>
+                </select>
+                <input type="date" class="form-control me-2" style="width: auto;">
+            </div>
+        </div>
+    </div>
+
+    <!-- 예약 현황 테이블 -->
+    <div class="table-responsive">
+        <table class="table table-striped table-hover align-middle">
+            <thead class="table-dark">
+            <tr>
+                <th>예약 번호</th>
+                <th>차량 정보</th>
+                <th>예약자 정보</th>
+                <th>방문 예정일</th>
+                <th>방문 시각</th>
+                <th>상태</th>
+            </tr>
+            </thead>
+            <tbody>
+            <!-- Mock 데이터 -->
+            <tr>
+                <td>TD20240116-001</td>
+                <td>
+                    <div class="d-flex align-items-center">
+                        <img src="https://certified-static.hyundai.com/contents/goods/shootConts/tobepic/02/exterior/GJK240903008701/PRD602_233.JPG/dims/crop/2304x1536+600+770/resize/380x253/optimize"
+                             alt="Car Image" class="img-thumbnail car-image me-3">
+                        <div>
+                            <div>현대 투싼</div>
+                            <small class="text-muted">303누7499</small>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <div>홍길동</div>
+                    <small class="text-muted">010-1234-5678</small>
+                </td>
+                <td>2024-01-20</td>
+                <td>14:00</td>
+                <td>
+                    <span class="badge bg-primary">예약 확정</span>
+                </td>
+            </tr>
+            <tr>
+                <td>TD20240116-002</td>
+                <td>
+                    <div class="d-flex align-items-center">
+                        <img src="https://certified-static.hyundai.com/contents/goods/shootConts/tobepic/02/exterior/GJK240903008702/PRD602_234.JPG/dims/crop/2304x1536+600+770/resize/380x253/optimize"
+                             alt="Car Image" class="img-thumbnail car-image me-3">
+                        <div>
+                            <div>기아 스포티지</div>
+                            <small class="text-muted">504다6321</small>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <div>김철수</div>
+                    <small class="text-muted">010-9876-5432</small>
+                </td>
+                <td>2024-01-21</td>
+                <td>10:00</td>
+                <td>
+                    <span class="badge bg-secondary">시승 완료</span>
+                </td>
+            </tr>
+
+            <!-- 타임리프 반복문 주석 -->
+            <!--
+            <tr th:each="reservation : ${reservations}">
+                <td th:text="${reservation.reservationNumber}">예약번호</td>
+                <td>
+                    <div class="d-flex align-items-center">
+                        <img th:src="${reservation.car.imageUrl}" alt="Car Image" class="img-thumbnail car-image me-3">
+                        <div>
+                            <div th:text="${reservation.car.brand + ' ' + reservation.car.model}">차량명</div>
+                            <small class="text-muted" th:text="${reservation.car.licensePlate}">번호판</small>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <div th:text="${reservation.customerName}">예약자명</div>
+                    <small class="text-muted" th:text="${reservation.customerPhone}">연락처</small>
+                </td>
+                <td th:text="${#temporals.format(reservation.visitDate, 'yyyy-MM-dd')}">방문 예정일</td>
+                <td th:text="${reservation.visitTime}">방문 시각</td>
+                <td>
+                    <span th:class="${'badge ' +
+                        (reservation.status == '예약 확정' ? 'bg-primary' : 'bg-secondary')}"
+                          th:text="${reservation.status}">상태</span>
+                </td>
+            </tr>
+            -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 페이지네이션 -->
+    <nav aria-label="Page navigation" class="mt-4">
+        <ul class="pagination justify-content-center">
+            <li class="page-item disabled">
+                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">이전</a>
+            </li>
+            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+            <li class="page-item"><a class="page-link" href="#">2</a></li>
+            <li class="page-item"><a class="page-link" href="#">3</a></li>
+            <li class="page-item">
+                <a class="page-link" href="#">다음</a>
+            </li>
+        </ul>
+    </nav>
 </div>
+
 </body>
 </html>

@@ -1,179 +1,308 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{admin/layout}">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/layout}">
 <head>
-    <title>사용자 관리</title>
+  <title>사용자 관리</title>
+  <style>
+    .modal-header {
+      background-color: #343a40;
+      color: white;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    /* 호버 효과 */
+    .table tbody tr:hover {
+      background-color: #f8f9fa;
+      transition: background-color 0.3s ease;
+    }
+
+    /* 애니메이션 효과 */
+    .transition-all {
+      transition: all 0.3s ease;
+    }
+
+    /* 검색 입력창 스타일 */
+    #searchInput:focus {
+      box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+      border-color: #80bdff;
+    }
+
+    /* 배지 스타일 */
+    .badge {
+      transition: all 0.3s ease;
+    }
+
+    .badge:hover {
+      transform: scale(1.1);
+    }
+
+    /* 버튼 호버 효과 */
+    .btn {
+      transition: all 0.2s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+  </style>
+  <!-- FontAwesome -->
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+        rel="stylesheet">
 </head>
 <body>
 <div layout:fragment="content">
-    <h1>사용자 관리</h1>
-    <hr>
+  <h1 class="mb-4">사용자 관리</h1>
+  <hr>
 
-    <!-- 총 가입자 수 -->
-    <!-- <div class="alert alert-primary" role="alert">
-        <strong>총 가입자 수:</strong> <span th:text="${totalUsers}"></span>명
-    </div> -->
-    <div class="alert alert-primary" role="alert">
-        <strong>총 가입자 수:</strong> 5명
-    </div>
+  <!-- 총 가입자 수 -->
+  <div class="alert alert-primary shadow-sm" role="alert">
+    <strong>총 가입자 수:</strong> <span id="totalUsers" th:text="${users.totalElements}"></span>명
+    <span class="ms-3">(검색결과: <span id="searchCount"
+                                    th:text="${users.numberOfElements}"></span>명)</span>
+  </div>
 
-    <!-- 사용자 검색 -->
-    <!--
-    <div class="my-4">
-        <form class="row g-3" action="#" th:action="@{/admin/users/search}" method="get">
-            <div class="col-md-8">
-                <input type="text" class="form-control" id="search" name="query" placeholder="이메일 또는 이름으로 검색" aria-label="Search">
-            </div>
-            <div class="col-md-4">
-                <button class="btn btn-primary w-100" type="submit">검색</button>
-            </div>
-        </form>
+  <!-- 사용자 검색 -->
+  <div class="row mb-4">
+    <div class="col-md-8">
+      <form class="input-group" method="GET" th:action="@{/admin/users}">
+            <span class="input-group-text">
+                <i class="fas fa-search"></i>
+            </span>
+        <input type="text" class="form-control" placeholder="이메일로 검색"
+               aria-label="Search" name="email" id="email"
+               th:value="${param.email}">
+        <button class="btn btn-primary" type="submit">
+          <i class="fas fa-search me-2"></i>검색
+        </button>
+      </form>
     </div>
-    -->
-    <div class="my-4">
-        <form class="row g-3">
-            <div class="col-md-8">
-                <input type="text" class="form-control" id="search" name="query" placeholder="이메일 또는 이름으로 검색" aria-label="Search">
-            </div>
-            <div class="col-md-4">
-                <button class="btn btn-primary w-100" type="submit">검색</button>
-            </div>
-        </form>
-    </div>
+  </div>
 
-    <!-- 사용자 목록 -->
-    <!--
-    <div class="table-responsive">
-        <table class="table table-striped table-hover">
-            <thead class="table-dark">
-            <tr>
-                <th>ID</th>
-                <th>이메일</th>
-                <th>이름</th>
-                <th>역할</th>
-                <th>상세보기</th>
-                <th>삭제</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="user : ${users}">
-                <td th:text="${user.id}"></td>
-                <td th:text="${user.email}"></td>
-                <td th:text="${user.name}"></td>
-                <td>
-                    <span class="badge bg-success" th:text="${user.role}"></span>
-                </td>
-                <td>
-                    <a th:href="@{/admin/users/{id}(id=${user.id})}" class="btn btn-info btn-sm text-white">상세보기</a>
-                </td>
-                <td>
-                    <form th:action="@{/admin/users/{id}/delete(id=${user.id})}" method="post" th:onsubmit="return confirm('정말로 삭제하시겠습니까?');">
-                        <button type="submit" class="btn btn-danger btn-sm">삭제</button>
-                    </form>
-                </td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
-    -->
-    <div class="table-responsive">
-        <table class="table table-striped table-hover">
-            <thead class="table-dark">
-            <tr>
-                <th>ID</th>
-                <th>이메일</th>
-                <th>이름</th>
-                <th>역할</th>
-                <th>상세보기</th>
-                <th>삭제</th>
-            </tr>
-            </thead>
-            <tbody>
-            <!-- 목데이터 -->
-            <tr>
-                <td>1</td>
-                <td>user1@example.com</td>
-                <td>홍길동</td>
-                <td><span class="badge bg-success">ROLE_USER</span></td>
-                <td><a href="/admin/users/1" class="btn btn-info btn-sm text-white">상세보기</a></td>
-                <td>
-                    <form action="/admin/users/1/delete" method="post" onsubmit="return confirm('정말로 삭제하시겠습니까?');">
-                        <button type="submit" class="btn btn-danger btn-sm">삭제</button>
-                    </form>
-                </td>
-            </tr>
-            <tr>
-                <td>2</td>
-                <td>admin@example.com</td>
-                <td>관리자</td>
-                <td><span class="badge bg-warning">ROLE_ADMIN</span></td>
-                <td><a href="/admin/users/2" class="btn btn-info btn-sm text-white">상세보기</a></td>
-                <td>
-                    <form action="/admin/users/2/delete" method="post" onsubmit="return confirm('정말로 삭제하시겠습니까?');">
-                        <button type="submit" class="btn btn-danger btn-sm">삭제</button>
-                    </form>
-                </td>
-            </tr>
-            <tr>
-                <td>3</td>
-                <td>user2@example.com</td>
-                <td>김철수</td>
-                <td><span class="badge bg-success">ROLE_USER</span></td>
-                <td><a href="/admin/users/3" class="btn btn-info btn-sm text-white">상세보기</a></td>
-                <td>
-                    <form action="/admin/users/3/delete" method="post" onsubmit="return confirm('정말로 삭제하시겠습니까?');">
-                        <button type="submit" class="btn btn-danger btn-sm">삭제</button>
-                    </form>
-                </td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
+  <!-- 사용자 목록 -->
+  <div class="table-responsive shadow">
+    <table class="table table-striped table-hover mb-0">
+      <thead class="table-dark">
+      <tr>
+        <th>ID</th>
+        <th>이메일</th>
+        <th>이름</th>
+        <th>역할</th>
+        <th>리뷰 수</th>
+        <th>판매 기록</th>
+        <th>구매 기록</th>
+        <th>예약 수</th>
+        <th>상세보기</th>
+        <th>삭제</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="user : ${users.content}">
+        <td th:text="${user.id}"></td>
+        <td th:text="${user.email}"></td>
+        <td>
+          <span class="badge"
+                th:classappend="${user.name == null ? 'bg-danger text-white' : 'bg-primary text-white'}"
+                th:text="${user.name ?: '미설정'}"></span>
+        </td>
+        <td>
+          <span class="badge"
+                th:classappend="${user.role == 'ROLE_ADMIN' ? 'bg-warning text-dark' : 'bg-success text-white'}"
+                th:text="${user.role}"></span>
+        </td>
+        <td th:text="${user.reviewCount}"></td>
+        <td th:text="${user.salesCount}"></td>
+        <td th:text="${user.purchaseCount}"></td>
+        <td th:text="${user.reservationCount}"></td>
+        <td>
+          <button type="button"
+                  class="btn btn-info btn-sm text-white"
+                  data-bs-toggle="modal"
+                  th:attr="data-bs-target='#userModal_' + ${user.id}">
+            <i class="fas fa-eye me-1"></i>상세보기
+          </button>
+        </td>
+        <td>
+          <form th:action="@{/admin/users/{id}/delete(id=${user.id})}"
+                method="post"
+                th:onsubmit="return confirm('정말로 삭제하시겠습니까?');">
+            <button type="submit" class="btn btn-danger btn-sm">
+              <i class="fas fa-trash me-1"></i>삭제
+            </button>
+          </form>
+        </td>
+      </tr>
+      <tr th:if="${users.totalElements == 0}">
+        <td colspan="10" class="text-center">검색 결과가 없습니다.</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
 
-    <!-- 사용자 활동 통계 -->
-    <!--
-    <div class="mt-5">
-        <h2>활동 통계</h2>
-        <div class="row">
-            <div class="col-md-4">
-                <div class="card bg-primary text-white mb-3">
-                    <div class="card-header">총 리뷰 작성 수</div>
-                    <div class="card-body">
-                        <h5 class="card-title" th:text="${totalReviews} + '개'"></h5>
-                    </div>
+  <nav th:if="${users.totalPages > 0}" class="d-flex justify-content-center mt-4">
+    <ul class="pagination">
+      <!-- 이전 버튼 -->
+      <li class="page-item" th:classappend="${users.number == 0 ? 'disabled' : ''}">
+        <a class="page-link"
+           th:href="@{/admin/users(page=${users.number - 1}, email=${param.email})}">
+          이전
+        </a>
+      </li>
+
+      <!-- 페이지 번호 -->
+      <li class="page-item" th:each="i : ${#numbers.sequence(0, users.totalPages - 1)}"
+          th:if="${users.totalPages > 1}"
+          th:classappend="${users.number == i ? 'active' : ''}">
+        <a class="page-link" th:href="@{/admin/users(page=${i}, email=${param.email})}"
+           th:text="${i + 1}">
+        </a>
+      </li>
+
+      <!-- 단일 페이지 (1개만 있을 경우) -->
+      <li class="page-item active" th:if="${users.totalPages == 1}">
+        <a class="page-link">1</a>
+      </li>
+
+      <!-- 다음 버튼 -->
+      <li class="page-item"
+          th:classappend="${users.number + 1 == users.totalPages ? 'disabled' : ''}">
+        <a class="page-link"
+           th:href="@{/admin/users(page=${users.number + 1}, email=${param.email})}">
+          다음
+        </a>
+      </li>
+    </ul>
+  </nav>
+
+
+  <!-- 모달 -->
+  <div th:each="user : ${users}">
+    <div class="modal fade" th:id="'userModal_' + ${user.id}" tabindex="-1"
+         aria-labelledby="userModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content border-0 shadow-lg"
+             style="border-radius: 20px; overflow: hidden;">
+          <!-- 모달 헤더 -->
+          <div class="modal-header bg-gradient-to-r from-blue-500 to-purple-600 text-white py-4">
+            <h5 class="modal-title fw-bold ms-2" th:text="'사용자 상세정보 - ' + ${user.name}"
+                id="userModalLabel" style="font-size: 1.5rem;"></h5>
+            <button type="button" class="btn-close btn-close-white me-2" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+          </div>
+          <!-- 모달 본문 -->
+          <div class="modal-body p-4"
+               style="background: linear-gradient(to bottom, #f8f9fa, #ffffff);">
+            <div class="row align-items-center">
+              <!-- 사용자 이미지 섹션 -->
+              <div class="col-md-4 text-center">
+                <div class="position-relative d-inline-block mb-4">
+                  <img
+                      th:src="'https://chajava-storage.s3.ap-northeast-2.amazonaws.com/profiles/profile.webp'"
+                      class="img-fluid rounded-circle shadow-lg border-4 hover:scale-105 transition-transform duration-300"
+                      style="width: 180px; height: 180px; border: 4px solid #6366f1;"
+                      alt="사용자 이미지">
+                  <div class="position-absolute bottom-0 end-0">
+                                        <span class="badge rounded-pill bg-success p-2">
+                                            <i class="fas fa-check-circle"></i>
+                                        </span>
+                  </div>
                 </div>
+                <h4 class="fw-bold mb-2" style="color: #4f46e5;" th:text="${user.name}"></h4>
+                <p class="text-muted mb-2" style="font-size: 0.95rem;" th:text="${user.email}"></p>
+                <span
+                    class="badge bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-3 py-2 rounded-pill"
+                    th:text="'Role: ' + ${user.role}"
+                    style="font-size: 0.9rem;"></span>
+              </div>
+              <!-- 사용자 상세 정보 -->
+              <div class="col-md-8">
+                <div class="list-group shadow-sm">
+                  <!-- ID -->
+                  <div
+                      class="list-group-item border-0 mb-2 rounded-3 hover:bg-gray-50 transition-all duration-300">
+                    <div class="d-flex justify-content-between align-items-center p-2">
+                      <span class="fw-semibold text-gray-700">ID</span>
+                      <span class="badge bg-primary text-white" th:text="${user.id}"></span>
+                    </div>
+                  </div>
+                  <!-- 전화번호 -->
+                  <div
+                      class="list-group-item border-0 mb-2 rounded-3 hover:bg-gray-50 transition-all duration-300">
+                    <div class="d-flex justify-content-between align-items-center p-2">
+                      <span class="fw-semibold text-gray-700">전화번호</span>
+                      <span class="badge"
+                            th:classappend="${user.phone == null ? 'bg-danger text-white' : 'bg-info text-white'}"
+                            th:text="${user.phone != null ? @thymeleafUtils.formatPhone(user.phone) : '미설정'}"></span>
+                    </div>
+                  </div>
+                  <!-- 주소 -->
+                  <div
+                      class="list-group-item border-0 mb-2 rounded-3 hover:bg-gray-50 transition-all duration-300">
+                    <div class="d-flex justify-content-between align-items-center p-2">
+                      <span class="fw-semibold text-gray-700">주소</span>
+                      <span class="badge"
+                            th:classappend="${user.address == null ? 'bg-danger text-white' : 'bg-warning text-white'}"
+                            th:text="${user.address ?: '미설정'}"></span>
+                    </div>
+                  </div>
+                  <!-- 리뷰 수 -->
+                  <div
+                      class="list-group-item border-0 mb-2 rounded-3 hover:bg-gray-50 transition-all duration-300">
+                    <div class="d-flex justify-content-between align-items-center p-2">
+                      <span class="fw-semibold text-gray-700">리뷰 수</span>
+                      <span class="badge bg-secondary text-white"
+                            th:text="${user.reviewCount}"></span>
+                    </div>
+                  </div>
+                  <!-- 판매 기록 -->
+                  <div
+                      class="list-group-item border-0 mb-2 rounded-3 hover:bg-gray-50 transition-all duration-300">
+                    <div class="d-flex justify-content-between align-items-center p-2">
+                      <span class="fw-semibold text-gray-700">판매 기록</span>
+                      <span class="badge bg-secondary text-white"
+                            th:text="${user.salesCount}"></span>
+                    </div>
+                  </div>
+                  <!-- 구매 기록 -->
+                  <div
+                      class="list-group-item border-0 mb-2 rounded-3 hover:bg-gray-50 transition-all duration-300">
+                    <div class="d-flex justify-content-between align-items-center p-2">
+                      <span class="fw-semibold text-gray-700">구매 기록</span>
+                      <span class="badge bg-secondary text-white"
+                            th:text="${user.purchaseCount}"></span>
+                    </div>
+                  </div>
+                  <!-- 예약 수 -->
+                  <div
+                      class="list-group-item border-0 rounded-3 hover:bg-gray-50 transition-all duration-300">
+                    <div class="d-flex justify-content-between align-items-center p-2">
+                      <span class="fw-semibold text-gray-700">예약 수</span>
+                      <span class="badge bg-secondary text-white"
+                            th:text="${user.reservationCount}"></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
+          </div>
+          <!-- 모달 푸터 -->
+          <div class="modal-footer border-0 bg-light">
+            <button type="button"
+                    class="btn btn-light hover:bg-gray-200 transition-colors duration-300 rounded-pill px-4"
+                    data-bs-dismiss="modal">
+              닫기
+            </button>
+          </div>
         </div>
+      </div>
     </div>
-    -->
-    <div class="mt-5">
-        <h2>활동 통계</h2>
-        <div class="row">
-            <div class="col-md-4">
-                <div class="card bg-primary text-white mb-3">
-                    <div class="card-header">총 리뷰 작성 수</div>
-                    <div class="card-body">
-                        <h5 class="card-title">50개</h5>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card bg-success text-white mb-3">
-                    <div class="card-header">총 판매 기록</div>
-                    <div class="card-body">
-                        <h5 class="card-title">30건</h5>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card bg-warning text-white mb-3">
-                    <div class="card-header">총 구매 기록</div>
-                    <div class="card-body">
-                        <h5 class="card-title">40건</h5>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+  </div>
 </div>
+
 </body>
 </html>
