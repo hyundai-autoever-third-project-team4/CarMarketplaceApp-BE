@@ -167,6 +167,34 @@
           </button>
         </form>
       </div>
+
+<!--        모델 선택 필터-->
+        <div class="col-md-3">
+            <form class="input-group" method="GET" th:action="@{/admin/cars}">
+                <select class="form-select" name="model" id="model" onchange="this.form.submit()">
+                    <option value="">모델 선택</option>
+                    <option th:each="model : ${carModels}"
+                            th:value="${model}"
+                            th:text="${model}"
+                            th:selected="${param.model == model}">
+                    </option>
+                </select>
+            </form>
+        </div>
+
+        <!-- 상태 선택 필터 -->
+        <div class="col-md-3">
+            <form class="input-group" method="GET" th:action="@{/admin/cars}">
+                <select class="form-select" name="status" id="status" onchange="this.form.submit()">
+                    <option value="">상태 선택</option>
+                    <option value="AVAILABLE_FOR_PURCHASE" th:selected="${param.status == 'AVAILABLE_FOR_PURCHASE'}">구매가능</option>
+                    <option value="PENDING_PURCHASE_APPROVAL" th:selected="${param.status == 'PENDING_PURCHASE_APPROVAL'}">구매 승인 대기</option>
+                    <option value="NOT_AVAILABLE_FOR_PURCHASE" th:selected="${param.status == 'NOT_AVAILABLE_FOR_PURCHASE'}">구매 불가</option>
+                    <option value="PENDING_SALE" th:selected="${param.status == 'PENDING_SALE'}">판매 승인 대기</option>
+                    <option value="SALE_APPROVED" th:selected="${param.status == 'SALE_APPROVED'}">판매 승인</option>
+                </select>
+            </form>
+        </div>
     </div>
 
     <!-- 차량 목록 테이블 -->
@@ -269,14 +297,13 @@
              th:text="${i + 1}">1</a>
         </li>
 
-        <!-- 다음 버튼 -->
-        <li class="page-item" th:classappend="${cars.number + 1 == cars.totalPages} ? 'disabled' : ''">
-          <a class="page-link" th:href="@{/admin/cars(page=${cars.number + 1}, licensePlate=${param.licensePlate})}"
-             aria-label="Next">
-            <span aria-hidden="true">&raquo;</span>
-          </a>
-        </li>
-      </ul>
+            <!-- 다음 버튼 -->
+            <li class="page-item" th:classappend="${cars.number + 1 == cars.totalPages ? 'disabled' : ''}">
+                <a class="page-link" th:href="@{/admin/cars(page=${cars.number + 1}, licensePlate=${param.licensePlate})}">
+                    다음
+                </a>
+            </li>
+        </ul>
     </nav>
 
     <!-- 차량 상세 모달 -->
@@ -356,10 +383,14 @@
         </div>
       </div>
     </div>
-  </div>
-</div>
 
-<!-- Bootstrap JS Bundle (includes Popper) -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  </div>
+
+  <!-- Bootstrap JS Bundle (includes Popper) -->
+
 </body>
 </html>

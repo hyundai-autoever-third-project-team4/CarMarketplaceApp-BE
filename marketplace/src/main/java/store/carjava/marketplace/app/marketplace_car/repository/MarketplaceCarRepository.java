@@ -36,4 +36,10 @@ public interface MarketplaceCarRepository extends JpaRepository<MarketplaceCar, 
     @Query("SELECT m FROM MarketplaceCar m WHERE m.carDetails.licensePlate LIKE CONCAT(:licensePlate, '%')")
     Page<MarketplaceCar> findByLicensePlateStartingWith(@Param("licensePlate") String licensePlate, Pageable pageable);
 
+    Page<MarketplaceCar> findByCarDetailsModel(String model, Pageable pageable);
+
+    @Query("SELECT DISTINCT c.carDetails.model FROM MarketplaceCar c ORDER BY c.carDetails.model")
+    List<String> findDistinctModels();
+
+    Page<MarketplaceCar> findByStatus(String status, Pageable pageable);
 }
