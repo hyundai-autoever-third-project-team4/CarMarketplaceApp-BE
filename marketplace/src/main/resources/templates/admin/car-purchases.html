@@ -82,7 +82,7 @@
                                                                 th:text="${#temporals.format(purchase.paymentDate, 'yyyy-MM-dd')}">날짜</span></span>
               </div>
             </div>
-            <div class="d-flex flex-column gap-2">
+            <div class="d-flex flex-row gap-2">
               <button class="btn btn-success btn-sm approve-btn"
                       th:data-purchase-id="${purchase.orderId()}">승인
               </button>

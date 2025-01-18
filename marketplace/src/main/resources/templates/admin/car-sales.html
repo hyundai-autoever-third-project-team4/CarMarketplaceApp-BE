@@ -85,13 +85,13 @@
                 <span class="info-value" th:text="${sale.userName()}">판매자</span>
               </span>
                 <span>
-                <span class="info-label">날짜:</span>
+                <span class="info-label">판매 요청 날짜:</span>
                 <span class="info-value" th:text="${#temporals.format(sale.requestDate(), 'yyyy-MM-dd')}">날짜</span>
               </span>
               </div>
             </div>
             <!-- 버튼 -->
-            <div class="d-flex flex-column gap-2">
+            <div class="d-flex flex-row gap-2">
               <button class="btn btn-success btn-sm approve-btn"
                       th:data-sale-id="${sale.carId()}"
                       data-bs-toggle="modal"
