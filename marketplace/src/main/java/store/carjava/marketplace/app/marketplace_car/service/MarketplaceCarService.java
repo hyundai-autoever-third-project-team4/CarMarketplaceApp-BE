@@ -396,44 +396,6 @@ public class MarketplaceCarService {
         return dtoList;
     }
 
-    // 관리자가 판매 승인했을 때 가격
-    @Transactional
-    public void approveCar(String id, Long testDriveCenterId, Long price, List<MultipartFile> files)
-            throws IOException {
-        // 차량 조회
-        MarketplaceCar car = marketplaceCarRepository.findById(id)
-                .orElseThrow(MarketplaceCarIdNotFoundException::new);
-
-        // TestDriveCenter 조회
-        TestDriveCenter testDriveCenter = testDriveCenterRepository.findById(testDriveCenterId)
-                .orElseThrow(TestDriverCenterIdNotFoundException::new);
-
-        // 차량 상태 업데이트 및 TestDriveCenter 연관 관계 설정
-        car = MarketplaceCar.builder()
-                .id(car.getId())
-                .carDetails(car.getCarDetails())
-                .price(price)
-                .status("SALE_APPROVED")
-                .marketplaceRegistrationDate(LocalDate.now())
-                .testDriveCenter(testDriveCenter) // 연관된 TestDriveCenter 설정
-                .mainImage(car.getMainImage())
-                .carSalesHistories(car.getCarSalesHistories())
-                .build();
-
-        // 차량 저장
-        marketplaceCarRepository.save(car);
-
-        // 이미지 파일 처리 및 저장
-        if (files != null && !files.isEmpty()) {
-            // S3에 파일 업로드 및 URL 생성
-            List<String> imageUrls = imageUploader.uploadMultiFiles(files,
-                    "marketplace-car-images");
-
-            // 서비스 호출로 DB 저장
-            marketplaceCarImageService.saveImages(id, imageUrls);
-        }
-    }
-
     // 판매자가 가격보고 승인했을때 최종 판매 API
     public void completeSaleCar(String id) {
         // 차량 조회
