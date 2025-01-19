@@ -18,18 +18,24 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.web.client.ExpectedCount;
 import store.carjava.marketplace.app.base_car.entity.BaseCar;
 import store.carjava.marketplace.app.base_car.repository.BaseCarRepository;
+import store.carjava.marketplace.app.car_sales_history.entity.CarSalesHistory;
+import store.carjava.marketplace.app.car_sales_history.repository.CarSalesHistoryRepository;
 import store.carjava.marketplace.app.like.entity.Like;
 import store.carjava.marketplace.app.like.repository.LikeRepository;
+import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarRegisterRequest;
 import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarResponse;
+import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarSendToManagerDto;
 import store.carjava.marketplace.app.marketplace_car.entity.MarketplaceCar;
 import store.carjava.marketplace.app.marketplace_car.exception.*;
 import store.carjava.marketplace.app.marketplace_car.repository.MarketplaceCarRepository;
 import store.carjava.marketplace.app.marketplace_car.service.MarketplaceCarService;
 import store.carjava.marketplace.app.user.entity.User;
 import store.carjava.marketplace.app.vo.CarDetails;
+import store.carjava.marketplace.common.security.UserNotAuthenticatedException;
 import store.carjava.marketplace.common.util.user.UserResolver;
 import store.carjava.marketplace.marketplace_car.builder.MarketplaceCarTestBuilder;
 
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -61,6 +67,8 @@ class MarketplaceCarServiceTest {
     @Mock
     private SecurityContext securityContext;
 
+    @Mock
+    private CarSalesHistoryRepository carSalesHistoryRepository;
 
     @Mock
     private BaseCarRepository baseCarRepository;
@@ -421,5 +429,126 @@ class MarketplaceCarServiceTest {
         // When / Then
         Assertions.assertThrows(BaseCarNotFoundException.class,
                 () -> marketplaceCarService.findBaseCar(licensePlate, ownerName));
+    }
+
+
+    @Test
+    void sellRegisterCar_whenBaseCarExistsAndUserIsAuthenticated_registersCarAndCreatesSalesHistory() {
+        // Given
+        String licensePlate = "ABC123";
+        String ownerName = "John Doe";
+        BaseCar baseCar = BaseCar.builder()
+                .id("1")
+                .carDetails(CarDetails.builder().licensePlate(licensePlate).build())
+                .mainImage("image.jpg")
+                .build();
+        MarketplaceCarRegisterRequest request = new MarketplaceCarRegisterRequest(licensePlate, ownerName);
+
+        Mockito.when(baseCarRepository.findByCarDetails_LicensePlateAndOwnerName(licensePlate, ownerName))
+                .thenReturn(Optional.of(baseCar));
+
+        User mockUser = User.builder().id(1L).build();
+        Mockito.when(userResolver.getCurrentUser()).thenReturn(mockUser);
+
+        // When
+        marketplaceCarService.sellRegisterCar(request);
+
+        // Then
+        Mockito.verify(marketplaceCarRepository, Mockito.times(1)).save(Mockito.any(MarketplaceCar.class));
+        Mockito.verify(carSalesHistoryRepository, Mockito.times(1)).save(Mockito.any(CarSalesHistory.class));
+    }
+
+    @Test
+    void sellRegisterCar_whenBaseCarDoesNotExist_throwsIllegalArgumentException() {
+        // Given
+        String licensePlate = "ABC123";
+        String ownerName = "John Doe";
+        MarketplaceCarRegisterRequest request = new MarketplaceCarRegisterRequest(licensePlate, ownerName);
+
+        Mockito.when(baseCarRepository.findByCarDetails_LicensePlateAndOwnerName(licensePlate, ownerName))
+                .thenReturn(Optional.empty());
+
+        // When / Then
+        Assertions.assertThrows(IllegalArgumentException.class, () -> marketplaceCarService.sellRegisterCar(request));
+    }
+
+    @Test
+    void sellRegisterCar_whenUserIsNotAuthenticated_throwsUserNotAuthenticatedException() {
+        // Given
+        String licensePlate = "ABC123";
+        String ownerName = "John Doe";
+        BaseCar baseCar = BaseCar.builder()
+                .id("1")
+                .carDetails(CarDetails.builder().licensePlate(licensePlate).build())
+                .mainImage("image.jpg")
+                .build();
+        MarketplaceCarRegisterRequest request = new MarketplaceCarRegisterRequest(licensePlate, ownerName);
+
+        Mockito.when(baseCarRepository.findByCarDetails_LicensePlateAndOwnerName(licensePlate, ownerName))
+                .thenReturn(Optional.of(baseCar));
+
+        Mockito.when(userResolver.getCurrentUser()).thenReturn(null);
+
+        // When / Then
+        Assertions.assertThrows(UserNotAuthenticatedException.class, () -> marketplaceCarService.sellRegisterCar(request));
+    }
+
+    @Test
+    void getCarsByStatus_whenCarsExist_returnsDtoList() {
+        // Given
+        String status = "AVAILABLE_FOR_PURCHASE";
+
+        MarketplaceCar car = MarketplaceCar.builder()
+                .id("1")
+                .carDetails(CarDetails.builder()
+                        .licensePlate("ABC123")
+                        .brand("Toyota")
+                        .name("Corolla")
+                        .driveType("FWD")
+                        .engineCapacity(2000)
+                        .exteriorColor("Black")
+                        .interiorColor("Beige")
+                        .registrationDate(LocalDate.of(2020, 1, 1))
+                        .model("LE")
+                        .colorType("Solid")
+                        .fuelType("Gasoline")
+                        .mileage(50000)
+                        .modelYear(2020)
+                        .seatingCapacity(5)
+                        .transmission("Automatic")
+                        .vehicleType("Sedan")
+                        .build())
+                .price(20000L)
+                .status(status)
+                .mainImage("image.jpg")
+                .marketplaceRegistrationDate(LocalDate.of(2023, 1, 1))
+                .build();
+
+        Mockito.when(marketplaceCarRepository.findByStatus(status)).thenReturn(List.of(car));
+
+        // When
+        List<MarketplaceCarSendToManagerDto> result = marketplaceCarService.getCarsByStatus(status);
+
+        // Then
+        Assertions.assertEquals(1, result.size());
+        MarketplaceCarSendToManagerDto dto = result.get(0);
+        Assertions.assertEquals("1", dto.id());
+        Assertions.assertEquals("Toyota", dto.carDetails().brand());
+        Assertions.assertEquals("Corolla", dto.carDetails().name());
+        Assertions.assertEquals(20000L, dto.price());
+        Assertions.assertEquals("image.jpg", dto.mainImage());
+    }
+
+    @Test
+    void getCarsByStatus_whenNoCarsExist_returnsEmptyList() {
+        // Given
+        String status = "AVAILABLE_FOR_PURCHASE";
+        Mockito.when(marketplaceCarRepository.findByStatus(status)).thenReturn(List.of());
+
+        // When
+        List<MarketplaceCarSendToManagerDto> result = marketplaceCarService.getCarsByStatus(status);
+
+        // Then
+        Assertions.assertTrue(result.isEmpty());
     }
 }
