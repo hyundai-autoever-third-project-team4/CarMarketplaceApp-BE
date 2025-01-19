@@ -122,6 +122,7 @@ public class UserService {
                     boolean isReviewed = reviewRepository.existsByUserAndMarketplaceCar(currentUser, car);
 
                     return new UserPurchaseCarDto(
+                            car.getId(),
                             car.getCarDetails().getName(),
                             car.getCarDetails().getLicensePlate(),
                             car.getCarDetails().getRegistrationDate(),

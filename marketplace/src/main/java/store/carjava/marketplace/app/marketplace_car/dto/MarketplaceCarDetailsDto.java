@@ -8,6 +8,7 @@ import java.time.LocalDate;
 @Builder
 public record MarketplaceCarDetailsDto(
 
+
         @Schema(description = "차량 브랜드 이름", example = "현대")
         String brand,
 
