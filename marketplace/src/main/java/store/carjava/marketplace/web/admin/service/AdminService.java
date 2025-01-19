@@ -1,12 +1,15 @@
 package store.carjava.marketplace.web.admin.service;
 
 import jakarta.transaction.Transactional;
+import java.io.IOException;
+import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import store.carjava.marketplace.app.car_purchase_history.entity.CarPurchaseHistory;
 import store.carjava.marketplace.app.car_purchase_history.repository.CarPurchaseHistoryRepository;
 import store.carjava.marketplace.app.car_sales_history.dto.CarSalesHistoryInfoDto;
@@ -14,14 +17,20 @@ import store.carjava.marketplace.app.car_sales_history.entity.CarSalesHistory;
 import store.carjava.marketplace.app.car_sales_history.repository.CarSalesHistoryRepository;
 import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarSummaryDto;
 import store.carjava.marketplace.app.marketplace_car.entity.MarketplaceCar;
+import store.carjava.marketplace.app.marketplace_car.exception.MarketplaceCarIdNotFoundException;
 import store.carjava.marketplace.app.marketplace_car.repository.MarketplaceCarRepository;
+import store.carjava.marketplace.app.marketplace_car_image.service.MarketplaceCarImageService;
 import store.carjava.marketplace.app.reservation.dto.ReservationDetailDto;
 import store.carjava.marketplace.app.reservation.entity.Reservation;
 import store.carjava.marketplace.app.reservation.repository.ReservationRepository;
 import store.carjava.marketplace.app.review.repository.ReviewRepository;
+import store.carjava.marketplace.app.test_drive_center.entity.TestDriveCenter;
+import store.carjava.marketplace.app.test_drive_center.exception.TestDriverCenterIdNotFoundException;
+import store.carjava.marketplace.app.test_drive_center.repository.TestDriveCenterRepository;
 import store.carjava.marketplace.app.user.dto.UserSummaryDto;
 import store.carjava.marketplace.app.user.entity.User;
 import store.carjava.marketplace.app.user.repository.UserRepository;
+import store.carjava.marketplace.common.util.image.ImageUploader;
 import store.carjava.marketplace.web.admin.dto.CarPurchaseDto;
 import store.carjava.marketplace.web.admin.dto.CarSellDto;
 
@@ -39,6 +48,9 @@ public class AdminService {
     private final CarSalesHistoryRepository carSalesHistoryRepository;
     private final ReviewRepository reviewRepository;
     private final ReservationRepository reservationRepository;
+    private final TestDriveCenterRepository testDriveCenterRepository;
+    private final ImageUploader imageUploader;
+    private final MarketplaceCarImageService marketplaceCarImageService;
 
     // 전체 사용자 목록을 페이지네이션으로 가져오는 메서드
     public Page<UserSummaryDto> getUsers(int page, int size) {
@@ -134,7 +146,7 @@ public class AdminService {
     }
 
     public Page<MarketplaceCarSummaryDto> searchCarsByLicensePlate(String licensePlate, int page,
-                                                                   int size) {
+            int size) {
         return marketplaceCarRepository.findByLicensePlateStartingWith(licensePlate,
                         PageRequest.of(page, size))
                 .map(MarketplaceCarSummaryDto::of);
@@ -147,6 +159,7 @@ public class AdminService {
         Page<ReservationDetailDto> dtoPage = reservationsPage.map(ReservationDetailDto::fromEntity);
         return dtoPage;
     }
+
     public Page<MarketplaceCarSummaryDto> searchCarsByModel(String model, int page, int size) {
         return marketplaceCarRepository.findByCarDetailsModel(model, PageRequest.of(page, size))
                 .map(MarketplaceCarSummaryDto::of);
@@ -159,5 +172,43 @@ public class AdminService {
     public Page<MarketplaceCarSummaryDto> searchCarsByStatus(String status, int page, int size) {
         return marketplaceCarRepository.findByStatus(status, PageRequest.of(page, size))
                 .map(MarketplaceCarSummaryDto::of);
+    }
+
+    // 관리자가 판매 승인했을 때 가격
+    @Transactional
+    public void approveCar(String id, Long testDriveCenterId, Long price, List<MultipartFile> files)
+            throws IOException {
+        // 차량 조회
+        MarketplaceCar car = marketplaceCarRepository.findById(id)
+                .orElseThrow(MarketplaceCarIdNotFoundException::new);
+
+        // TestDriveCenter 조회
+        TestDriveCenter testDriveCenter = testDriveCenterRepository.findById(testDriveCenterId)
+                .orElseThrow(TestDriverCenterIdNotFoundException::new);
+
+        // 차량 상태 업데이트 및 TestDriveCenter 연관 관계 설정
+        car = MarketplaceCar.builder()
+                .id(car.getId())
+                .carDetails(car.getCarDetails())
+                .price(price)
+                .status("SALE_APPROVED")
+                .marketplaceRegistrationDate(LocalDate.now())
+                .testDriveCenter(testDriveCenter) // 연관된 TestDriveCenter 설정
+                .mainImage(car.getMainImage())
+                .carSalesHistories(car.getCarSalesHistories())
+                .build();
+
+        // 차량 저장
+        marketplaceCarRepository.save(car);
+
+        // 이미지 파일 처리 및 저장
+        if (files != null && !files.isEmpty()) {
+            // S3에 파일 업로드 및 URL 생성
+            List<String> imageUrls = imageUploader.uploadMultiFiles(files,
+                    "marketplace-car-images");
+
+            // 서비스 호출로 DB 저장
+            marketplaceCarImageService.saveImages(id, imageUrls);
+        }
     }
 }

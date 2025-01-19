@@ -1,14 +1,18 @@
 package store.carjava.marketplace.web.admin.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import java.util.ArrayList;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarSummaryDto;
 import store.carjava.marketplace.app.reservation.dto.ReservationDetailDto;
 import store.carjava.marketplace.app.user.dto.UserSummaryDto;
@@ -108,7 +112,7 @@ public class AdminController {
         return adminService.getDistinctCarModels();
     }
 
-    @GetMapping
+    @GetMapping()
     public String adminPage(Model model) {
         Long totalSales = adminService.getTotalSalesAmount();
 
@@ -165,6 +169,36 @@ public class AdminController {
         }
     }
 
+    @Operation(summary = "차량 판매 승인", description = "특정 차량의 판매를 승인합니다.")
+    @PutMapping("/car-sales/approve")
+    public ResponseEntity<String> approveCar(
+            @RequestParam(name = "carId") String carId,
+            @RequestParam(name = "testDriveCenterId") Long testDriveCenterId,
+            @RequestParam(name = "price") Long price,
+            @RequestParam(name = "exteriorImages", required = false) List<MultipartFile> exteriorImages,
+            @RequestParam(name = "interiorImages", required = false) List<MultipartFile> interiorImages,
+            @RequestParam(name = "wheelImages", required = false) List<MultipartFile> wheelImages,
+            @RequestParam(name = "additionalImages", required = false) List<MultipartFile> additionalImages
+    ) {
+        try {
+            // 모든 이미지 파일들을 하나의 리스트로 통합
+            List<MultipartFile> allImages = new ArrayList<>();
+            if (exteriorImages != null) allImages.addAll(exteriorImages);
+            if (interiorImages != null) allImages.addAll(interiorImages);
+            if (wheelImages != null) allImages.addAll(wheelImages);
+            if (additionalImages != null) allImages.addAll(additionalImages);
+
+
+
+            adminService.approveCar(carId, testDriveCenterId, price, allImages);
+            return ResponseEntity.ok("차량 판매가 승인되었습니다.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("서버 오류가 발생했습니다. 나중에 다시 시도해주세요.");
+        }
+    }
 
     @GetMapping("/car-sales")
     public String carSalesPage(Model model) {
