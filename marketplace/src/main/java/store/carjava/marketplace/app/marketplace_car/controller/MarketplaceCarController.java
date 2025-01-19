@@ -28,6 +28,7 @@ import store.carjava.marketplace.app.marketplace_car.dto.MarketplaceCarResponse;
 
 import store.carjava.marketplace.app.marketplace_car.service.MarketplaceCarService;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -113,25 +114,6 @@ public class MarketplaceCarController {
         return ResponseEntity.ok(cars);
     }
 
-    @Operation(summary = "차량 판매 승인", description = "특정 차량의 판매를 승인합니다.")
-    @PutMapping("/car/sale/approve")
-    public ResponseEntity<String> approveCar(
-            @RequestParam(name = "carId") String carId,
-            @RequestParam(name = "testDriveCenterName") String testDriveCenterName,
-            @RequestParam(name = "price") Long price,
-            @RequestParam(name = "files") List<MultipartFile> files
-        ) {
-        try {
-            marketplaceCarService.approveCar(carId, testDriveCenterName, price, files);
-            return ResponseEntity.ok("차량 판매가 승인되었습니다.");
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("서버 오류가 발생했습니다. 나중에 다시 시도해주세요.");
-        }
-    }
-
     @Operation(summary = "최종 차량 판매 완료", description = "차량의 최종 판매를 완료합니다.")
     @PutMapping("/car/sale/complete-sale")
     public ResponseEntity<String> completeSaleCar(
@@ -208,4 +190,16 @@ public class MarketplaceCarController {
         List<MarketplaceCarResponse> topCars = marketplaceCarService.getTop5CarsByLikes();
         return ResponseEntity.ok(topCars);
     }
-}
+
+    @DeleteMapping("/cars/{carId}")
+    public ResponseEntity<String> deleteCar(@PathVariable String carId) {
+            try {
+                marketplaceCarService.deleteCar(carId);
+                return ResponseEntity.ok("차량이 성공적으로 삭제되었습니다. ID: " + carId);
+            } catch (IllegalArgumentException e) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            } catch (Exception e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("차량 삭제 중 문제가 발생했습니다.");
+            }
+        }
+    }

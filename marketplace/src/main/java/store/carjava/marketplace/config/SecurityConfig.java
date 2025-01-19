@@ -72,20 +72,25 @@ public class SecurityConfig {
                         // [My page]
                         .requestMatchers("/mypage/**").authenticated()
 
+
                         // [Review]
+                        .requestMatchers(HttpMethod.GET,"/review/**").permitAll()
                         .requestMatchers("/reviews/**").permitAll()
                         .requestMatchers("/review/**").authenticated()
+
 
                         // [Test Driver Center]
                         .requestMatchers("/test-driver-centers/**").permitAll()
 
                         // [ADMIN]
                         .requestMatchers("/admin/**").hasRole("ADMIN") // ROLE_ADMIN만 허용
+                        //.requestMatchers("/admin/**").permitAll()
 
                         .requestMatchers("/payment/**").permitAll()
                         // socket
                         .requestMatchers("/ws/**").permitAll()
                         .requestMatchers("/chat/**").permitAll()
+
 
                         .anyRequest().authenticated() // 나머지 요청은 인증 필요
                 )

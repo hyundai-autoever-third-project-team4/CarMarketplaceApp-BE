@@ -2,149 +2,283 @@
 <html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{admin/layout}">
 <head>
-    <title>작업 관리</title>
+  <meta charset="UTF-8">
+  <title>작업 관리</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+        rel="stylesheet">
+  <!-- Font Awesome for Icons -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        rel="stylesheet">
+  <!-- Custom CSS -->
+  <style>
+    body {
+      background-color: #f8f9fa;
+    }
+
+    .card {
+      border-radius: 15px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      transition: transform 0.2s, box-shadow 0.2s;
+      background-color: #ffffff;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .card-header {
+      background-color: #ffffff;
+      border-bottom: none;
+      font-weight: bold;
+      font-size: 1.1rem;
+    }
+
+    .stats-card .card-body {
+      display: flex;
+      align-items: center;
+    }
+
+    .stats-card .card-body .fa {
+      font-size: 2.5rem;
+      margin-right: 15px;
+    }
+
+    .table th, .table td {
+      vertical-align: middle;
+    }
+
+    .badge {
+      padding: 5px 10px;
+      border-radius: 5px;
+      font-weight: bold;
+    }
+
+    .btn-view {
+      background-color: #007bff;
+      color: #ffffff;
+    }
+
+    .btn-view:hover {
+      background-color: #0056b3;
+      color: #ffffff;
+    }
+  </style>
 </head>
 <body>
 <div layout:fragment="content">
-    <h1>작업 관리</h1>
+  <div class="container-fluid p-4">
+    <h1 class="mb-4 text-primary"><i class="fas fa-tasks me-2"></i>작업 관리</h1>
 
     <!-- 통계 카드 -->
-    <div class="row mt-4">
-        <div class="col-md-6">
-            <div class="card text-white bg-primary mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">총 구매 요청</h5>
-                    <p class="card-text" th:text="${purchaseRequests} + ' 건'">0 건</p>
-                </div>
+    <div class="row g-4">
+      <!-- 총 구매 요청 -->
+      <div class="col-lg-6 col-md-12" onclick="location.href='/admin/car-purchases'" style="cursor: pointer;">
+        <div class="card stats-card bg-primary text-white h-100">
+          <div class="card-body d-flex align-items-center">
+            <div class="me-3">
+              <i class="fas fa-shopping-cart fa-3x"></i>
             </div>
-        </div>
-        <div class="col-md-6">
-            <div class="card text-white bg-success mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">총 판매 요청</h5>
-                    <p class="card-text" th:text="${salesRequests} + ' 건'">0 건</p>
-                </div>
+            <div>
+              <h5 class="card-title">총 구매 요청</h5>
+              <!-- ThymeleafUtils.formatNumber 사용 -->
+              <p class="card-text h4"
+                 th:text="${purchaseRequests != null ? @thymeleafUtils.formatNumber(purchaseTasks.size()) + ' 건' : '0 건'}">
+                .
+                0 건</p>
             </div>
+          </div>
         </div>
+      </div>
+      <!-- 총 판매 요청 -->
+      <div class="col-lg-6 col-md-12" onclick="location.href='/admin/car-sales'" style="cursor: pointer;">
+        <div class="card stats-card bg-success text-white h-100">
+          <div class="card-body d-flex align-items-center">
+            <div class="me-3">
+              <i class="fas fa-dollar-sign fa-3x"></i>
+            </div>
+            <div>
+              <h5 class="card-title">총 판매 요청</h5>
+              <!-- ThymeleafUtils.formatNumber 사용 -->
+              <p class="card-text h4"
+                 th:text="${salesRequests != null ? @thymeleafUtils.formatNumber(salesTasks.size()) + ' 건' : '0 건'}">
+                0 건</p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- 차량 구매 관리 섹션 -->
-    <h2 class="mt-5 mb-3">차량 구매 관리</h2>
+    <h2 class="mt-5 mb-3"><i class="fas fa-car-side me-2"></i>차량 구매 관리</h2>
     <div class="table-responsive">
-        <table class="table table-striped table-hover">
-            <thead class="table-dark">
-            <tr>
-                <th>구매 ID</th>
-                <th>구매자</th>
-                <th>차량</th>
-                <th>가격</th>
-                <th>구매 날짜</th>
-                <th>상태</th>
-                <th>상세 정보</th>
-            </tr>
-            </thead>
-            <tbody>
-            <!-- Mock 데이터 -->
-            <tr>
-                <td>1001</td>
-                <td>홍길동</td>
-                <td>2022 투싼</td>
-                <td>2,390만원</td>
-                <td>2023-01-15</td>
-                <td>완료</td>
-                <td><a href="#" class="btn btn-primary btn-sm">보기</a></td>
-            </tr>
-            <tr>
-                <td>1002</td>
-                <td>김철수</td>
-                <td>2023 스포티지</td>
-                <td>3,100만원</td>
-                <td>2023-03-20</td>
-                <td>대기</td>
-                <td><a href="#" class="btn btn-primary btn-sm">보기</a></td>
-            </tr>
-            <tr>
-                <td>1003</td>
-                <td>이영희</td>
-                <td>2021 쏘렌토</td>
-                <td>2,800만원</td>
-                <td>2023-02-10</td>
-                <td>취소</td>
-                <td><a href="#" class="btn btn-primary btn-sm">보기</a></td>
-            </tr>
-            </tbody>
-            <!--            <tbody>-->
-            <!--            <tr th:each="purchase : ${purchaseList}">-->
-            <!--                <td th:text="${purchase.id}">1001</td>-->
-            <!--                <td th:text="${purchase.buyer}">홍길동</td>-->
-            <!--                <td th:text="${purchase.carModel}">2022 투싼</td>-->
-            <!--                <td th:text="${purchase.price} + '만원'">2390만원</td>-->
-            <!--                <td th:text="${#dates.format(purchase.date, 'yyyy-MM-dd')}">2023-01-15</td>-->
-            <!--                <td th:text="${purchase.status}">완료</td>-->
-            <!--                <td><a th:href="@{/admin/purchase/details/{id}(id=${purchase.id})}"-->
-            <!--                       class="btn btn-primary btn-sm">보기</a></td>-->
-            <!--            </tr>-->
-            <!--            </tbody>-->
-        </table>
+      <table class="table table-striped table-hover">
+        <thead class="table-dark">
+        <tr>
+          <th scope="col">구매 ID</th>
+          <th scope="col">구매자</th>
+          <th scope="col">차량</th>
+          <th scope="col">가격 (만원)</th>
+          <th scope="col">구매 날짜</th>
+          <th scope="col">상태</th>
+          <th scope="col">상세 정보</th>
+        </tr>
+        </thead>
+        <tbody>
+        <!-- 차량 구매 데이터 -->
+        <tr th:each="purchase : ${purchaseTasks}">
+          <td th:text="${purchase.orderId}">1001</td>
+          <td th:text="${purchase.userName}">홍길동</td>
+          <td th:text="${purchase.carName}">2022 투싼</td>
+          <!-- ThymeleafUtils.formatNumber 사용하여 가격 포맷팅 -->
+          <td th:text="${@thymeleafUtils.formatNumber(purchase.price / 10000) + ' 만원'}">2390 만원</td>
+          <td th:text="${#temporals.format(purchase.paymentDate, 'yyyy-MM-dd')}">2023-01-15</td>
+          <td>
+                        <span th:classappend="'badge bg-secondary'"
+                              th:text="${purchase.status}">
+                            완료
+                        </span>
+          </td>
+          <td>
+            <!-- 상세보기 버튼: 모달 트리거 -->
+            <button type="button" class="btn btn-view btn-sm" data-bs-toggle="modal"
+                    th:data-bs-target="'#purchaseModal' + ${purchase.orderId}"
+                    aria-label="구매 요청 상세 보기">
+              보기
+            </button>
+
+            <!-- 구매 상세 모달 -->
+            <div class="modal fade" th:id="'purchaseModal' + ${purchase.orderId}" tabindex="-1"
+                 aria-labelledby="purchaseModalLabel" aria-hidden="true">
+              <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" th:text="'구매 상세 정보 - ID: ' + ${purchase.orderId}">구매 상세
+                      정보</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                            aria-label="닫기"></button>
+                  </div>
+                  <div class="modal-body">
+                    <ul class="list-group">
+                      <li class="list-group-item"><strong>구매자:</strong> <span
+                          th:text="${purchase.userName}">홍길동</span></li>
+                      <li class="list-group-item"><strong>차량:</strong> <span
+                          th:text="${purchase.carName}">2022 투싼</span></li>
+                      <li class="list-group-item"><strong>가격:</strong> <span
+                          th:text="${@thymeleafUtils.formatNumber(purchase.price / 10000) + ' 만원'}">2390 만원</span>
+                      </li>
+                      <li class="list-group-item"><strong>구매 날짜:</strong> <span
+                          th:text="${#temporals.format(purchase.paymentDate, 'yyyy-MM-dd')}">2023-01-15</span>
+                      </li>
+                      <li class="list-group-item"><strong>상태:</strong>
+                        <span th:classappend="'badge bg-secondary'"
+                              th:text="${purchase.status}">
+                                                    완료
+                                                </span>
+                      </li>
+                      <!-- 추가적인 상세 정보가 있다면 여기 추가 -->
+                    </ul>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기
+                    </button>
+                    <!-- 필요 시 추가 버튼 (예: 수정, 삭제 등) -->
+                  </div>
+                </div>
+              </div>
+            </div>
+          </td>
+        </tr>
+        </tbody>
+      </table>
     </div>
 
     <!-- 차량 판매 관리 섹션 -->
-    <h2 class="mt-5 mb-3">차량 판매 관리</h2>
+    <h2 class="mt-5 mb-3"><i class="fas fa-truck me-2"></i>차량 판매 관리</h2>
     <div class="table-responsive">
-        <table class="table table-striped table-hover">
-            <thead class="table-dark">
-            <tr>
-                <th>판매 ID</th>
-                <th>판매자</th>
-                <th>차량</th>
-                <th>가격</th>
-                <th>판매 날짜</th>
-                <th>상태</th>
-                <th>상세 정보</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-                <td>2001</td>
-                <td>최민호</td>
-                <td>2021 GV80</td>
-                <td>5,200만원</td>
-                <td>2023-04-10</td>
-                <td>완료</td>
-                <td><a href="#" class="btn btn-primary btn-sm">보기</a></td>
-            </tr>
-            <tr>
-                <td>2002</td>
-                <td>박지훈</td>
-                <td>2020 K7</td>
-                <td>2,800만원</td>
-                <td>2023-05-01</td>
-                <td>대기</td>
-                <td><a href="#" class="btn btn-primary btn-sm">보기</a></td>
-            </tr>
-            <tr>
-                <td>2003</td>
-                <td>한예진</td>
-                <td>2022 아반떼</td>
-                <td>2,200만원</td>
-                <td>2023-06-15</td>
-                <td>취소</td>
-                <td><a href="#" class="btn btn-primary btn-sm">보기</a></td>
-            </tr>
-            </tbody>
-            <!--      <tbody>-->
-            <!--      <tr th:each="sale : ${salesList}">-->
-            <!--        <td th:text="${sale.id}">2001</td>-->
-            <!--        <td th:text="${sale.seller}">이영희</td>-->
-            <!--        <td th:text="${sale.carModel}">2021 GV80</td>-->
-            <!--        <td th:text="${sale.price} + '만원'">5200만원</td>-->
-            <!--        <td th:text="${#dates.format(sale.date, 'yyyy-MM-dd')}">2023-04-10</td>-->
-            <!--        <td th:text="${sale.status}">완료</td>-->
-            <!--        <td><a th:href="@{/admin/sale/details/{id}(id=${sale.id})}" class="btn btn-primary btn-sm">보기</a></td>-->
-            <!--      </tr>-->
-            <!--      </tbody>-->
-        </table>
+      <table class="table table-striped table-hover">
+        <thead class="table-dark">
+        <tr>
+          <th scope="col">판매 ID</th>
+          <th scope="col">판매자</th>
+          <th scope="col">차량</th>
+          <th scope="col">가격 (만원)</th>
+          <th scope="col">판매 요청 날짜</th>
+          <th scope="col">상태</th>
+          <th scope="col">상세 정보</th>
+        </tr>
+        </thead>
+        <tbody>
+        <!-- 차량 판매 데이터 -->
+        <tr th:each="sale : ${salesTasks}">
+          <td th:text="${sale.saleId}">2001</td>
+          <td th:text="${sale.userName}">최민호</td>
+          <td th:text="${sale.carName}">2021 GV80</td>
+          <!-- ThymeleafUtils.formatNumber 사용하여 가격 포맷팅 -->
+          <td><span class="badge bg-danger">미책정</span></td>
+          <td th:text="${#temporals.format(sale.requestDate, 'yyyy-MM-dd')}">2023-04-10</td>
+          <td>
+                        <span th:classappend="'badge bg-secondary'"
+                              th:text="${sale.status}">
+                            완료
+                        </span>
+          </td>
+          <td>
+            <!-- 상세보기 버튼: 모달 트리거 -->
+            <button type="button" class="btn btn-view btn-sm" data-bs-toggle="modal"
+                    th:data-bs-target="'#saleModal' + ${sale.saleId}"
+                    aria-label="판매 요청 상세 보기">
+              보기
+            </button>
+
+            <!-- 판매 상세 모달 -->
+            <div class="modal fade" th:id="'saleModal' + ${sale.saleId}" tabindex="-1"
+                 aria-labelledby="saleModalLabel" aria-hidden="true">
+              <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" th:text="'판매 상세 정보 - ID: ' + ${sale.saleId}">판매 상세
+                      정보</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                            aria-label="닫기"></button>
+                  </div>
+                  <div class="modal-body">
+                    <ul class="list-group">
+                      <li class="list-group-item"><strong>판매자:</strong> <span
+                          th:text="${sale.userName}">최민호</span></li>
+                      <li class="list-group-item"><strong>차량:</strong> <span
+                          th:text="${sale.carName}">2021 GV80</span></li>
+                      <li class="list-group-item"><strong>가격:</strong>
+                        <span class="badge bg-danger">미책정</span>
+                      </li>
+                      <li class="list-group-item"><strong>판매 날짜:</strong> <span
+                          th:text="${#temporals.format(sale.requestDate, 'yyyy-MM-dd')}">2023-04-10</span>
+                      </li>
+                      <li class="list-group-item"><strong>상태:</strong>
+                        <span th:classappend="'badge bg-secondary'"
+                              th:text="${sale.status}">
+                            완료
+                        </span>
+                      </li>
+                    </ul>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </td>
+        </tr>
+        </tbody>
+      </table>
     </div>
+  </div>
 </div>
+
+<!-- Bootstrap JS Bundle (includes Popper) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

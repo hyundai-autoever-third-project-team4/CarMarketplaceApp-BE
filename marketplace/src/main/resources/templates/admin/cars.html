@@ -1,115 +1,396 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{admin/layout}">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/layout}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>차량 관리</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Font Awesome for Icons -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <!-- Custom CSS -->
   <style>
+    body {
+      background-color: #f8f9fa;
+    }
+
     .car-image {
       width: 150px;
       height: auto;
+      object-fit: cover;
+      border-radius: 8px;
+      transition: transform 0.3s ease;
+    }
+
+    .car-image:hover {
+      transform: scale(1.05);
+    }
+
+    .modal-header-gradient {
+      background: linear-gradient(to right, #38b2ac, #0d6efd); /* 그라데이션 색상 조정 */
+      color: white;
+    }
+
+    .modal-body {
+      background: #ffffff;
+    }
+
+    .modal-content {
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .modal-footer {
+      background-color: #f8f9fa;
+      border-top: 2px solid #dee2e6;
+    }
+
+    .list-group-item {
+      border: none;
+      padding: 10px 15px;
+      transition: background-color 0.3s ease;
+    }
+
+    .list-group-item:hover {
+      background-color: #f1f1f1;
+    }
+
+    .list-group-item strong {
+      color: #495057;
+    }
+
+    .badge {
+      padding: 5px 10px;
+      border-radius: 5px;
+      font-weight: bold;
+      font-size: 0.9rem;
+    }
+
+    .btn-view {
+      background-color: #0d6efd;
+      color: #ffffff;
+      transition: background-color 0.3s ease;
+      white-space: nowrap;
+    }
+
+    .btn-view:hover {
+      background-color: #0b5ed7;
+      color: #ffffff;
+    }
+
+    /* 추가적인 테이블 스타일링 */
+    .table th, .table td {
+      vertical-align: middle;
+      text-align: center;
+    }
+
+    .table thead th {
+      background-color: #343a40;
+      color: white;
+    }
+
+    /* 페이징 네비게이션 스타일 */
+    .pagination .page-link {
+      border-radius: 50%;
+      padding: 0.5rem 0.75rem;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .pagination .page-item.active .page-link {
+      background-color: #0d6efd;
+      border-color: #0d6efd;
+      color: white;
+    }
+
+    .pagination .page-item.disabled .page-link {
+      color: #6c757d;
+      pointer-events: none;
+      cursor: auto;
+      background-color: #fff;
+      border-color: #dee2e6;
+    }
+
+    .pagination .page-link:hover {
+      background-color: #e9ecef;
+      color: #0d6efd;
+    }
+
+    /* 모달 내 상세 정보 리스트 그룹 스타일 */
+    .list-group-item span {
+      display: inline-block;
+      max-width: 70%;
+      text-align: right;
+      color: #212529;
+    }
+
+    /* 반응형 디자인 */
+    @media (max-width: 768px) {
+      .car-image {
+        width: 100px;
+      }
+
+      .modal-dialog {
+        max-width: 90%;
+      }
+
+      .list-group-item span {
+        max-width: 60%;
+      }
+    }
+
+    /* Prevent button wrapping */
+    .no-wrap {
+      white-space: nowrap;
     }
   </style>
 </head>
 
 <body>
-<div layout:fragment="content" class="content"> <!-- 타임리프 문법: layout:fragment -->
-  <h1 class="mb-4">차량 관리</h1>
+<div layout:fragment="content" class="content">
+  <div class="container-fluid p-4">
+    <!-- 제목 -->
+    <h1 class="mb-4 text-primary d-flex align-items-center">
+      <i class="fas fa-car me-2"></i>차량 관리
+    </h1>
 
-  <!-- 검색 영역 -->
-  <div class="row mb-4">
-    <div class="col-md-6">
-      <form class="input-group" method="GET" action="/admin/cars/search"> <!-- 타임리프 문법: th:action -->
-        <input type="text" class="form-control" placeholder="차량 번호판으로 검색 (예: 303누7499)"
-               aria-label="Search" name="licensePlate" id="licensePlate"
-               th:value="${searchKeyword}"> <!-- 타임리프 문법: th:value -->
-        <button class="btn btn-primary" type="submit">검색</button>
-      </form>
+    <!-- 검색 영역 -->
+    <div class="row mb-4">
+      <div class="col-md-6">
+        <form class="input-group" method="GET" th:action="@{/admin/cars}">
+          <input type="text" class="form-control" placeholder="차량 번호판으로 검색 (예: 303누7499)"
+                 aria-label="Search" name="licensePlate" id="licensePlate"
+                 th:value="${param.licensePlate}">
+          <button class="btn btn-primary" type="submit">
+            <i class="fas fa-search me-1"></i>검색
+          </button>
+        </form>
+      </div>
+
+<!--        모델 선택 필터-->
+        <div class="col-md-3">
+            <form class="input-group" method="GET" th:action="@{/admin/cars}">
+                <select class="form-select" name="model" id="model" onchange="this.form.submit()">
+                    <option value="">모델 선택</option>
+                    <option th:each="model : ${carModels}"
+                            th:value="${model}"
+                            th:text="${model}"
+                            th:selected="${param.model == model}">
+                    </option>
+                </select>
+            </form>
+        </div>
+
+        <!-- 상태 선택 필터 -->
+        <div class="col-md-3">
+            <form class="input-group" method="GET" th:action="@{/admin/cars}">
+                <select class="form-select" name="status" id="status" onchange="this.form.submit()">
+                    <option value="">상태 선택</option>
+                    <option value="AVAILABLE_FOR_PURCHASE" th:selected="${param.status == 'AVAILABLE_FOR_PURCHASE'}">구매가능</option>
+                    <option value="PENDING_PURCHASE_APPROVAL" th:selected="${param.status == 'PENDING_PURCHASE_APPROVAL'}">구매 승인 대기</option>
+                    <option value="NOT_AVAILABLE_FOR_PURCHASE" th:selected="${param.status == 'NOT_AVAILABLE_FOR_PURCHASE'}">구매 불가</option>
+                    <option value="PENDING_SALE" th:selected="${param.status == 'PENDING_SALE'}">판매 승인 대기</option>
+                    <option value="SALE_APPROVED" th:selected="${param.status == 'SALE_APPROVED'}">판매 승인</option>
+                </select>
+            </form>
+        </div>
     </div>
+
+    <!-- 차량 목록 테이블 -->
+    <div class="table-responsive">
+      <h2 class="mb-3"><i class="fas fa-list me-2"></i>등록된 차량 목록</h2>
+      <table class="table table-striped table-hover align-middle">
+        <thead>
+        <tr>
+          <th>이미지</th>
+          <th>이름</th>
+          <th>번호판</th>
+          <th>등록일자</th>
+          <th>주행거리<br>(km)</th>
+          <th>가격<br>(만원)</th>
+          <th>상태</th>
+          <th>상세 정보</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="car : ${cars.content}">
+          <td>
+            <img th:src="${car.mainImage}" alt="Car Image" class="img-thumbnail car-image">
+          </td>
+          <td th:text="${car.name}">이름</td>
+          <td>
+            <span class="badge bg-secondary text-white" th:text="${car.licensePlate}"></span>
+          </td>
+
+          <td th:text="${T(java.time.format.DateTimeFormatter).ofPattern('yyyy-MM-dd').format(car.registrationDate)}">
+            등록일자
+          </td>
+          <td th:text="${@thymeleafUtils.formatNumber(car.mileage)}">주행거리</td>
+          <td>
+            <span class="badge text-primary" th:text="${@thymeleafUtils.formatNumber(car.price / 10000)}"></span>
+          </td>
+
+          <td>
+                        <span th:classappend="'badge ' +
+                            (${car.status} == '구매 가능' ? 'bg-success' :
+                            (${car.status} == '구매 승인 대기' ? 'bg-warning' :
+                            (${car.status} == '구매 불가' ? 'bg-danger' :
+                            (${car.status} == '판매 승인 대기' ? 'bg-info' :
+                            (${car.status} == '판매 승인' ? 'bg-primary' : 'bg-secondary')))))"
+                              th:text="${car.status}">
+                        </span>
+          </td>
+          <td class="no-wrap">
+            <button type="button" class="btn btn-view btn-sm" data-bs-toggle="modal"
+                    th:attr="data-bs-target='#carModal_' + ${car.id}"
+                    aria-label="차량 상세 보기">
+              <i class="fas fa-eye me-1"></i> 보기
+            </button>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 페이징 네비게이션 -->
+    <nav th:if="${cars.totalPages > 1}" class="d-flex justify-content-center mt-4">
+      <ul class="pagination">
+        <!-- 이전 버튼 -->
+        <li class="page-item" th:classappend="${cars.number == 0} ? 'disabled' : ''">
+          <a class="page-link" th:href="@{/admin/cars(page=${cars.number - 1}, licensePlate=${param.licensePlate})}"
+             aria-label="Previous">
+            <span aria-hidden="true">&laquo;</span>
+          </a>
+        </li>
+
+        <!--
+
+첫 두 페이지 -->
+        <li class="page-item" th:each="i : ${#numbers.sequence(0, 1)}" th:if="${cars.totalPages > 2}">
+          <a class="page-link" th:href="@{/admin/cars(page=${i}, licensePlate=${param.licensePlate})}"
+             th:text="${i + 1}">1</a>
+        </li>
+
+        <!-- 생략 표시 -->
+        <li class="page-item" th:if="${cars.number > 2}">
+          <span class="page-link">...</span>
+        </li>
+
+        <!-- 중심 페이지들 -->
+        <li class="page-item" th:each="i : ${#numbers.sequence(cars.number - 2, cars.number + 2)}"
+            th:if="${i >= 2 && i <= cars.totalPages - 3}"
+            th:classappend="${cars.number == i} ? 'active' : ''">
+          <a class="page-link" th:href="@{/admin/cars(page=${i}, licensePlate=${param.licensePlate})}"
+             th:text="${i + 1}">1</a>
+        </li>
+
+        <!-- 생략 표시 -->
+        <li class="page-item" th:if="${cars.number < cars.totalPages - 3}">
+          <span class="page-link">...</span>
+        </li>
+
+        <!-- 마지막 두 페이지 -->
+        <li class="page-item" th:each="i : ${#numbers.sequence(cars.totalPages - 2, cars.totalPages - 1)}"
+            th:if="${cars.totalPages > 2}">
+          <a class="page-link" th:href="@{/admin/cars(page=${i}, licensePlate=${param.licensePlate})}"
+             th:text="${i + 1}">1</a>
+        </li>
+
+            <!-- 다음 버튼 -->
+            <li class="page-item" th:classappend="${cars.number + 1 == cars.totalPages ? 'disabled' : ''}">
+                <a class="page-link" th:href="@{/admin/cars(page=${cars.number + 1}, licensePlate=${param.licensePlate})}">
+                    다음
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- 차량 상세 모달 -->
+    <div th:each="car : ${cars.content}">
+      <div class="modal fade" th:id="'carModal_' + ${car.id}" tabindex="-1"
+           aria-labelledby="carModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+          <div class="modal-content">
+            <!-- 모달 헤더 -->
+            <div class="modal-header-gradient d-flex justify-content-between align-items-center px-4 py-3">
+              <div class="d-flex align-items-center">
+                <i class="fas fa-car text-white me-3" style="font-size: 1.8rem;"></i>
+                <h5 class="modal-title fw-bold text-white" th:text="'차량 상세정보 - ' + ${car.name}" id="carModalLabel" style="font-size: 1.5rem;"></h5>
+              </div>
+            </div>
+
+            <!-- 모달 본문 -->
+            <div class="modal-body">
+              <div class="row align-items-stretch">
+                <!-- 차량 이미지 섹션 -->
+                <div class="col-md-6 d-flex justify-content-center align-items-center mb-4">
+                    <img th:src="${car.mainImage}"
+                         class="rounded shadow-lg mb-3"
+                         alt="Car Image">
+                </div>
+                <!-- 차량 상세 정보 -->
+                <div class="col-md-6 d-flex align-items-stretch">
+                  <div class="list-group shadow-sm w-100">
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                      <strong>브랜드:</strong>
+                      <span th:text="${car.brand}"></span>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                      <strong>모델:</strong>
+                      <span th:text="${car.model}"></span>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                      <strong>번호판:</strong>
+                      <span class="badge bg-secondary text-white" th:text="${car.licensePlate}"></span>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                      <strong>등록일자:</strong>
+                      <span th:text="${T(java.time.format.DateTimeFormatter).ofPattern('yyyy-MM-dd').format(car.registrationDate)}"></span>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                      <strong>주행거리:</strong>
+                      <span th:text="${@thymeleafUtils.formatNumber(car.mileage)}"></span>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                      <strong>가격:</strong>
+                      <span class="badge text-primary" th:text="${@thymeleafUtils.formatNumber(car.price / 10000)} + '만원'"></span>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                      <strong>상태:</strong>
+                      <span th:classappend="'badge text-white ' +
+                                                  (${car.status} == '구매 가능' ? 'bg-success' :
+                                                  (${car.status} == '구매 승인 대기' ? 'bg-warning' :
+                                                  (${car.status} == '구매 불가' ? 'bg-danger' :
+                                                  (${car.status} == '판매 승인 대기' ? 'bg-info' :
+                                                  (${car.status} == '판매 승인' ? 'bg-primary' : 'bg-secondary')))))"
+                            th:text="${car.status}"></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 모달 푸터 -->
+            <div class="modal-footer">
+              <button type="button"
+                      class="btn btn-secondary"
+                      data-bs-dismiss="modal">닫기
+              </button>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   </div>
 
-  <!-- 차량 목록 테이블 -->
-  <div class="table-responsive">
-    <h2 class="mb-3">등록된 차량 목록</h2>
-    <table class="table table-striped table-hover align-middle">
-      <thead class="table-dark">
-      <tr>
-        <th>이미지</th>
-        <th>브랜드</th>
-        <th>모델</th>
-        <th>연식</th>
-        <th>주행거리</th>
-        <th>가격</th>
-        <th>번호판</th>
-        <th>등록일자</th>
-        <th>상태</th>
-        <th>상세 정보</th>
-      </tr>
-      </thead>
-      <tbody>
-      <!-- Mock 데이터 -->
-      <tr>
-        <td>
-          <img src="https://certified-static.hyundai.com/contents/goods/shootConts/tobepic/02/exterior/GJK240903008701/PRD602_233.JPG/dims/crop/2304x1536+600+770/resize/380x253/optimize"
-               alt="Car Image" class="img-thumbnail car-image">
-        </td>
-        <td>현대</td>
-        <td>투싼</td>
-        <td>2022</td>
-        <td>48,537 km</td>
-        <td>2390만원</td>
-        <td>303누7499</td>
-        <td>2022-09-01</td>
-        <td><span class="badge bg-success">판매 중</span></td>
-        <td>
-          <a href="/admin/car/details/1" class="btn btn-info btn-sm">보기</a> <!-- 타임리프 문법: th:href -->
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <img src="https://certified-static.hyundai.com/contents/goods/shootConts/tobepic/02/exterior/GJK240903008702/PRD602_234.JPG/dims/crop/2304x1536+600+770/resize/380x253/optimize"
-               alt="Car Image" class="img-thumbnail car-image">
-        </td>
-        <td>기아</td>
-        <td>스포티지</td>
-        <td>2023</td>
-        <td>32,500 km</td>
-        <td>2750만원</td>
-        <td>504다6321</td>
-        <td>2023-05-15</td>
-        <td><span class="badge bg-warning">판매 대기</span></td>
-        <td>
-          <a href="/admin/car/details/2" class="btn btn-info btn-sm">보기</a> <!-- 타임리프 문법: th:href -->
-        </td>
-      </tr>
-
-      <!-- 타임리프 문법 -->
-      <!--
-      <tr th:each="car : ${cars}">
-        <td>
-          <img th:src="${car.imageUrl}" alt="Car Image" class="img-thumbnail car-image">
-        </td>
-        <td th:text="${car.brand}">브랜드</td>
-        <td th:text="${car.model}">모델</td>
-        <td th:text="${car.modelYear}">연식</td>
-        <td th:text="${car.mileage + ' km'}">주행거리</td>
-        <td th:text="${car.price + '만원'}">가격</td>
-        <td th:text="${car.licensePlate}">번호판</td>
-        <td th:text="${#dates.format(car.registrationDate, 'yyyy-MM-dd')}">등록일자</td>
-        <td>
-          <span th:classappend="${car.status == '판매 중' ? 'bg-success' : 'bg-warning'} badge">
-            <span th:text="${car.status}">상태</span>
-          </span>
-        </td>
-        <td>
-          <a th:href="@{/admin/car/details/{id}(id=${car.id})}" class="btn btn-info btn-sm">보기</a>
-        </td>
-      </tr>
-      -->
-      </tbody>
-    </table>
-  </div>
-</div>
+  <!-- Bootstrap JS Bundle (includes Popper) -->
 
 </body>
 </html>

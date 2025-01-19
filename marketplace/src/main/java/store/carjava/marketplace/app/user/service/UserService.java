@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import store.carjava.marketplace.app.car_purchase_history.entity.CarPurchaseHistory;
 import store.carjava.marketplace.app.car_purchase_history.repository.CarPurchaseHistoryRepository;
 import store.carjava.marketplace.app.car_sales_history.entity.CarSalesHistory;
-import store.carjava.marketplace.app.car_sales_history.repository.CarSalseHistoryRepository;
+import store.carjava.marketplace.app.car_sales_history.repository.CarSalesHistoryRepository;
 import store.carjava.marketplace.app.marketplace_car.entity.MarketplaceCar;
 import store.carjava.marketplace.app.reservation.entity.Reservation;
 import store.carjava.marketplace.app.reservation.repository.ReservationRepository;
@@ -30,7 +30,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final ReservationRepository reservationRepository;
     private final UserResolver userResolver;
-    private final CarSalseHistoryRepository carSalseHistoryRepository;
+    private final CarSalesHistoryRepository carSalesHistoryRepository;
     private final CarPurchaseHistoryRepository carPurchaseHistoryRepository;
     private final ReviewRepository reviewRepository;
 
@@ -83,11 +83,12 @@ public class UserService {
         }
 
         // 2. car_sales_history에서 판매 내역 조회
-        List<CarSalesHistory> sellList =carSalseHistoryRepository.findByUserOrderByIdDesc(currentUser);
+        List<CarSalesHistory> sellList =carSalesHistoryRepository.findByUserOrderByIdDesc(currentUser);
 
         // 3. CarSalesHistory -> UserSellCarDto 변환
         List<UserSellCarDto> userSellCarDtos = sellList.stream()
                 .map(history -> new UserSellCarDto(
+                        history.getMarketplaceCar().getId(),
                         history.getMarketplaceCar().getCarDetails().getName(),
                         history.getMarketplaceCar().getCarDetails().getLicensePlate(),
                         history.getMarketplaceCar().getCarDetails().getRegistrationDate(),
@@ -122,6 +123,7 @@ public class UserService {
                     boolean isReviewed = reviewRepository.existsByUserAndMarketplaceCar(currentUser, car);
 
                     return new UserPurchaseCarDto(
+                            car.getId(),
                             car.getCarDetails().getName(),
                             car.getCarDetails().getLicensePlate(),
                             car.getCarDetails().getRegistrationDate(),

@@ -1,5 +1,7 @@
 package store.carjava.marketplace.app.reservation.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import store.carjava.marketplace.app.reservation.entity.Reservation;
 import store.carjava.marketplace.app.user.entity.User;
 
@@ -20,5 +22,6 @@ public interface ReservationCustomRepository {
     //마이페이지 가까운 예약내역 조회
     Optional<Reservation> findUpcomingReservation(User user);
 
+    Page<Reservation> findAllWithFilters(String reservationName, String licensePlate, String status, String reservationDate, Pageable pageable);
 
 }

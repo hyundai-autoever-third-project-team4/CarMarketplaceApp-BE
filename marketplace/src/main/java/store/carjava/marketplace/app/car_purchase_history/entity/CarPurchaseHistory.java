@@ -57,4 +57,8 @@ public class CarPurchaseHistory {
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    public void confirm() {
+        this.confirmedAt = LocalDateTime.now();
+    }
 }

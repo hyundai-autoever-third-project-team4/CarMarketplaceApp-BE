@@ -109,9 +109,7 @@ public class PaymentService {
     }
 
     private void saveCarPurchaseHistory(Map<String, Object> apiResponse) {
-//        User currentUser = userResolver.getCurrentUser();
-        User currentUser = userRepository.findById(3L)
-                .orElseThrow(UserIdNotFoundException::new);
+        User currentUser = userResolver.getCurrentUser();
 
         validateRequestUserSameAsCurrentUser(currentUser, apiResponse);
 
