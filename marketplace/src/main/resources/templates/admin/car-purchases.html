@@ -222,7 +222,7 @@
       var loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
       loadingModal.show();
 
-      fetch(`/admin/car-purchases/${purchaseId}/approve`, {
+      fetch(`api/car-purchases/${purchaseId}/approve`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

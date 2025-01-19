@@ -256,7 +256,11 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <form id="carDetailForm" action="/car/sale/approve" method="put" enctype="multipart/form-data">
+          <form id="carDetailForm" action="api/car/sale/approve" method="post" enctype="multipart/form-data">
+            <!-- PUT 메서드를 처리하기 위한 hidden 필드 -->
+            <input type="hidden" name="_method" value="put">
+
+            <!-- carId 값 전달 -->
             <input type="hidden" name="carId" id="carId" th:value="${sale.carId()}">
 
             <div class="row">

@@ -23,7 +23,6 @@ import java.util.List;
 
 @Slf4j
 @Controller
-@RequestMapping("/admin")
 @RequiredArgsConstructor
 public class AdminController {
 
@@ -108,7 +107,7 @@ public class AdminController {
         return adminService.getDistinctCarModels();
     }
 
-    @GetMapping
+    @GetMapping("/admin")
     public String adminPage(Model model) {
         Long totalSales = adminService.getTotalSalesAmount();
 
@@ -116,12 +115,12 @@ public class AdminController {
         return "admin/index";
     }
 
-    @GetMapping("/cars")
+    @GetMapping("/admin/cars")
     public String carsPage() {
         return "admin/cars";
     }
 
-    @GetMapping("/tasks")
+    @GetMapping("/admin/tasks")
     public String tasksPage(Model model) {
         Long purchaseRequests = adminService.getTotalPurchases();
         Long salesRequests = adminService.getTotalSales();
@@ -133,7 +132,7 @@ public class AdminController {
         return "admin/tasks";
     }
 
-    @GetMapping("/users")
+    @GetMapping("/admin/users")
     public String usersPage(Model model) {
         Long totalReviews = adminService.getTotalReviews();
         Long totalSales = adminService.getTotalSales();
@@ -146,7 +145,7 @@ public class AdminController {
         return "admin/users";
     }
 
-    @GetMapping("/car-purchases")
+    @GetMapping("/admin/car-purchases")
     public String carPurchasesPage(Model model) {
         model.addAttribute("pendingPurchases", adminService.getPendingPurchaseHistory());
         model.addAttribute("completedPurchases", adminService.getCompletedPurchaseHistory());
@@ -154,7 +153,7 @@ public class AdminController {
     }
 
     // 차량 구매 승인
-    @PostMapping("/car-purchases/{id}/approve")
+    @PostMapping("car-purchases/{id}/approve")
     @ResponseBody
     public ResponseEntity<String> approvePurchase(@PathVariable Long id) {
         try {
@@ -166,7 +165,7 @@ public class AdminController {
     }
 
 
-    @GetMapping("/car-sales")
+    @GetMapping("/admin/car-sales")
     public String carSalesPage(Model model) {
         model.addAttribute("pendingSales", adminService.getPendingSaleHistory());
         model.addAttribute("approvedSales", adminService.getApprovedSaleHistory());
