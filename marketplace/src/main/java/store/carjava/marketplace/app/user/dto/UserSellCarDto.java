@@ -5,6 +5,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDate;
 
 public record UserSellCarDto(
+
+        @Schema(description = "차 id", example = "GJU241125010629")
+        String id,
+
         @Schema(description = "차량이름", example = "2021G80 가솔린 2.5 터보 2WD 시그니처 디자인 셀렉션Ⅱ")
         String carName,
 

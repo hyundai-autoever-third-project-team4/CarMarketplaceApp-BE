@@ -88,6 +88,7 @@ public class UserService {
         // 3. CarSalesHistory -> UserSellCarDto 변환
         List<UserSellCarDto> userSellCarDtos = sellList.stream()
                 .map(history -> new UserSellCarDto(
+                        history.getMarketplaceCar().getId(),
                         history.getMarketplaceCar().getCarDetails().getName(),
                         history.getMarketplaceCar().getCarDetails().getLicensePlate(),
                         history.getMarketplaceCar().getCarDetails().getRegistrationDate(),
