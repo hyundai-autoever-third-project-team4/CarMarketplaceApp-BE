@@ -28,5 +28,8 @@ public class ChatHistory {
     private String content;
 
     @Column(name = "created_at")
-    LocalDateTime createdAt;
+    private LocalDateTime createdAt;
+
+    @Column(name = "topic_id")
+    private Long topicId;
 }

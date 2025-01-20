@@ -8,6 +8,7 @@ public record ChatHistoryDto(
         Long senderId,
         Long receiverId,
         String content,
+        Long topicId,
         LocalDateTime createdAt
 ) {
     public static ChatHistoryDto from(ChatHistory chatHistory) {
@@ -15,6 +16,7 @@ public record ChatHistoryDto(
                 chatHistory.getSenderId(),
                 chatHistory.getReceiverId(),
                 chatHistory.getContent(),
+                chatHistory.getTopicId(),
                 chatHistory.getCreatedAt()
         );
     }

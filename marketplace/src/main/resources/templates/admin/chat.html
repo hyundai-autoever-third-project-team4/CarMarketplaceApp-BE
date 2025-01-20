@@ -3,7 +3,7 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{admin/layout}">
 <head>
-    <title>채팅</title>
+    <title>채팅방 목록</title>
     <!-- 부트스트랩 CSS -->
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome CSS -->
@@ -32,12 +32,33 @@
             background-color: #0b5ed7;
             border-color: #0a58ca;
         }
+        .chat-room-list {
+            margin-bottom: 20px;
+        }
+        .chat-room-list button {
+            margin-bottom: 10px;
+            width: 100%;
+        }
     </style>
 </head>
 <body>
 <div layout:fragment="content" class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-8">
+            <!-- 채팅방 목록 -->
+            <div class="chat-room-list">
+                <h3>채팅방 목록</h3>
+                <ul class="list-group">
+                    <li th:each="room : ${chatRooms}" class="list-group-item">
+                        <button class="btn btn-primary"
+                                th:onclick="'navigateToChatRoom(' + ${room.key} + ')'"
+                                th:text="'채팅방 ' + ${room.value}">
+                        </button>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- 채팅창 -->
             <div class="card">
                 <div class="card-header bg-primary text-white">
                     <h2 class="mb-0"><i class="fas fa-comments"></i> 채팅</h2>
@@ -59,5 +80,23 @@
     </div>
 </div>
 
+<!-- JavaScript -->
+<script th:inline="javascript">
+    function navigateToChatRoom(topicId) {
+        // 채팅방 ID를 기반으로 새 페이지로 이동
+        window.location.href = '/chat/' + topicId;
+    }
+
+    function sendChat() {
+        var messageInput = document.getElementById('messageInput');
+        var message = messageInput.value;
+
+        if (message.trim() !== '') {
+            // 메시지 전송 로직 구현
+            console.log('메시지 전송:', message);
+            messageInput.value = '';
+        }
+    }
+</script>
 </body>
 </html>

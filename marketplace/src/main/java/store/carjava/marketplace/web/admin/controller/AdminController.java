@@ -26,6 +26,7 @@ import store.carjava.marketplace.web.admin.dto.CarSellDto;
 import store.carjava.marketplace.web.admin.service.AdminService;
 
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Controller
@@ -216,7 +217,11 @@ public class AdminController {
 
 
     @GetMapping("/chat")
-    public String showChatPage() {
+    public String showChatPage(Model model) {
+        Map<Long, String> chatRooms = adminService.getAllChattingRooms();
+
+        model.addAttribute("chatRooms", chatRooms);
+
         // 현재 사용자 정보 가져오기
         return "admin/chat";
     }

@@ -22,22 +22,26 @@ public class ChatMessageListener {
     public void handleMessage(ChatMessageDto message) {
         log.info("Rabbit MQ 메세징 큐에서 받은 메세지 : {}", message);
 
+        log.info("[ADMIN] ⇒ [USER # {}]", message.receiverId());
+
+        Long topicId = message.senderId();  // topic id를 전송자로 설정
+
         if (message.isAdmin()) {
-            log.info("[ADMIN] ⇒ [USER # {}]", message.receiverId());
-
-            ChatHistory chatHistory = ChatHistory.builder()
-                    .senderId(message.senderId())
-                    .receiverId(message.receiverId())
-                    .content(message.content())
-                    .createdAt(LocalDateTime.now())
-                    .build();
-
-            chatHistoryRepository.save(chatHistory);
-
-            messagingTemplate.convertAndSend("/queue/user-" + message.receiverId(), message);
-        } else {
-            log.info("[USER] ⇒ [ADMIN]");
-            messagingTemplate.convertAndSend("/topic/admin", message);
+            // admin인 경우에는, topic을 receiver로 설정
+            topicId = message.receiverId();
         }
+
+        ChatHistory chatHistory = ChatHistory.builder()
+                .senderId(message.senderId())
+                .receiverId(message.receiverId())
+                .content(message.content())
+                .createdAt(LocalDateTime.now())
+                .topicId(topicId)
+                .build();
+
+        chatHistoryRepository.save(chatHistory);
+
+        messagingTemplate.convertAndSend("/queue/user-" + message.receiverId(), message);
+
     }
 }

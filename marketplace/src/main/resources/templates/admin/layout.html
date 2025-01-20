@@ -199,8 +199,7 @@
   <a href="/admin/car-purchases"><i class="fas fa-shopping-cart me-2"></i> 차량 구매 관리</a>
   <a href="/admin/car-sales"><i class="fas fa-dollar-sign me-2"></i> 차량 판매 관리</a>
   <a href="/admin/reservations"><i class="fas fa-calendar-alt me-2"></i> 시승 예약 관리</a>
-  <!-- 채팅방 이동 버튼 추가 -->
-  <a href="#" data-bs-toggle="modal" data-bs-target="#chatRoomModal"><i class="fas fa-comments me-2"></i> 채팅방 이동</a>
+  <a href="/admin/chat"><i class="fas fa-comments me-2"></i> 채팅방 이동</a>
 </div>
 
 <!-- 중앙 콘텐츠 -->
@@ -246,47 +245,6 @@
   </div>
 </div>
 
-<!-- 채팅방 이동 모달 -->
-<div class="modal fade" id="chatRoomModal" tabindex="-1" aria-labelledby="chatRoomModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h1 class="modal-title fs-5" id="chatRoomModalLabel">채팅방 선택</h1>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
-      </div>
-      <div class="modal-body">
-        <ul class="list-group">
-          <!-- 채팅방 리스트 항목 수정: 고유한 chatRoomId 전달 -->
-          <li class="list-group-item list-group-item-action" onclick="navigateToChatRoom('userTiger')">
-            <i class="fas fa-user me-2"></i> USER [Tiger] 채팅방
-          </li>
-          <li class="list-group-item list-group-item-action" onclick="navigateToChatRoom('userLion')">
-            <i class="fas fa-user me-2"></i> USER [Lion] 채팅방
-          </li>
-          <li class="list-group-item list-group-item-action" onclick="navigateToChatRoom('userLiger')">
-            <i class="fas fa-user me-2"></i> USER [Liger] 채팅방
-          </li>
-          <li class="list-group-item list-group-item-action" onclick="navigateToChatRoom('userChillGuy')">
-            <i class="fas fa-user me-2"></i> USER [Chill Guy] 채팅방
-          </li>
-          <li class="list-group-item list-group-item-action" onclick="navigateToChatRoom('userChillGirl')">
-            <i class="fas fa-user me-2"></i> USER [Chill Girl] 채팅방
-          </li>
-          <li class="list-group-item list-group-item-action" onclick="navigateToChatRoom('userChillDren')">
-            <i class="fas fa-user me-2"></i> USER [Chill Dren] 채팅방
-          </li>
-          <li class="list-group-item list-group-item-action" onclick="navigateToChatRoom('adminChatRoom')">
-            <i class="fas fa-users me-2"></i> 관리자 채팅방
-          </li>
-        </ul>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
-      </div>
-    </div>
-  </div>
-</div>
-
 <!-- Bootstrap JS Bundle (includes Popper) -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -296,7 +254,7 @@
     // Thymeleaf로부터 userId를 가져옵니다.
     var userId = /*[[${adminInfo.adminId}]]*/ 'default';
 
-    var socket = new SockJS('/api/ws/chat');
+    var socket = new SockJS('/ws/chat');
     var stompClient = Stomp.over(socket);
 
     stompClient.connect({}, function (frame) {
@@ -401,14 +359,6 @@
       sendChat();
     }
   });
-
-  // 채팅방 이동 함수 수정: chatRoomId 매개변수 추가
-  function navigateToChatRoom(chatRoomId) {
-    // 채팅방 ID에 따라 URL을 변경하거나 필요한 로직을 추가
-    console.log('채팅방 이동:', chatRoomId);
-    // 예시: URL 변경 (서버 라우팅에 따라 다르게 구현 가능)
-    window.location.href = `/admin/chat`;
-  }
 </script>
 </body>
 </html>
