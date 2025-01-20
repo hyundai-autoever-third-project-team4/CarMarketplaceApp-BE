@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 
 public record GetTokenRequest(
         @Schema(description = "사용자 id")
-        String userId,
+        Long userId,
 
         @Schema(description = "fcm token")
         String token,

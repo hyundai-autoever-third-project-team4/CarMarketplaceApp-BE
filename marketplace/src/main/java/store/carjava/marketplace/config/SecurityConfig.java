@@ -39,7 +39,7 @@ public class SecurityConfig {
             "/mock-login/**",
 
             // [firebase] 네이티브에서 fcm 토큰 오는 경로 허용
-            "/firebase/**"
+            "/fcm/**"
     );
 
     @Bean
