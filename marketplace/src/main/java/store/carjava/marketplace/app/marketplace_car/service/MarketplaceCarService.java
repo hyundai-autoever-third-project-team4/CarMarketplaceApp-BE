@@ -26,6 +26,7 @@ import store.carjava.marketplace.app.marketplace_car_image.dto.MarketplaceCarIma
 import store.carjava.marketplace.app.marketplace_car_image.repository.MarketplaceCarImageRepository;
 import store.carjava.marketplace.app.marketplace_car_image.service.MarketplaceCarImageService;
 import store.carjava.marketplace.app.marketplace_car_option.dto.marketplaceCarOptionInfoDto;
+import store.carjava.marketplace.app.marketplace_car_option.entity.MarketplaceCarOption;
 import store.carjava.marketplace.app.reservation.dto.ReservationInfoDto;
 import store.carjava.marketplace.app.review.dto.ReviewCreateResponse;
 import store.carjava.marketplace.app.review.entity.Review;
@@ -63,14 +64,14 @@ public class MarketplaceCarService {
     private final ReviewRepository reviewRepository;
 
     public List<MarketplaceCarResponse> getFilteredCars(List<String> models, List<String> fuelTypes,
-            String brand, List<String> colorTypes,
-            String driveType, String licensePlate, String transmission,
-            List<String> vehicleTypes, Integer modelYear, Integer seatingCapacity,
-            Long maxPrice, Long minPrice, Integer minMileage,
-            Integer maxMileage, Integer minModelYear, Integer maxModelYear,
-            List<Long> optionIds, String testDriveCenterName, String status,
-            Integer minEngineCapacity, Integer maxEngineCapacity, String name,
-            String sortOrder, Pageable pageable
+                                                        String brand, List<String> colorTypes,
+                                                        String driveType, String licensePlate, String transmission,
+                                                        List<String> vehicleTypes, Integer modelYear, Integer seatingCapacity,
+                                                        Long maxPrice, Long minPrice, Integer minMileage,
+                                                        Integer maxMileage, Integer minModelYear, Integer maxModelYear,
+                                                        List<Long> optionIds, String testDriveCenterName, String status,
+                                                        Integer minEngineCapacity, Integer maxEngineCapacity, String name,
+                                                        String sortOrder, Pageable pageable
     ) {
 
         // 비즈니스 로직 검증
@@ -134,11 +135,10 @@ public class MarketplaceCarService {
     // 유효한 상태를 확인하는 메서드
     public boolean isValidStatus(String status) {
         List<String> validStatus = List.of("AVAILABLE_FOR_PURCHASE", "PENDING_PURCHASE_APPROVAL", "NOT_AVAILABLE_FOR_PURCHASE", "PENDING_SALE", "SALE_APPROVED");
-        if(status == null || status.isEmpty()) {
+        if (status == null || status.isEmpty()) {
             return false;
         }
         return validStatus.contains(status);
-
 
 
     }
@@ -295,18 +295,18 @@ public class MarketplaceCarService {
     }
 
     // 판매자가 마음에 들지 않는 경우 delete 하는 Serivce
-    public void deleteCar(String id){
+    public void deleteCar(String id) {
 
         //id로 차량을 조회
         Optional<MarketplaceCar> car = marketplaceCarRepository.findById(id);
 
-            if (car.isPresent()) {
-                // 차량이 존재하면 삭제
-                marketplaceCarRepository.delete(car.get());
-            } else {
-                // 차량이 존재하지 않으면 예외 처리
-                throw new CarNotFoundException();
-            }
+        if (car.isPresent()) {
+            // 차량이 존재하면 삭제
+            marketplaceCarRepository.delete(car.get());
+        } else {
+            // 차량이 존재하지 않으면 예외 처리
+            throw new CarNotFoundException();
+        }
     }
 
     //판매자가 번호판, 이름을 입력해서 baseCar 에서 조회하는 API
@@ -323,6 +323,7 @@ public class MarketplaceCarService {
                         request.ownerName())
                 .orElseThrow(() -> new IllegalArgumentException("해당 번호판과 이름에 해당하는 차량이 존재하지 않습니다."));
 
+
         // MarketplaceCar 생성
         MarketplaceCar marketplaceCar = MarketplaceCar.builder()
                 .id(baseCar.getId())
@@ -333,6 +334,19 @@ public class MarketplaceCarService {
                 .marketplaceRegistrationDate(LocalDate.now()) // 현재 날짜로 등록일 설정
                 .build();
 
+        // 옵션 설정
+        List<MarketplaceCarOption> marketplaceCarOptions = baseCar.getBaseCarOptions()
+                .stream().map(baseCarOption -> MarketplaceCarOption.builder()
+                        .option(baseCarOption.getOption())
+                        .isPresent(baseCarOption.getIsPresent())
+                        .marketplaceCar(marketplaceCar) // MarketplaceCar 설정
+                        .build()
+                ).toList();
+
+        // `MarketplaceCar`에 옵션 추가
+        marketplaceCar.getMarketplaceCarOptions().addAll(marketplaceCarOptions);
+
+        // MarketplaceCar와 연관된 MarketplaceCarOption 저장
         marketplaceCarRepository.save(marketplaceCar);
 
         // 1. 로그인한 유저 정보 가져오기.
@@ -403,15 +417,7 @@ public class MarketplaceCarService {
                 .orElseThrow(() -> new IllegalArgumentException("해당 차량을 찾을 수 없습니다."));
 
         // 차량 상태 업데이트
-        car = MarketplaceCar.builder()
-                .id(car.getId())
-                .carDetails(car.getCarDetails())
-                .price(car.getPrice())
-                .status("AVAILABLE_FOR_PURCHASE") // 상태 업데이트
-                .marketplaceRegistrationDate(car.getMarketplaceRegistrationDate())
-                .mainImage(car.getMainImage())
-                .testDriveCenter(car.getTestDriveCenter())
-                .build();
+        car.updateStatus("AVAILABLE_FOR_PURCHASE");
 
         // 변경된 차량 저장
         marketplaceCarRepository.save(car);

@@ -45,7 +45,7 @@ public class MarketplaceCarCustomRepositoryImpl implements MarketplaceCarCustomR
         // 메인 쿼리 생성
         var query = queryFactory
                 .selectFrom(marketplaceCar)
-                .innerJoin(marketplaceCarOption)
+                .leftJoin(marketplaceCarOption)
                 .on(marketplaceCarOption.marketplaceCar.id.eq(marketplaceCar.id))
                 .where(
                         modelsIn(marketplaceCar, models),
@@ -222,7 +222,7 @@ public class MarketplaceCarCustomRepositoryImpl implements MarketplaceCarCustomR
         // 예산 범위 내 가장 많은 차종 구하기
         String carmodel = queryFactory.select(marketplaceCar.carDetails.model)
                 .from(marketplaceCar)
-                .leftJoin(carModelGrade).on(marketplaceCar.carDetails.model.eq(carModelGrade.model))
+                .innerJoin(carModelGrade).on(marketplaceCar.carDetails.model.eq(carModelGrade.model))
                 .where(
                         marketplaceCar.price.between(budgetLow, budgetHigh)
                                 .and(marketplaceCar.carDetails.vehicleType.in(vehicle))

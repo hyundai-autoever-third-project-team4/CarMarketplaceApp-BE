@@ -25,7 +25,7 @@ public class MarketplaceCarImage {
     @JoinColumn(name = "marketplace_car_id")
     MarketplaceCar marketplaceCar;
 
-    @Column(name = "image_url", nullable = false)
+    @Column(name = "image_url", nullable = false, columnDefinition = "TEXT")
     private String imageUrl;
 
 }
