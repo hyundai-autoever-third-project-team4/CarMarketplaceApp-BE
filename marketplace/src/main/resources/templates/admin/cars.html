@@ -258,17 +258,18 @@
       <ul class="pagination">
         <!-- 이전 버튼 -->
         <li class="page-item" th:classappend="${cars.number == 0} ? 'disabled' : ''">
-          <a class="page-link" th:href="@{/admin/cars(page=${cars.number - 1}, licensePlate=${param.licensePlate})}"
+          <a class="page-link" th:href="@{/admin/cars(page=${cars.number - 1}, licensePlate=${param.licensePlate},  model=${param.model}, status=${param.status})}"
              aria-label="Previous">
             <span aria-hidden="true">&laquo;</span>
           </a>
+
         </li>
 
         <!--
 
 첫 두 페이지 -->
         <li class="page-item" th:each="i : ${#numbers.sequence(0, 1)}" th:if="${cars.totalPages > 2}">
-          <a class="page-link" th:href="@{/admin/cars(page=${i}, licensePlate=${param.licensePlate})}"
+          <a class="page-link" th:href="@{/admin/cars(page=${i}, licensePlate=${param.licensePlate},  model=${param.model}, status=${param.status})}"
              th:text="${i + 1}">1</a>
         </li>
 
@@ -281,7 +282,7 @@
         <li class="page-item" th:each="i : ${#numbers.sequence(cars.number - 2, cars.number + 2)}"
             th:if="${i >= 2 && i <= cars.totalPages - 3}"
             th:classappend="${cars.number == i} ? 'active' : ''">
-          <a class="page-link" th:href="@{/admin/cars(page=${i}, licensePlate=${param.licensePlate})}"
+          <a class="page-link" th:href="@{/admin/cars(page=${i}, licensePlate=${param.licensePlate},  model=${param.model}, status=${param.status})}"
              th:text="${i + 1}">1</a>
         </li>
 
@@ -293,13 +294,13 @@
         <!-- 마지막 두 페이지 -->
         <li class="page-item" th:each="i : ${#numbers.sequence(cars.totalPages - 2, cars.totalPages - 1)}"
             th:if="${cars.totalPages > 2}">
-          <a class="page-link" th:href="@{/admin/cars(page=${i}, licensePlate=${param.licensePlate})}"
+          <a class="page-link" th:href="@{/admin/cars(page=${i}, licensePlate=${param.licensePlate},  model=${param.model}, status=${param.status})}"
              th:text="${i + 1}">1</a>
         </li>
 
             <!-- 다음 버튼 -->
             <li class="page-item" th:classappend="${cars.number + 1 == cars.totalPages ? 'disabled' : ''}">
-                <a class="page-link" th:href="@{/admin/cars(page=${cars.number + 1}, licensePlate=${param.licensePlate})}">
+                <a class="page-link" th:href="@{/admin/cars(page=${cars.number + 1}, licensePlate=${param.licensePlate},  model=${param.model}, status=${param.status})}">
                     다음
                 </a>
             </li>

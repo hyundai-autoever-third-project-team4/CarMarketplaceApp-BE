@@ -137,10 +137,11 @@ public class MarketplaceCarService {
     // 유효한 상태를 확인하는 메서드
     public boolean isValidStatus(String status) {
         List<String> validStatus = List.of("AVAILABLE_FOR_PURCHASE", "PENDING_PURCHASE_APPROVAL", "NOT_AVAILABLE_FOR_PURCHASE", "PENDING_SALE", "SALE_APPROVED");
-        if (status == null || status.isEmpty()) {
+        if(status == null || status.isEmpty()) {
             return false;
         }
         return validStatus.contains(status);
+
 
 
     }
@@ -297,18 +298,18 @@ public class MarketplaceCarService {
     }
 
     // 판매자가 마음에 들지 않는 경우 delete 하는 Serivce
-    public void deleteCar(String id) {
+    public void deleteCar(String id){
 
         //id로 차량을 조회
         Optional<MarketplaceCar> car = marketplaceCarRepository.findById(id);
 
-        if (car.isPresent()) {
-            // 차량이 존재하면 삭제
-            marketplaceCarRepository.delete(car.get());
-        } else {
-            // 차량이 존재하지 않으면 예외 처리
-            throw new CarNotFoundException();
-        }
+            if (car.isPresent()) {
+                // 차량이 존재하면 삭제
+                marketplaceCarRepository.delete(car.get());
+            } else {
+                // 차량이 존재하지 않으면 예외 처리
+                throw new CarNotFoundException();
+            }
     }
 
     //판매자가 번호판, 이름을 입력해서 baseCar 에서 조회하는 API
