@@ -254,12 +254,16 @@
                                 <div class="message-content">
                                     <strong th:text="${chat.senderId == adminInfo.adminId ? '나' : receiverUser.name()}"></strong>
                                     <p th:text="${chat.content}"></p>
-                                    <small class="text-muted" th:text="${T(java.time.format.DateTimeFormatter).ofPattern('yyyy-MM-dd HH:mm:ss').format(chat.createdAt)}"></small>
+                                    <small class="text-muted"
+                                           th:text="${T(java.time.format.DateTimeFormatter).ofPattern('yyyy-MM-dd HH:mm:ss').format(chat.createdAt)}"></small>
                                 </div>
                             </div>
                         </li>
                     </ul>
+                    <!-- 여기까지 읽었습니다 표시 -->
+                    <div id="readMarker" class="text-center text-muted mt-3">여기까지 읽었습니다</div>
                 </div>
+
 
                 <div class="card-footer">
                     <div class="input-group">
@@ -300,6 +304,15 @@
                 displayMessage(chatMessage);
             });
         });
+
+        function scrollToBottom() {
+            var chatBox = document.getElementById('chatBox');
+            if (chatBox) {
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
+        }
+
+        scrollToBottom();
 
         function displayMessage(message) {
             // 메시지를 화면에 표시하는 로직 구현
