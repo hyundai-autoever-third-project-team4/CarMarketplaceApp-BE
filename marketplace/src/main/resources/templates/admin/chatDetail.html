@@ -292,7 +292,7 @@
         var receiverId = /*[[${topicId}]]*/ 'default_topic';
         var receiverName = /*[[${receiverUser.name()}]]*/ '사용자'; // '사용자'는 기본값
 
-        var socket = new SockJS('/ws/chat');
+        var socket = new SockJS('/api/ws/chat');
         var stompClient = Stomp.over(socket);
 
         stompClient.connect({}, function (frame) {
