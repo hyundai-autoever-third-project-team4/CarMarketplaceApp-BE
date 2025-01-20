@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface ChatHistoryRepository extends JpaRepository<ChatHistory, Long> {
 
-    List<ChatHistory> findAllBySenderId(Long id);
+    List<ChatHistory> findAllByTopicIdOrderByCreatedAtAsc(Long topicId);
 
     @Query("SELECT DISTINCT ch.topicId FROM ChatHistory ch ORDER BY ch.topicId")
     List<Long> findDistinctTopicIds();

@@ -34,6 +34,8 @@ import store.carjava.marketplace.app.user.entity.User;
 import store.carjava.marketplace.app.user.exception.UserIdNotFoundException;
 import store.carjava.marketplace.app.user.repository.UserRepository;
 import store.carjava.marketplace.common.util.image.ImageUploader;
+import store.carjava.marketplace.socket.dto.ChatHistoryDto;
+import store.carjava.marketplace.socket.entity.ChatHistory;
 import store.carjava.marketplace.socket.repository.ChatHistoryRepository;
 import store.carjava.marketplace.web.admin.dto.CarPurchaseDto;
 import store.carjava.marketplace.web.admin.dto.CarSellDto;
@@ -236,5 +238,13 @@ public class AdminService {
     public User getUserByTopicId(Long topicId) {
         return userRepository.findById(topicId)
                 .orElseThrow(UserIdNotFoundException::new);
+    }
+
+    public List<ChatHistoryDto> getAllChatHistoriesByTopicId(Long topicId) {
+        List<ChatHistory> chatHistories = chatHistoryRepository.findAllByTopicIdOrderByCreatedAtAsc(topicId);
+
+        return chatHistories.stream()
+                .map(ChatHistoryDto::from)
+                .toList();
     }
 }

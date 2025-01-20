@@ -232,9 +232,10 @@ public class AdminController {
         // topic id (receiver id)에 해당하는 유저정보 가져오기
         User user = adminService.getUserByTopicId(topicId);
 
-//        List<ChatHistoryDto> chatHistoryDtos = adminService.getAllchatHistoriesByTopicId(topicId);
+        List<ChatHistoryDto> chatHistoryDtos = adminService.getAllChatHistoriesByTopicId(topicId);
 
         // 모델에 필요한 데이터 추가
+        model.addAttribute("chatHistories", chatHistoryDtos);
         model.addAttribute("receiverUser", UserSummaryDto.of(user));
         model.addAttribute("topicId", topicId);
         model.addAttribute("pageTitle", "채팅방 상세");

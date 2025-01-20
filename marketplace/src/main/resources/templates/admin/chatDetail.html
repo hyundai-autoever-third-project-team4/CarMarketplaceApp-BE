@@ -242,8 +242,25 @@
 
                 </div>
                 <div class="card-body" id="chatBox">
-                    <!-- 채팅 메시지가 여기에 표시됩니다 -->
+                    <ul class="list-unstyled">
+                        <!-- 채팅 메시지 목록 렌더링 -->
+                        <li th:each="chat : ${chatHistories}"
+                            th:class="${chat.senderId == adminInfo.adminId ? 'message sender' : 'message receiver'}">
+                            <div class="d-flex align-items-start">
+                                <!-- 프로필 이미지 -->
+                                <img th:src="'https://chajava-storage.s3.ap-northeast-2.amazonaws.com/profiles/profile.webp'"
+                                     alt="프로필 이미지" class="profile-img">
+                                <!-- 메시지 내용 -->
+                                <div class="message-content">
+                                    <strong th:text="${chat.senderId == adminInfo.adminId ? '나' : receiverUser.name()}"></strong>
+                                    <p th:text="${chat.content}"></p>
+                                    <small class="text-muted" th:text="${T(java.time.format.DateTimeFormatter).ofPattern('yyyy-MM-dd HH:mm:ss').format(chat.createdAt)}"></small>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
                 </div>
+
                 <div class="card-footer">
                     <div class="input-group">
                         <!-- receiverId를 topicId로 설정 -->
@@ -269,6 +286,7 @@
         var userId = /*[[${adminInfo.adminId}]]*/ 'default';
         // receiverId를 topicId로 설정
         var receiverId = /*[[${topicId}]]*/ 'default_topic';
+        var receiverName = /*[[${receiverUser.name()}]]*/ '사용자'; // '사용자'는 기본값
 
         var socket = new SockJS('/ws/chat');
         var stompClient = Stomp.over(socket);
@@ -306,7 +324,7 @@
                 // 메시지 내용 설정
                 var messageContent = document.createElement('div');
                 messageContent.classList.add('message-content');
-                messageContent.innerHTML = `<strong>${message.sender}:</strong> ${message.content}`;
+                messageContent.innerHTML = `<strong>${receiverName}:</strong> ${message.content}`;
 
                 messageElement.appendChild(profileImg);
                 messageElement.appendChild(messageContent);
