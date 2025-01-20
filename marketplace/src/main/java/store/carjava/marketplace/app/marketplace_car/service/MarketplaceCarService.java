@@ -63,14 +63,14 @@ public class MarketplaceCarService {
     private final ReviewRepository reviewRepository;
 
     public List<MarketplaceCarResponse> getFilteredCars(List<String> models, List<String> fuelTypes,
-            String brand, List<String> colorTypes,
-            String driveType, String licensePlate, String transmission,
-            List<String> vehicleTypes, Integer modelYear, Integer seatingCapacity,
-            Long maxPrice, Long minPrice, Integer minMileage,
-            Integer maxMileage, Integer minModelYear, Integer maxModelYear,
-            List<Long> optionIds, String testDriveCenterName, String status,
-            Integer minEngineCapacity, Integer maxEngineCapacity, String name,
-            String sortOrder, Pageable pageable
+                                                        String brand, List<String> colorTypes,
+                                                        String driveType, String licensePlate, String transmission,
+                                                        List<String> vehicleTypes, Integer modelYear, Integer seatingCapacity,
+                                                        Long maxPrice, Long minPrice, Integer minMileage,
+                                                        Integer maxMileage, Integer minModelYear, Integer maxModelYear,
+                                                        List<Long> optionIds, String testDriveCenterName, String status,
+                                                        Integer minEngineCapacity, Integer maxEngineCapacity, String name,
+                                                        String sortOrder, Pageable pageable
     ) {
 
         // 비즈니스 로직 검증
@@ -402,18 +402,8 @@ public class MarketplaceCarService {
         MarketplaceCar car = marketplaceCarRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("해당 차량을 찾을 수 없습니다."));
 
-        car.updateStatus("AVAILABLE_FOR_PURCHASE");
-
         // 차량 상태 업데이트
-//        car = MarketplaceCar.builder()
-//                .id(car.getId())
-//                .carDetails(car.getCarDetails())
-//                .price(car.getPrice())
-//                .status("AVAILABLE_FOR_PURCHASE") // 상태 업데이트
-//                .marketplaceRegistrationDate(car.getMarketplaceRegistrationDate())
-//                .mainImage(car.getMainImage())
-//                .testDriveCenter(car.getTestDriveCenter())
-//                .build();
+        car.updateStatus("AVAILABLE_FOR_PURCHASE");
 
         // 변경된 차량 저장
         marketplaceCarRepository.save(car);
