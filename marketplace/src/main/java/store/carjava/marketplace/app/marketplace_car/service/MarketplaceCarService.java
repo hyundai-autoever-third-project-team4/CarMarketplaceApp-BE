@@ -26,7 +26,6 @@ import store.carjava.marketplace.app.marketplace_car_image.dto.MarketplaceCarIma
 import store.carjava.marketplace.app.marketplace_car_image.repository.MarketplaceCarImageRepository;
 import store.carjava.marketplace.app.marketplace_car_image.service.MarketplaceCarImageService;
 import store.carjava.marketplace.app.marketplace_car_option.dto.marketplaceCarOptionInfoDto;
-import store.carjava.marketplace.app.marketplace_car_option.entity.MarketplaceCarOption;
 import store.carjava.marketplace.app.reservation.dto.ReservationInfoDto;
 import store.carjava.marketplace.app.review.dto.ReviewCreateResponse;
 import store.carjava.marketplace.app.review.entity.Review;
@@ -323,7 +322,6 @@ public class MarketplaceCarService {
                         request.ownerName())
                 .orElseThrow(() -> new IllegalArgumentException("해당 번호판과 이름에 해당하는 차량이 존재하지 않습니다."));
 
-
         // MarketplaceCar 생성
         MarketplaceCar marketplaceCar = MarketplaceCar.builder()
                 .id(baseCar.getId())
@@ -334,19 +332,6 @@ public class MarketplaceCarService {
                 .marketplaceRegistrationDate(LocalDate.now()) // 현재 날짜로 등록일 설정
                 .build();
 
-        // 옵션 설정
-        List<MarketplaceCarOption> marketplaceCarOptions = baseCar.getBaseCarOptions()
-                .stream().map(baseCarOption -> MarketplaceCarOption.builder()
-                        .option(baseCarOption.getOption())
-                        .isPresent(baseCarOption.getIsPresent())
-                        .marketplaceCar(marketplaceCar) // MarketplaceCar 설정
-                        .build()
-                ).toList();
-
-        // `MarketplaceCar`에 옵션 추가
-        marketplaceCar.getMarketplaceCarOptions().addAll(marketplaceCarOptions);
-
-        // MarketplaceCar와 연관된 MarketplaceCarOption 저장
         marketplaceCarRepository.save(marketplaceCar);
 
         // 1. 로그인한 유저 정보 가져오기.
