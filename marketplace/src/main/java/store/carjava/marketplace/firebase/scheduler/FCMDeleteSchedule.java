@@ -8,7 +8,6 @@ import store.carjava.marketplace.firebase.repository.FCMTokenRepository;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.temporal.ChronoUnit;
 
 @Slf4j
 @Component
@@ -20,6 +19,6 @@ public class FCMDeleteSchedule {
     public void deleteFCM() {
         LocalDateTime now = LocalDateTime.now(ZoneId.of("UTC")).minusMonths(2);
         fcmTokenRepository.deleteOldTokens(now);
-        log.info("Deleting FCM");
+        log.info("Deleting old FCM");
     }
 }

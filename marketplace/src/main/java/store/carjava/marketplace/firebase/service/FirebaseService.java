@@ -41,7 +41,7 @@ public class FirebaseService {
                     .updatedAt(fcmtoken.currentTime())
                     .build();
         }
-
+        log.info("token 저장 완료");
         fcmTokenRepository.save(fcmToken);
     }
 
