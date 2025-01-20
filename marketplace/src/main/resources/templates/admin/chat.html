@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/layout}">
+<head>
+    <title>채팅</title>
+    <!-- 부트스트랩 CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        #chatBox {
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            height: 400px;
+            overflow-y: scroll;
+            background-color: #f8f9fa;
+        }
+        .message {
+            margin-bottom: 10px;
+        }
+        .message .username {
+            font-weight: bold;
+            margin-right: 5px;
+        }
+        .input-group .btn {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+        }
+        .input-group .btn:hover {
+            background-color: #0b5ed7;
+            border-color: #0a58ca;
+        }
+    </style>
+</head>
+<body>
+<div layout:fragment="content" class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="mb-0"><i class="fas fa-comments"></i> 채팅</h2>
+                </div>
+                <div class="card-body" id="chatBox">
+                    <!-- 채팅 메시지가 여기에 표시됩니다 -->
+                </div>
+                <div class="card-footer">
+                    <div class="input-group">
+                        <input type="hidden" id="receiverId" th:value="${receiverId}" />
+                        <input type="text" id="messageInput" class="form-control" placeholder="메시지를 입력하세요">
+                        <button class="btn btn-primary" onclick="sendChat()">
+                            <i class="fas fa-paper-plane"></i> 전송
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
