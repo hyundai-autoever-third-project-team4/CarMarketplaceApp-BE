@@ -19,7 +19,7 @@ public class ChatMessageListener {
 
         if (message.isAdmin()) {
             log.info("[ADMIN] ⇒ [USER # {}]", message.receiverId());
-            messagingTemplate.convertAndSend("/queue/user-" + message.senderId(), message);
+            messagingTemplate.convertAndSend("/queue/user-" + message.receiverId(), message);
         } else {
             log.info("[USER] ⇒ [ADMIN]");
             messagingTemplate.convertAndSend("/topic/admin", message);

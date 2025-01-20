@@ -1,7 +1,9 @@
 package store.carjava.marketplace.web.admin.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+
 import java.util.ArrayList;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -39,6 +41,7 @@ public class AdminController {
         User user = userResolver.getCurrentUser();
 
         return new AdminInfo(
+                user.getId(),
                 user.getEmail(),
                 user.getRole()
         );
@@ -189,7 +192,6 @@ public class AdminController {
             if (additionalImages != null) allImages.addAll(additionalImages);
 
 
-
             adminService.approveCar(carId, testDriveCenterId, price, allImages);
             return ResponseEntity.ok("차량 판매가 승인되었습니다.");
         } catch (IllegalArgumentException e) {
@@ -212,4 +214,10 @@ public class AdminController {
         return "admin/reservations";
     }
 
+
+    @GetMapping("/chat")
+    public String showChatPage() {
+        // 현재 사용자 정보 가져오기
+        return "admin/chat";
+    }
 }
