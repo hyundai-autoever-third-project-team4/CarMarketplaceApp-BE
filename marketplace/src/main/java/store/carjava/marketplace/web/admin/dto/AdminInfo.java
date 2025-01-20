@@ -1,4 +1,4 @@
 package store.carjava.marketplace.web.admin.dto;
 
-public record AdminInfo(String email, String role) {
+public record AdminInfo(Long adminId, String email, String role) {
 }
