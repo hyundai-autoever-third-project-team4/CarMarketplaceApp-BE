@@ -8,7 +8,9 @@ import org.springframework.stereotype.Repository;
 import store.carjava.marketplace.firebase.entity.FCMToken;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Repository
 public interface FCMTokenRepository extends JpaRepository<FCMToken, Long> {
@@ -19,4 +21,7 @@ public interface FCMTokenRepository extends JpaRepository<FCMToken, Long> {
     @Transactional
     @Query("DELETE FROM FCMToken fcm WHERE fcm.updatedAt < :dateTime")
     void deleteOldTokens(LocalDateTime dateTime);
+
+    @Query("SELECT fcm.fcmToken FROM FCMToken fcm WHERE fcm.user.id IN :userIds")
+    List<String> findAllByUserIdIn(Set<Long> userIds);
 }
