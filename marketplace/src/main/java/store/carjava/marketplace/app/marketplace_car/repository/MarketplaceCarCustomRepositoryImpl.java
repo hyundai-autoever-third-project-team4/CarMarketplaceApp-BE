@@ -45,7 +45,7 @@ public class MarketplaceCarCustomRepositoryImpl implements MarketplaceCarCustomR
         // 메인 쿼리 생성
         var query = queryFactory
                 .selectFrom(marketplaceCar)
-                .innerJoin(marketplaceCarOption)
+                .leftJoin(marketplaceCarOption)
                 .on(marketplaceCarOption.marketplaceCar.id.eq(marketplaceCar.id))
                 .where(
                         modelsIn(marketplaceCar, models),
