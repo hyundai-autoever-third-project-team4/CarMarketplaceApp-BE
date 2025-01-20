@@ -355,7 +355,7 @@
     var messageInput = document.getElementById('messageInput');
     var message = messageInput.value;
     var userId = /*[[${adminInfo.adminId}]]*/ 'default';
-    var receiverId = (userId === 1) ? 2 : 1; // userId가 1이면 receiverId는 2, 아니면 1
+    var receiverId = (userId === 7) ? 2 : 1; // userId가 1이면 receiverId는 2, 아니면 1
 
     if (message.trim() !== '') {
       // ChatMessageRequest 객체 생성
