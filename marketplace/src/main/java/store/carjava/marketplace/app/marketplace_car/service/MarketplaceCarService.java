@@ -2,6 +2,7 @@ package store.carjava.marketplace.app.marketplace_car.service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ import store.carjava.marketplace.app.car_sales_history.dto.CarSalesHistoryInfoDt
 import store.carjava.marketplace.app.car_sales_history.entity.CarSalesHistory;
 import store.carjava.marketplace.app.like.dto.LikeInfoDto;
 import store.carjava.marketplace.app.marketplace_car.entity.MarketplaceCar;
+import store.carjava.marketplace.app.marketplace_car.event.CarSellEvent;
 import store.carjava.marketplace.app.marketplace_car.exception.*;
 import store.carjava.marketplace.app.marketplace_car.repository.MarketplaceCarRepository;
 import store.carjava.marketplace.app.marketplace_car_extra_option.dto.MarketplaceCarExtraOptionInfoDto;
@@ -62,6 +64,7 @@ public class MarketplaceCarService {
     private final MarketplaceCarImageService marketplaceCarImageService;
     private final LikeRepository likeRepository;
     private final ReviewRepository reviewRepository;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     public List<MarketplaceCarResponse> getFilteredCars(List<String> models, List<String> fuelTypes,
                                                         String brand, List<String> colorTypes,
@@ -421,6 +424,9 @@ public class MarketplaceCarService {
 
         // 변경된 차량 저장
         marketplaceCarRepository.save(car);
+
+        // 구매 상태가 차에 대한 event 처리
+        applicationEventPublisher.publishEvent(new CarSellEvent(this, car));
     }
 
 
