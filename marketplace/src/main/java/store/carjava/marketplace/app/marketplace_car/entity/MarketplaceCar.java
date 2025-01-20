@@ -92,7 +92,7 @@ public class MarketplaceCar {
     @JsonIgnore
     private List<Like> likes = new ArrayList<>();
 
-    @OneToMany(mappedBy = "marketplaceCar", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "marketplaceCar", fetch = FetchType.LAZY)
     @JsonIgnore
     private List<CarSalesHistory> carSalesHistories = new ArrayList<>();
 

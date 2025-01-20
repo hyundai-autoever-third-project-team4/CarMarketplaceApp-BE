@@ -406,13 +406,24 @@ public class MarketplaceCarService {
                 .orElseThrow(() -> new IllegalArgumentException("해당 차량을 찾을 수 없습니다."));
 
         // 차량 상태 업데이트
-        car.updateStatus("AVAILABLE_FOR_PURCHASE");
+        //car.updateStatus("AVAILABLE_FOR_PURCHASE");
 
+        car = MarketplaceCar.builder()
+                .id(car.getId())
+                .carDetails(car.getCarDetails())
+                .price(car.getPrice())
+                .status("AVAILABLE_FOR_PURCHASE") // 상태 업데이트
+                .marketplaceRegistrationDate(car.getMarketplaceRegistrationDate())
+                .mainImage(car.getMainImage())
+                .testDriveCenter(car.getTestDriveCenter())
+                .build();
         // 변경된 차량 저장
         marketplaceCarRepository.save(car);
 
+
         // 구매 상태가 차에 대한 event 처리
         applicationEventPublisher.publishEvent(new CarSellEvent(this, car));
+
     }
 
 

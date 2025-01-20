@@ -296,7 +296,7 @@
     // Thymeleaf로부터 userId를 가져옵니다.
     var userId = /*[[${adminInfo.adminId}]]*/ 'default';
 
-    var socket = new SockJS('/ws/chat');
+    var socket = new SockJS('/api/ws/chat');
     var stompClient = Stomp.over(socket);
 
     stompClient.connect({}, function (frame) {
