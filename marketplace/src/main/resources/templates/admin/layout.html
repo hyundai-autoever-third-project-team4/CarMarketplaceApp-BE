@@ -204,45 +204,7 @@
 
 <!-- 중앙 콘텐츠 -->
 <div class="content" layout:fragment="content">
-  <div class="chat-room-header">
-    <h2>관리자 채팅</h2>
-    <button class="btn btn-chat-room" data-bs-toggle="modal" data-bs-target="#chatRoomModal">
-      <i class="fas fa-exchange-alt me-2"></i> 채팅방 이동
-    </button>
-  </div>
-  <!-- 채팅 메시지 표시 영역 -->
-  <div id="chatBox">
-    <!-- 예시 메시지 -->
-    <div class="message receiver">
-      <img src="https://chajava-storage.s3.ap-northeast-2.amazonaws.com/profiles/user1.webp" alt="프로필 이미지" class="profile-img">
-      <div class="message-content">
-        <strong>사용자1:</strong> 안녕하세요!
-        <div class="action-buttons">
-          <button title="좋아요"><i class="fas fa-thumbs-up"></i></button>
-          <button title="답장"><i class="fas fa-reply"></i></button>
-          <button title="공유"><i class="fas fa-share"></i></button>
-        </div>
-      </div>
-    </div>
-    <div class="message sender">
-      <img src="https://chajava-storage.s3.ap-northeast-2.amazonaws.com/profiles/profile.webp" alt="프로필 이미지" class="profile-img">
-      <div class="message-content">
-        <strong>나:</strong> 안녕하세요! 반갑습니다.
-        <div class="action-buttons">
-          <button title="좋아요"><i class="fas fa-thumbs-up"></i></button>
-          <button title="답장"><i class="fas fa-reply"></i></button>
-          <button title="공유"><i class="fas fa-share"></i></button>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="input-group mt-4">
-    <input type="hidden" id="receiverId" th:value="${receiverId}" />
-    <input type="text" id="messageInput" placeholder="메시지를 입력하세요" class="form-control" aria-label="메시지 입력">
-    <button onclick="sendChat()" class="btn btn-primary">
-      <i class="fas fa-paper-plane"></i> 보내기
-    </button>
-  </div>
+
 </div>
 
 <!-- Bootstrap JS Bundle (includes Popper) -->

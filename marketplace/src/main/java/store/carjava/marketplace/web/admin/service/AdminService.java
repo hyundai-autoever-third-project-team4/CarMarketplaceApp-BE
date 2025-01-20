@@ -227,9 +227,14 @@ public class AdminService {
         for (Long topicId : topicIds) {
             User user = userRepository.findById(topicId).orElseThrow(UserIdNotFoundException::new);
 
-            chatRooms.put(topicId, "사용자 [" + user.getName() + "]");
+            chatRooms.put(topicId, "USER : [" + user.getName() + "]");
         }
 
         return chatRooms;
+    }
+
+    public User getUserByTopicId(Long topicId) {
+        return userRepository.findById(topicId)
+                .orElseThrow(UserIdNotFoundException::new);
     }
 }

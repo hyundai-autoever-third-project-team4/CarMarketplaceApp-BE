@@ -50,53 +50,13 @@
                 <h3>채팅방 목록</h3>
                 <ul class="list-group">
                     <li th:each="room : ${chatRooms}" class="list-group-item">
-                        <button class="btn btn-primary"
-                                th:onclick="'navigateToChatRoom(' + ${room.key} + ')'"
-                                th:text="'채팅방 ' + ${room.value}">
-                        </button>
+                        <a th:href="@{'chat/' + ${room.key}}" class="btn btn-primary" th:text="'채팅방 ' + ${room.value}"></a>
                     </li>
                 </ul>
             </div>
 
-            <!-- 채팅창 -->
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h2 class="mb-0"><i class="fas fa-comments"></i> 채팅</h2>
-                </div>
-                <div class="card-body" id="chatBox">
-                    <!-- 채팅 메시지가 여기에 표시됩니다 -->
-                </div>
-                <div class="card-footer">
-                    <div class="input-group">
-                        <input type="hidden" id="receiverId" th:value="${receiverId}" />
-                        <input type="text" id="messageInput" class="form-control" placeholder="메시지를 입력하세요">
-                        <button class="btn btn-primary" onclick="sendChat()">
-                            <i class="fas fa-paper-plane"></i> 전송
-                        </button>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 </div>
-
-<!-- JavaScript -->
-<script th:inline="javascript">
-    function navigateToChatRoom(topicId) {
-        // 채팅방 ID를 기반으로 새 페이지로 이동
-        window.location.href = '/chat/' + topicId;
-    }
-
-    function sendChat() {
-        var messageInput = document.getElementById('messageInput');
-        var message = messageInput.value;
-
-        if (message.trim() !== '') {
-            // 메시지 전송 로직 구현
-            console.log('메시지 전송:', message);
-            messageInput.value = '';
-        }
-    }
-</script>
 </body>
 </html>
