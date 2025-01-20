@@ -28,9 +28,19 @@ public class FCMToken {
     @Column(name = "token", nullable = false)
     private String fcmToken;
 
-    @Column(name = "createdAt")
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
 
-    @Column(name = "updatedAt")
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    public FCMToken updateFCMToken(LocalDateTime updatedAt) {
+        return FCMToken.builder()
+                .id(this.id)
+                .user(this.user)
+                .fcmToken(this.fcmToken)
+                .createdAt(this.createdAt)
+                .updatedAt(updatedAt)
+                .build();
+    }
 }
