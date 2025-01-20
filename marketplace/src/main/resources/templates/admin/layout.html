@@ -302,7 +302,7 @@
     stompClient.connect({}, function (frame) {
       console.log('Connected: ' + frame);
       // /queue/user-{userId}로 구독
-      stompClient.subscribe('https://chajava.store/api/queue/user-' + userId, function (message) {
+      stompClient.subscribe('queue/user-' + userId, function (message) {
         // 메시지 수신 시 처리 로직
         var chatMessage = JSON.parse(message.body);
         displayMessage(chatMessage);
@@ -344,7 +344,7 @@
 
     // 메시지 전송 함수
     window.sendMessage = function (msgObj) {
-      stompClient.send("https://chajava.store/api/app/chat.send", {}, JSON.stringify(msgObj));
+      stompClient.send("app/chat.send", {}, JSON.stringify(msgObj));
     }
   });
 </script>
