@@ -2,6 +2,7 @@ package store.carjava.marketplace.app.marketplace_car.service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -49,6 +50,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -420,6 +422,12 @@ public class MarketplaceCarService {
         // 변경된 차량 저장
         marketplaceCarRepository.save(car);
 
+
+        // 이벤트 발행 전 로그
+        log.info("이벤트 발행 전 차량 정보: id={}, model={}, name={}",
+                car.getId(),
+                car.getCarDetails() != null ? car.getCarDetails().getModel() : "null",
+                car.getCarDetails() != null ? car.getCarDetails().getName() : "null");
 
         // 구매 상태가 차에 대한 event 처리
         applicationEventPublisher.publishEvent(new CarSellEvent(this, car));

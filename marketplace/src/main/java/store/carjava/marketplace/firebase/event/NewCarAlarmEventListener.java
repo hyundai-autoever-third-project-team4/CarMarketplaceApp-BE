@@ -25,6 +25,13 @@ public class NewCarAlarmEventListener {
     @EventListener
     @Transactional
     public void handleNewCarAlarmEvent(CarSellEvent event) throws FirebaseMessagingException {
+
+        // 이벤트 수신 시점 로그
+        log.info("이벤트 수신 시 차량 정보: id={}, model={}, name={}",
+                event.getId(),
+                event.getModel(),
+                event.getName());
+
         //입고된 차랑 동일한 모델을 찜한 사용자를 가져온다.
         Set<Long> userIdList = likeRepository.findUserByMarketplaceCar_CarDetails_Model(event.getModel());
 
