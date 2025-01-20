@@ -20,12 +20,14 @@ import store.carjava.marketplace.app.reservation.dto.ReservationDetailDto;
 import store.carjava.marketplace.app.user.dto.UserSummaryDto;
 import store.carjava.marketplace.app.user.entity.User;
 import store.carjava.marketplace.common.util.user.UserResolver;
+import store.carjava.marketplace.socket.dto.ChatHistoryDto;
 import store.carjava.marketplace.web.admin.dto.AdminInfo;
 import store.carjava.marketplace.web.admin.dto.CarPurchaseDto;
 import store.carjava.marketplace.web.admin.dto.CarSellDto;
 import store.carjava.marketplace.web.admin.service.AdminService;
 
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Controller
@@ -216,8 +218,30 @@ public class AdminController {
 
 
     @GetMapping("/chat")
-    public String showChatPage() {
+    public String showChatPage(Model model) {
+        Map<Long, String> chatRooms = adminService.getAllChattingRooms();
+
+        model.addAttribute("chatRooms", chatRooms);
+
         // 현재 사용자 정보 가져오기
         return "admin/chat";
+    }
+
+    @GetMapping("/chat/{topicId}")
+    public String getChatDetail(@PathVariable("topicId") Long topicId, Model model) {
+        // topic id (receiver id)에 해당하는 유저정보 가져오기
+        User user = adminService.getUserByTopicId(topicId);
+
+        List<ChatHistoryDto> chatHistoryDtos = adminService.getAllChatHistoriesByTopicId(topicId);
+
+        // 모델에 필요한 데이터 추가
+        model.addAttribute("chatHistories", chatHistoryDtos);
+        model.addAttribute("receiverUser", UserSummaryDto.of(user));
+        model.addAttribute("topicId", topicId);
+        model.addAttribute("pageTitle", "채팅방 상세");
+
+        // 필요에 따라 채팅방 정보 및 메시지 목록도 추가
+
+        return "admin/chatDetail"; // chatDetail.html 템플릿을 반환
     }
 }

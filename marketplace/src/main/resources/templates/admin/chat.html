@@ -3,7 +3,7 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{admin/layout}">
 <head>
-    <title>채팅</title>
+    <title>채팅방 목록</title>
     <!-- 부트스트랩 CSS -->
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome CSS -->
@@ -32,32 +32,31 @@
             background-color: #0b5ed7;
             border-color: #0a58ca;
         }
+        .chat-room-list {
+            margin-bottom: 20px;
+        }
+        .chat-room-list button {
+            margin-bottom: 10px;
+            width: 100%;
+        }
     </style>
 </head>
 <body>
 <div layout:fragment="content" class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-8">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h2 class="mb-0"><i class="fas fa-comments"></i> 채팅</h2>
-                </div>
-                <div class="card-body" id="chatBox">
-                    <!-- 채팅 메시지가 여기에 표시됩니다 -->
-                </div>
-                <div class="card-footer">
-                    <div class="input-group">
-                        <input type="hidden" id="receiverId" th:value="${receiverId}" />
-                        <input type="text" id="messageInput" class="form-control" placeholder="메시지를 입력하세요">
-                        <button class="btn btn-primary" onclick="sendChat()">
-                            <i class="fas fa-paper-plane"></i> 전송
-                        </button>
-                    </div>
-                </div>
+            <!-- 채팅방 목록 -->
+            <div class="chat-room-list">
+                <h3>채팅방 목록</h3>
+                <ul class="list-group">
+                    <li th:each="room : ${chatRooms}" class="list-group-item">
+                        <a th:href="@{'chat/' + ${room.key}}" class="btn btn-primary" th:text="'채팅방 ' + ${room.value}"></a>
+                    </li>
+                </ul>
             </div>
+
         </div>
     </div>
 </div>
-
 </body>
 </html>

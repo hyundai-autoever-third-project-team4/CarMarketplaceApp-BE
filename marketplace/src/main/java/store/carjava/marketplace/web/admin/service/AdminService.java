@@ -1,8 +1,10 @@
 package store.carjava.marketplace.web.admin.service;
 
 import jakarta.transaction.Transactional;
+
 import java.io.IOException;
 import java.time.LocalDate;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -29,12 +31,18 @@ import store.carjava.marketplace.app.test_drive_center.exception.TestDriverCente
 import store.carjava.marketplace.app.test_drive_center.repository.TestDriveCenterRepository;
 import store.carjava.marketplace.app.user.dto.UserSummaryDto;
 import store.carjava.marketplace.app.user.entity.User;
+import store.carjava.marketplace.app.user.exception.UserIdNotFoundException;
 import store.carjava.marketplace.app.user.repository.UserRepository;
 import store.carjava.marketplace.common.util.image.ImageUploader;
+import store.carjava.marketplace.socket.dto.ChatHistoryDto;
+import store.carjava.marketplace.socket.entity.ChatHistory;
+import store.carjava.marketplace.socket.repository.ChatHistoryRepository;
 import store.carjava.marketplace.web.admin.dto.CarPurchaseDto;
 import store.carjava.marketplace.web.admin.dto.CarSellDto;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
@@ -51,6 +59,7 @@ public class AdminService {
     private final TestDriveCenterRepository testDriveCenterRepository;
     private final ImageUploader imageUploader;
     private final MarketplaceCarImageService marketplaceCarImageService;
+    private final ChatHistoryRepository chatHistoryRepository;
 
     // 전체 사용자 목록을 페이지네이션으로 가져오는 메서드
     public Page<UserSummaryDto> getUsers(int page, int size) {
@@ -146,14 +155,14 @@ public class AdminService {
     }
 
     public Page<MarketplaceCarSummaryDto> searchCarsByLicensePlate(String licensePlate, int page,
-            int size) {
+                                                                   int size) {
         return marketplaceCarRepository.findByLicensePlateStartingWith(licensePlate,
                         PageRequest.of(page, size))
                 .map(MarketplaceCarSummaryDto::of);
     }
 
     public Page<ReservationDetailDto> getReservationDetails(String reservationName,
-            String licensePlate, String status, String reservationDate, Pageable pageable) {
+                                                            String licensePlate, String status, String reservationDate, Pageable pageable) {
         Page<Reservation> reservationsPage = reservationRepository.findAllWithFilters(
                 reservationName, licensePlate, status, reservationDate, pageable);
         Page<ReservationDetailDto> dtoPage = reservationsPage.map(ReservationDetailDto::fromEntity);
@@ -210,5 +219,32 @@ public class AdminService {
             // 서비스 호출로 DB 저장
             marketplaceCarImageService.saveImages(id, imageUrls);
         }
+    }
+
+    public Map<Long, String> getAllChattingRooms() {
+        List<Long> topicIds = chatHistoryRepository.findDistinctTopicIds();
+
+        // 채팅방 이름은 topicId를 기반으로 생성
+        Map<Long, String> chatRooms = new LinkedHashMap<>();
+        for (Long topicId : topicIds) {
+            User user = userRepository.findById(topicId).orElseThrow(UserIdNotFoundException::new);
+
+            chatRooms.put(topicId, "USER : [" + user.getName() + "]");
+        }
+
+        return chatRooms;
+    }
+
+    public User getUserByTopicId(Long topicId) {
+        return userRepository.findById(topicId)
+                .orElseThrow(UserIdNotFoundException::new);
+    }
+
+    public List<ChatHistoryDto> getAllChatHistoriesByTopicId(Long topicId) {
+        List<ChatHistory> chatHistories = chatHistoryRepository.findAllByTopicIdOrderByCreatedAtAsc(topicId);
+
+        return chatHistories.stream()
+                .map(ChatHistoryDto::from)
+                .toList();
     }
 }
