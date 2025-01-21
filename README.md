@@ -73,33 +73,36 @@
 
 ### 🔧 백엔드
 
-- 🟢 **Java**
-- 🟢 **Querydsl**
-- 🟢 **IntelliJ IDEA**
-- 🟢 **Spring Boot**
-- 🟢 **Thymeleaf**
-- 🟢 **Spring Data JPA**
-- 🟢 **STOMP**
-- 🟢 **RabbitMQ**
-- 🟢 **OAuth2 (Keycloak)**
-- 🟢 **Firebase Admin SDK**
+<img src="https://img.shields.io/badge/IntelliJ%20IDEA-000000?style=for-the-badge&logo=intellijidea&logoColor=white">
+<img src="https://img.shields.io/badge/Spring%20Boot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white">
+<img src="https://img.shields.io/badge/Thymeleaf-005F0F?style=for-the-badge&logo=thymeleaf&logoColor=white">
+<img src="https://img.shields.io/badge/Spring%20Data%20JPA-6DB33F?style=for-the-badge&logo=hibernate&logoColor=white">
+<img src="https://img.shields.io/badge/STOMP-009688?style=for-the-badge&logo=websocket&logoColor=white">
+<img src="https://img.shields.io/badge/RabbitMQ-FF6600?style=for-the-badge&logo=rabbitmq&logoColor=white">
+<img src="https://img.shields.io/badge/OAuth2%20(Keycloak)-35495E?style=for-the-badge&logo=keycloak&logoColor=white">
+<img src="https://img.shields.io/badge/Firebase%20Admin%20SDK-FFCA28?style=for-the-badge&logo=firebase&logoColor=black">
+
+---
 
 ### 🎨 프론트엔드
 
-- 🟡 **TypeScript**
-- 🟡 **VS Code**
-- 🟡 **Vite**
-- 🟡 **TanStack Query**
-- 🟡 **Android Studio**
-- 🟡 **Firebase**
+<img src="https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white">
+<img src="https://img.shields.io/badge/VS%20Code-007ACC?style=for-the-badge&logo=visualstudiocode&logoColor=white">
+<img src="https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white">
+<img src="https://img.shields.io/badge/TanStack%20Query-FF4154?style=for-the-badge&logo=tanstack&logoColor=white">
+<img src="https://img.shields.io/badge/Android%20Studio-3DDC84?style=for-the-badge&logo=androidstudio&logoColor=white">
+<img src="https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black">
+
+---
 
 ### 🚀 배포
 
-- 🟠 **AWS EC2**
-- 🟠 **AWS S3**
-- 🟠 **MySQL**
-- 🟠 **Docker**
-- 🟠 **Nginx**
+<img src="https://img.shields.io/badge/AWS%20EC2-FF9900?style=for-the-badge&logo=amazonec2&logoColor=white">
+<img src="https://img.shields.io/badge/AWS%20S3-569A31?style=for-the-badge&logo=amazons3&logoColor=white">
+<img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white">
+<img src="https://img.shields.io/badge/Nginx-009639?style=for-the-badge&logo=nginx&logoColor=white">
+
+---
 
 
 ## 👥 참여자
