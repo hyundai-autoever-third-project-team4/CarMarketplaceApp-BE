@@ -40,7 +40,7 @@ public class NewCarAlarmEventListener {
                                 .setTitle("새 중고차 입고")
                                 .setBody("내가 찜한 차와 같은 모델이 입고 됐습니다")
                                 .build())
-                        .putData("url", "https://chajava.store/carDetail/HUS241223011180")
+                        .putData("url", "https://chajava.store/carDetail/"+event.getId())
                         .addAllTokens(tokens)
                         .build();
 
